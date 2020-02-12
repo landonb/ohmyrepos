@@ -636,7 +636,13 @@ git_merge_ff_only () {
     #   git_status_check_report_9chars 'mergefail' '  '
     info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
       "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
-    warn "Merge failed! \`merge --ff-only ${to_commit}\` says:"
+    # (lb): So weird: Dubs Vim syntax highlight broken on "... ${to_commit}\` ...".
+    #       For some reason the bracket-slash, }\, causes the rest of file
+    #       to appear quoted. E.g., $to_commit\` is okay but ${to_commit}\`
+    #       breaks my syntax highlighter. - Sorry for the comment non sequitur!
+    #       This remark really has nothing to do with this code. I should take
+    #       my problems offline, I know.
+    warn "Merge failed! \`merge --ff-only $to_commit\` says:"
     warn " ${git_resp}"
     # warn " target_repo: ${target_repo}"
   elif (echo "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
