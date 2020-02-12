@@ -470,6 +470,7 @@ symlink_overlay_typed () {
   symlink_clobber_typed "${srctype}" "${sourcep}" "${targetp}"
 }
 
+# FIXME/2020-02-12 12:39: Are we missing an optional variant of this command?
 symlink_overlay_file () {
   symlink_overlay_typed 'file' "${@}"
 }
