@@ -4,11 +4,3 @@
 lib =
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-exclude.sh"
 
-# MEH: myrepos splits on {\w} but treats underscores specially,
-#   so we can only use letters and numbers in action names. Bah.
-# Default is no-op. Return true so myrepos does not think it failed.
-# Or doesn't report it skipped.
-wireexcludes = true
-# Albeit I seem to use infuse more frequently, e.g.,
-#   infuse = link_private_exclude "${@}"
-
