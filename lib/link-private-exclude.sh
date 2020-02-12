@@ -3,14 +3,14 @@
 
 source_deps () {
   # Load: warn, etc.
-  . ${HOME}/.fries/lib/logger.sh
+  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
 
   # Load: symlink_*
   #       ensure_source_file_exists
   #       ensure_target_writable
   #       is_relative_path
   #
-  . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/overlay-symlink.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

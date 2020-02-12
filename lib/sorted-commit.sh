@@ -12,7 +12,7 @@
 
 source_deps () {
   # Load: warn, etc.
-  . ${HOME}/.fries/lib/logger.sh
+  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -2,5 +2,5 @@
 
 [DEFAULT]
 lib =
-  . "${HOME}/.fries/myrepos/lib/any-action-runtime.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime.sh"
 

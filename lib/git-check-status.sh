@@ -2,7 +2,7 @@
 
 source_deps () {
   # Load: warn, etc.
-  . ${HOME}/.fries/lib/logger.sh
+  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
 }
 
 reveal_biz_vars () {
