@@ -147,6 +147,10 @@ font_highlight () {
   echo "$(fg_lightorange)${1}$(attr_reset)"
 }
 
+font_lesslight () {
+  echo "$(fg_tan)${1}$(attr_reset)"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 is_relative_path () {
@@ -263,7 +267,9 @@ symlink_create_informative () {
     exit 1
   fi
 
-  info " Created fresh $(font_emphasize ${srctype}) symlink $(font_highlight ${targetp})"
+  # Use as many columns as the "Updated ... symlink" messages' final output
+  # columns use (which show filenames and dirnames) so those values align.
+  info " $(font_lesslight "Created") $(font_emphasize ${srctype}) symlink $(font_highlight ${targetp})"
 }
 
 symlink_update_informative () {
@@ -275,6 +281,8 @@ symlink_update_informative () {
   if [ -h "${targetp}" ]; then
     local targetd
     [ "${srctype}" = 'dir' ] && targetd='/' || true
+    # Turn 'dir' into 'dir.' so same count as 'file' and output (filenames and dirnames) align.
+    [ "${srctype}" = 'dir' ] && srctype='dir.' || true
     # Overwriting existing symlink.
     info_msg=" Updated $(font_emphasize ${srctype}) symlink $(font_highlight ${targetp}${targetd})"
   elif [ -f "${targetp}" ]; then
