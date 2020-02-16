@@ -5,7 +5,7 @@
 # so use commented blank lines if you need breaks.
 lib =
   # # Ha! `source` not POSIX, but `.` is.
-  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote.sh"
+  . "sync-travel-remote.sh"
 
 # Call `MR_REMOTE=<host> mr ffssh` to keep any machines with identical
 # directory hierarchies synced, e.g., if you want to switch between

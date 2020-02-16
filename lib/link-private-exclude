@@ -2,5 +2,5 @@
 
 [DEFAULT]
 lib =
-  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-exclude.sh"
+  . "link-private-exclude.sh"
 

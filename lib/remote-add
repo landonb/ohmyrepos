@@ -2,4 +2,4 @@
 
 [DEFAULT]
 lib =
-  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-add.sh"
+  . "remote-add.sh"

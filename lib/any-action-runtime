@@ -2,5 +2,5 @@
 
 [DEFAULT]
 lib =
-  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime.sh"
+  . "any-action-runtime.sh"
 

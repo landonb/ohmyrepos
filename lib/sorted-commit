@@ -2,5 +2,5 @@
 
 [DEFAULT]
 lib =
-  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sorted-commit.sh"
+  . "sorted-commit.sh"
 
