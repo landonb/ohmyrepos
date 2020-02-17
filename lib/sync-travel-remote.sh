@@ -632,7 +632,7 @@ git_merge_ff_only () {
   # We verified `git status --porcelain` indicated nothing before trying to merge,
   # so this could mean the branch diverged from remote, or something. Inform user.
   if [ ${merge_success} -ne 0 ]; then
-    # CXPX/NOT-DRY: This info copied from git-check-status, probably same as:
+    # CXPX/NOT-DRY: This info copied from git-my-merge-status, probably same as:
     #   git_status_check_report_9chars 'mergefail' '  '
     info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
       "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"

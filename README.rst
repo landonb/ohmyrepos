@@ -15,7 +15,7 @@ like this::
 
   include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime"
   include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-auto-commit"
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-check-status"
+  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-my-merge-status"
   include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/infuse-no-op"
   include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-exclude"
   include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-ignore"

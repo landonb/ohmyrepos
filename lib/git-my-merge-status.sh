@@ -112,7 +112,7 @@ git_status_check_any_porcelain_output () {
   fi
 }
 
-git_status_porcelain () {
+git_my_merge_status () {
   git_status_check_reset
   git_status_check_unstaged
   git_status_check_uncommitted
@@ -149,7 +149,7 @@ git_status_porcelain () {
 main () {
   source_deps
   reveal_biz_vars
-  # git_status_porcelain "$@"
+  # git_my_merge_status "$@"
 }
 
 main "$@"
