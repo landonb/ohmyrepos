@@ -6,7 +6,7 @@ source_deps () {
   . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
 
   # Load: 
-  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
+  . "overlay-symlink.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
