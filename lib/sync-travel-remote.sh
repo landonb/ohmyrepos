@@ -493,6 +493,7 @@ git_change_branches_if_necessary () {
     _git_echo_long_op_start 'branchin’'
     #
     if git_is_bare_repository; then
+      git update-ref refs/heads/${source_branch} remotes/${MR_REMOTE}/${source_branch}
       git symbolic-ref HEAD refs/heads/${source_branch}
     else
       local extcd=0
