@@ -56,7 +56,7 @@ git_status_cache_teardown () {
 #         Git versions and regardless of user configuration.
 #
 git_status_check_reset () {
-  DIRTY_REPO=false
+  UNTIDY_REPO=false
 }
 
 git_status_check_report_9chars () {
@@ -77,7 +77,7 @@ git_status_check_unstaged () {
   # ' M' is modified but not added.
   (git status --porcelain | grep "^ M " >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
-    DIRTY_REPO=true
+    UNTIDY_REPO=true
     git_status_check_report_9chars 'unstaged' ' '
   fi
 }
@@ -87,7 +87,7 @@ git_status_check_uncommitted () {
   # 'M ' is added but not committed.
   (git status --porcelain | grep "^M  " >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
-    DIRTY_REPO=true
+    UNTIDY_REPO=true
     git_status_check_report_9chars 'uncommitd'
   fi
 }
@@ -97,16 +97,16 @@ git_status_check_untracked () {
   # '^?? ' is untracked.
   (git status --porcelain | grep "^?? " >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
-    DIRTY_REPO=true
+    UNTIDY_REPO=true
     git_status_check_report_9chars 'untracked'
   fi
 }
 
 git_status_check_any_porcelain_output () {
-  ${DIRTY_REPO} && return
+  ${UNTIDY_REPO} && return
   local n_bytes=$(git status --porcelain | wc -c)
   if [ ${n_bytes} -gt 0 ]; then
-    DIRTY_REPO=true
+    UNTIDY_REPO=true
     warn "UNEXPECTED: \`git status --porcelain\` nonempty output in repo at: “${MR_REPO}”"
     git_status_check_report_9chars 'confusing'
   fi
@@ -118,7 +118,7 @@ git_my_merge_status () {
   git_status_check_uncommitted
   git_status_check_untracked
   git_status_check_any_porcelain_output
-  if ${DIRTY_REPO}; then
+  if ${UNTIDY_REPO}; then
     # (lb): I don't see an easy way to assemble work to tell user to do
     # other than to use an intermediate file, as this function fun in a
     # subprocess (we cannot pass back anything other than an exit code).
