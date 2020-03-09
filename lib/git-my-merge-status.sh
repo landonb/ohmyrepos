@@ -149,7 +149,8 @@ git_my_merge_status () {
 main () {
   source_deps
   reveal_biz_vars
-  # git_my_merge_status "$@"
+  # The myrepos wrapper, git-my-merge-status, calls, e.g.,:
+  #  git_my_merge_status "$@"
 }
 
 main "$@"
