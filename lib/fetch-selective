@@ -1,0 +1,13 @@
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
+
+[DEFAULT]
+lib =
+  . "fetch-selective.sh"
+
+# Override default `fetch`, which specifies `--all` and tacks on $@ as additional
+# arguments. But I don't use args on fetch other than --prune and --tags, which
+# are already specified, and would prefer $@ be used to specify a specific remote;
+# and that by default, instead of --all, that fetch look for my common remotes,
+# 'origin' and 'upstream'.
+git_fetch = fetch_selective "${@}"
+
