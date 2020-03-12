@@ -25,14 +25,14 @@ git_any_command_stopped () {
   local time_elapsed=$(\
     echo "scale=2; ($SETUP_TIME_N - $SETUP_TIME_0) * 100 / 100" | bc -l
   )
-  # We could only show elapsed time if greater than a specific duration. E.g.,
+  # One could only show elapsed time if greater than a specific duration. E.g.,
   #   # NOTE: Use `bc` to output 0 or 1, and use ``(( ... ))`` so the shell
   #   #       interprets the result as false or true respectively.
-  #   if (( $(echo "${time_elapsed} > 0.25" | bc -l) )); then
-    info
-    info "$(attr_bold)$(bg_lime)$(fg_black)Elapsed: ${time_elapsed} secs.$(attr_reset)"
-    info
-  #   fi
+  #   if (( $(echo "${time_elapsed} > 0.25" | bc -l) )); then ... fi
+  # but the author is fine with this hardcoded. We could make config'able, though.
+  info
+  info "$(attr_bold)$(bg_lime)$(fg_black)Elapsed: ${time_elapsed} secs.$(attr_reset)"
+  info
   /bin/rm "${MR_TMP_RNTIME_FILE}"
 }
 
