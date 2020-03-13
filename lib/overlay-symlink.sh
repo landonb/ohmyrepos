@@ -8,40 +8,6 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-if false; then
-  params_has_switch () {
-    local short_arg="$1"
-    local longr_arg="$2"
-    shift 2
-    for arg in "$@"; do
-      for switch in "${short_arg}" "${longr_arg}"; do
-        if [ "${arg}" = "${switch}" ]; then
-          return 0
-        fi
-      done
-    done
-    return 1
-  }
-
-  params_check_force () {
-    params_has_switch '-f' '--force' "${@}"
-  }
-
-  params_check_safe () {
-    params_has_switch '-s' '--safe' "${@}"
-  }
-
-  myrepostravel_opts_parse () {
-    MRT_LINK_SAFE=1
-    params_check_safe "${@}" && MRT_LINK_SAFE=0 || true
-
-    MRT_LINK_FORCE=1
-    params_check_force "${@}" && MRT_LINK_FORCE=0 || true
-  }
-fi
-
-# ***
-
 params_register_defaults () {
   MRT_LINK_SAFE=1
   MRT_LINK_FORCE=1
