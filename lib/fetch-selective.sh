@@ -7,7 +7,7 @@ source_deps () {
 }
 
 reveal_biz_vars () {
-  GITFLU_SYNO_CHECK_REMOTES="${GITFLU_SYNO_CHECK_REMOTES:-origin upstream}"
+  GITFLU_FETCH_REMOTES="${GITFLU_FETCH_REMOTES:-origin upstream}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -43,10 +43,10 @@ fetch_each () {
 
 fetch_selective () {
   local remotes
-  if [ -z "$1" ] && [ -n "${GITFLU_SYNO_CHECK_REMOTES}" ]; then
+  if [ -z "$1" ] && [ -n "${GITFLU_FETCH_REMOTES}" ]; then
     # Because POSIX, only one array, the positional parameters.
     # NOTE: No quotes, else seen as just one var.
-    set -- ${GITFLU_SYNO_CHECK_REMOTES}
+    set -- ${GITFLU_FETCH_REMOTES}
   fi
 
   if [ -z "$1" ]; then
