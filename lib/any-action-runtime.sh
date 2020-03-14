@@ -48,7 +48,7 @@ git_any_command_stopped () {
     [ -z "${time_elapsed}" ] && time_elapsed="$(simple_bc_elapsed "${seconds}")"
     echo -n "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
   fi
-  /bin/rm "${OMR_RUNTIME_TEMPFILE}"
+  /bin/rm -f "${OMR_RUNTIME_TEMPFILE}"
 }
 
 git_any_cache_setup () {
