@@ -123,9 +123,7 @@ git_auto_commit_all () {
   # '?? filename', and ' M filename', so let's be inclusive and
   # just ignore new files, rather than being exclusive and only
   # looking for modified files. If there are untracted files, a
-  # later call to git_status_porcelain on the same repo will die.
-  #
-  #  (git status --porcelain | grep "^\W*M\W*" >/dev/null 2>&1) || extcd=$?
+  # later call to git-status--porcelain on the same repo will die.
   local extcd
   (git status --porcelain | grep "^[^\?]" >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then

@@ -55,24 +55,6 @@ _echon () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_git_echo_cyclones_forange () {
-  # Atrocious:
-  #  echo -e "$(bg_forest)$(fg_lightred)$(printf '🌀 %.0s' {1..36})$(attr_reset)"
-  #  echo -e "$(bg_forest)$(fg_lightorange)$(printf '🌀 %.0s' {1..36})$(attr_reset)"
-  # Not too bad:
-  #  echo -e "$(bg_forest)$(fg_lightorange)$(printf '🌀 %.0s' {1..36})$(attr_reset)"
-  #  echo -e "$(bg_lightred)$(fg_lightorange)$(printf '🌀 %.0s' {1..36})$(attr_reset)"
-  _echo "$(bg_forest)$(fg_lightorange)$(printf '🌀 %.0s' {1..36})$(attr_reset)"
-}
-
-_git_echo_cyclones_bmaroon () {
-  _echo "$(bg_maroon)$(fg_lightorange)$(printf '🌀 %.0s' {1..36})$(attr_reset)"
-}
-
-_git_echo_cyclones_frgreen () {
-  _echo "$(bg_orange)$(fg_lightgreen)$(printf '🌀 %.0s' {1..36})$(attr_reset)"
-}
-
 _git_echo_long_op_start () {
   local right_now="$(date "+%Y-%m-%d @ %T")"
   LONG_OP_MSG=
@@ -326,6 +308,7 @@ git_source_branch_deduce () {
 
 # I don't need this fcn. Reports the tracking branch, (generally 'upstream)
 #   I think, because @{u}. [Not quite sure what that is; *tracking* remote?]
+# WARNING/2020-03-14: (lb): This function not called.
 git_checkedout_remote_branch_name () {
   # Include the name of the remote, e.g., not just feature/foo,
   # but origin/feature/foo.
@@ -372,13 +355,11 @@ git_set_remote_travel () {
   local extcd=0
   local remote_url
   remote_url=$(git remote get-url ${MR_REMOTE} 2>/dev/null) || extcd=$?
-#  #
-#  _git_echo_long_op_finis
 
-  #trace "  git_set_remote_travel:"
-  #trace "   target: ${target_repo}"
-  #trace "   remote: ${remote_url}"
-  #trace "  git-url: ${extcd}"
+  # trace "  git_set_remote_travel:"
+  # trace "   target: ${target_repo}"
+  # trace "   remote: ${remote_url}"
+  # trace "  git-url: ${extcd}"
 
   if [ ${extcd} -ne 0 ]; then
     #trace "  Fresh remote wired for “${MR_REMOTE}”"
