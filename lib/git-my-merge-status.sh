@@ -13,24 +13,26 @@ reveal_biz_vars () {
 
 git_status_cache_setup () {
   ([ "${MR_ACTION}" != 'status' ] && return 0) || true
-#  git_any_cache_setup
   truncate -s 0 ${MR_TMP_CHORES_FILE}
+}
+
+git_status_notify_chores () {
+  local untidy_count="$1"
+  local infl=''
+  local refl=''
+  [ ${untidy_count} -ne 1 ] && infl='s'
+  [ ${untidy_count} -eq 1 ] && refl='s'
+  warn "GRIZZLY! We found ${untidy_count} repo${infl} which need${refl} attention."
+  notice
+  notice "Here's some copy-pasta if you wanna fix it:"
 }
 
 git_status_cache_teardown () {
   ([ "${MR_ACTION}" != 'status' ] && return 0) || true
   local ret_code=0
-#  git_any_command_stopped
   if [ -s ${MR_TMP_CHORES_FILE} ]; then
-    #warn "GRIZZLY! One or more repos need attention."
-    local dirty_count=$(cat "${MR_TMP_CHORES_FILE}" | wc -l)
-    local infl
-    local refl
-    [ ${dirty_count} -ne 1 ] && infl='s' || infl=''
-    [ ${dirty_count} -eq 1 ] && refl='s' || refl=''
-    warn "GRIZZLY! We found ${dirty_count} repo${infl} which need${refl} attention."
-    notice
-    notice "Here's some copy-pasta if you wanna fix it:"
+    local untidy_count=$(cat "${MR_TMP_CHORES_FILE}" | wc -l)
+    git_status_notify_chores "${untidy_count}"
     echo
     cat ${MR_TMP_CHORES_FILE}
     echo
