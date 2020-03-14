@@ -588,6 +588,10 @@ git_merge_ff_only () {
   #   local changes_txt="$(echo "${git_resp}" | grep -P "${pattern_txt}")"
   #   local changes_bin="$(echo "${git_resp}" | grep -P "${pattern_bin}")"
   # So use sed to sandwich each line with color changes.
+  # - Be sure color is enabled, lest:
+  #     /bin/sed: -e expression #1, char 7: unterminated `s' command
+  #   because $() returns empty.
+  HOMEFRIES_NO_COLOR=false
   local grep_sed_sed='
     /bin/sed "s/\$/\\$(attr_reset)/g" |
     /bin/sed "s/^/\\$(bg_blue)/g"
