@@ -1,16 +1,26 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
 source_deps () {
-  # Load: warn, etc.
-  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
+  # Load the log library, which includes `warn`, etc.
+  # - As a side-effect, this also loads the stream-injectable
+  #   color/style library, colors.sh.
+  # - And, because this file is the first `include` from this
+  #   project's .mrconfig-omr, the libraries sourced here will
+  #   be available to all the other ohmyrepos/lib/*.sh scripts.
+  # - Lastly, the .mrconfig-omr file sets, e.g., `lib = PATH=...`
+  #   which enables the path-less source logger.sh here to work.
+  # Load the logger library, from github.com/landonb/sh-logger.
+  . logger.sh
 }
 
 reveal_biz_vars () {
-  # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet for
-  # maintaining data across all repos is to use temporary files.
+  # (lb): Because myrepos uses subprocesses, we cannot share values
+  # using environment variables. So we use a temporary file instead.
   OMR_RUNTIME_TEMPFILE='/tmp/home-fries-myrepos.rntime-ieWeich9kaph5eiR'
 
-  # YOU: Set this to minimum runtime in seconds for elapsed time to be displayed.
+  # YOU: Set this to minimum threshold for elapsed time to be displayed.
+  # - Default: 0 secs., i.e., always show the action runtime (which is just
+  #   a short value in paranetheses before the normal `mr` status report).
   OMR_RUNTIME_MIN_SECS=${OMR_RUNTIME_MIN_SECS:-0}
 }
 

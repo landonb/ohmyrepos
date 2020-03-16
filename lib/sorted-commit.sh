@@ -10,11 +10,6 @@
 #     # - The .vimrc startup file will remake the .spl file when you restart Vim.
 #     sort_file_then_commit '.mrinfuse/.vim/spell/en.utf-8.add'
 
-source_deps () {
-  # Load: warn, etc.
-  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 sort_file_then_commit () {
@@ -47,10 +42,6 @@ sort_file_then_commit () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-main () {
-  source_deps
-}
 
 main "$@"
 

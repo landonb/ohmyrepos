@@ -1,11 +1,6 @@
 #!/bin/sh
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
-source_deps () {
-  # Load: warn, etc.
-  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 params_register_defaults () {
@@ -666,9 +661,8 @@ symlink_mrinfuse_file_first_optional () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  # Don't do anything other than source dependencies.
   # Caller will call functions explicitly as appropriate.
-  source_deps
+  :
 }
 
 main "$@"

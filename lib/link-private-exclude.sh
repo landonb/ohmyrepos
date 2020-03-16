@@ -2,14 +2,6 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
 source_deps () {
-  # Load: warn, etc.
-  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
-
-  # Load: symlink_*
-  #       ensure_source_file_exists
-  #       ensure_target_writable
-  #       is_relative_path
-  #
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
 }
 
@@ -140,15 +132,8 @@ link_private_exclude_force () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  # Don't do anything other than source dependencies.
-  # Caller will call functions explicitly as appropriate.
   source_deps
 }
 
-set -e
-
-# main justs ensures the dependencies are loaded.
-# Caller is expected to call link_private_exclude*
-# as necessary.
 main "${@}"
 

@@ -30,11 +30,6 @@ GIT_BARE_REPO='--bare'
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  # Load: warn, etc.
-  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
-}
-
 reveal_biz_vars () {
   # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet for
   # maintaining data across all repos is to use temporary files.
@@ -775,7 +770,6 @@ git_update_local_fetch_from_device () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  source_deps
   reveal_biz_vars
 }
 

@@ -2,10 +2,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  :
-}
-
 reveal_biz_vars () {
   GITFLU_FETCH_REMOTES="${GITFLU_FETCH_REMOTES:-origin upstream}"
 }
@@ -59,7 +55,6 @@ fetch_selective () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  source_deps
   reveal_biz_vars
   # The myrepos wrapper, git-my-merge-status, calls, e.g.,:
   #  fetch_selective "$@"

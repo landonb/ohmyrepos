@@ -1,10 +1,5 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
-source_deps () {
-  # Load: warn, etc.
-  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
-}
-
 reveal_biz_vars () {
   MR_GIT_AUTO_COMMIT_SAID_HELLO=false
 }
@@ -201,7 +196,6 @@ git_auto_commit_new () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  source_deps
   reveal_biz_vars
 }
 

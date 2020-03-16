@@ -2,10 +2,6 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
 source_deps () {
-  # Load: warn, etc.
-  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
-
-  # Load: 
   . "overlay-symlink.sh"
 }
 

@@ -1,10 +1,5 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
-source_deps () {
-  # Load: warn, etc.
-  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/logger.sh"
-}
-
 reveal_biz_vars () {
   MR_TMP_CHORES_FILE='/tmp/home-fries-myrepos.chores-ieWeich9kaph5eiR'
 }
@@ -149,7 +144,6 @@ git_my_merge_status () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  source_deps
   reveal_biz_vars
   # The myrepos wrapper, git-my-merge-status, calls, e.g.,:
   #  git_my_merge_status "$@"
