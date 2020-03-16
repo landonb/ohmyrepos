@@ -23,10 +23,7 @@
 
 MR_APP_NAME='mr'
 
-#GIT_BARE_REPO=''
-# FIXME/2019-09-27 10:48: Make always --bare, but only to NEW sync stick!
 GIT_BARE_REPO='--bare'
-#GIT_BARE_REPO=${GIT_BARE_REPO:-}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 

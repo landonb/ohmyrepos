@@ -28,6 +28,5 @@ git_travel = ( set -e ; git_update_device_fetch_from_local "$@" )
 # a --bare remote maintained locally (typically mounted as necessary,
 # say, using an encrypted filesystem). Call, i.e., `MR_DEVICE=<> mr update`.
 # ... 2019-10-23 22:59: Or maybe I want to call it `mr unpack`...
-#git_update = ( set -e ; git_update_local_fetch_from_device "$@" )
 git_unpack = ( set -e ; git_update_local_fetch_from_device "$@" )
 
