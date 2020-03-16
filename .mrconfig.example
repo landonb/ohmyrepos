@@ -1,0 +1,195 @@
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=dosini
+
+# USAGE: Copy the following 4-line [DEFAULT] section to your uesr's
+#        ~/.mrconfig file to load and use OhMyRepos.
+#
+#        - The remainder of the file after that provides an example
+#          of how the author has their config file... configured.
+
+[DEFAULT]
+include =
+  export OHMYREPOS_LIB="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# NOTE: The remainder of this file is just to inspire you, and
+#       to show you how the author harnesses the power of myrepos.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+#   Home, itself
+
+# Example of a private home repository, which you could clone from
+# another machine. Use case: to setup a new computer, you could
+# clone the repos off an old computer.
+# - Note that user home is a special case for myrepos, because the
+#   target directory ($HOME) already exists. So we do a little
+#   dance to copy files into home.
+[${HOME}]
+checkout =
+  [ -z ${MR_REMOTE} ] && fatal 'You must set MR_REMOTE'
+  git clone "${MR_REMOTE}/${MR_HOME:-${HOME}}" '/tmp/myhome'
+  shopt -s dotglob
+  /bin/mv --no-clobber /tmp/myhome/* ${HOME}/
+  shopt -u dotglob
+  rmdir /tmp/myhome/
+
+# Include this project in the 'home' group so you can call, e.g.:
+#   MR_INCLUDE=home mr -d / ls
+skip = mr_exclusive "home"
+
+# (lb): Note that I don't use the private repo at $HOME to track dotfiles.
+# - All my dotfiles are instead under two other repos, a public one
+#   at ~/.homefries, and a private one at ~/.waffle (get it!).
+# - The private repo at $HOME is just a mechanism for me to track changes
+#   to the home directory. Indeed, the $HOME repo has only one file
+#   committed -- a very lengthy and well-commented ~/.gitignore file
+#   that I use to keep notes on what files are in the home directory.
+#   This means I also get alerted when things change in the home directory.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+#  Home Fries (published dotfiles)
+
+# As mentioned in the previous comment, I keep what dotfiles I can
+# in a public repo online, which I store locally at ~/.homefries.
+[${HOME}/.homefries]
+checkout = git clone 'git@github.com:landonb/home-fries.git' '.homefries'
+
+# On top of the public repo I layer some private files, which
+# are setup via the `infuse` task, e.g.:
+#   mr -d / infuse
+# These private files include a git exclude file, a (rip)grep ignore file,
+# and a script that creates symlinks in the home directory to point to the
+# actual dotfiles stored under ~/.homefries (like ~/.bashrc).
+infuse =
+  # Wire a private git exclude file. Keep your private file at
+  # ~/.mrinfuse/.homefries/_git/info/exclude, and this action
+  # will create a symlink from ~/.homefries/.gitignore.local to
+  # the git exclude, ~/.git/info/exclude, which will point to yours.
+  link_private_exclude "${@}"
+  #
+  # Wire a private grep ignore file. Keep the private file at
+  # ~/.mrinfuse/.homefries/.ignore, and this action will create
+  # a symlink at ~/.homefries/.ignore.
+  link_private_ignore "${@}"
+  #
+  # If you have additional setup tasks, you could list them here,
+  # or you could stuff them all in another shell script, e.g.,
+  ${MR_HOME:-${HOME}}/.waffle/infuse-homefries "${@}"
+
+# Use 'order' to process ~/.homefries after ~/.waffle, because
+# waffle-fries contains the home-fries infuse script.
+order = 11
+
+# Add to the 'home' group, e.g., `MR_INCLUDE=home mr -d / ls`.
+skip = mr_exclusive "home"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+#  Waffle Fries (private dotfiles)
+
+# For private dotfiles, rather than storing them in the repo at $HOME,
+# which would be a hassle to manage alongside the other noise under
+# home (see long comment above), I have a home-fries complementary
+# project, endearingly called waffle (fries).
+[${HOME}/.waffle]
+# Like we do for the $HOME repo, checkout from a peer machine.
+checkout = [ -z ${MR_REMOTE} ] && fatal 'You must set MR_REMOTE' ||
+  git clone "${MR_REMOTE}/${MR_HOME:-${HOME}}/.waffle" '.waffle'
+
+# Similar to home-fries, run a private infuse script.
+infuse = ${MR_HOME:-${HOME}}/.waffle/infuse-waffle "${@}"
+
+# The myrepos default order is 10, so this changes nothing, but
+# it illustrates that ~/.waffle precedes ~/.homefries, to ensure
+# that the home-fries infuse file is present and up to date. 
+order = 10
+
+#  Auto Commits
+# --------------
+# “I trust you.”
+#
+# The 'autocommit' action is a powerful -- and potentially harmful --
+# tool for a busy, active Git lifestyle. The autocommit feature lets
+# you makes changes and commit those changes without (a) reviewing
+# your changes, or (b) writing a meaningful commit message. This
+# feature is the antipattern of sane commits! It's essentially a
+# WIP commit of whatever files you trust enough to just toss in
+# the mix.
+# - In this example, there are two private Vim files used by the
+#   project.vim plugin that are stored under ~/.waffle. These two
+#   files change frequently but do not need to be reviewed before
+#   checkin.
+# - There's also the Vim spell file, which gets special treatment:
+#   not only will the file be committed, but it'll be sorted first.
+#
+# To run the autocommit command, try, e.g.,:
+#   mr -d / autocommit
+# or make it even simpler and wire to a short alias, say,:
+#   alias aci="mr -d / autocommit -y"
+# Note that `-y` wikk answer yes to all prompts, otherwise autocommit
+# will inform you of changes and prompt (annoy) you for confirmation.
+autocommit =
+  git_auto_commit_parse_args "${@}"
+  #
+  # Auto-commit project.vim files.
+  # - Note that infuse-waffle makes symlinks, e.g.,
+  #     ~/.vim/my-vimprojects/.vimprojects ->
+  #       ~/.waffle/home/.vim/my-vimprojects/.vimprojects
+  git_auto_commit_one 'home/.vim/my-vimprojects/.vimprojects'
+  git_auto_commit_one 'home/.vim/dubs_grep_steady/dubs_projects.vim'
+  #
+  # Sort the spell file, for easy diff'ing, or merging/meld'ing.
+  # - The .vimrc startup file will remake the .spl file when you restart Vim.
+  sort_file_then_commit 'home/.vim/spell/en.utf-8.add'
+
+skip = mr_exclusive "home"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+#  Dubs Vim (~/.vim foundation and lightweight ~/.vimrc)
+
+# This is just shameless self-promotion. What can I say, I love Vim!
+# You should check out my awesome Vim packages!
+
+[${HOME}/.vim]
+checkout = git clone 'git@github.com:landonb/dubs-vim.git' '.vim'
+# I use `chain` here because I have, like, 50 packages cloned for
+# Vim, which I manage through ~/.vim/.mrconfig, which this action
+# will cause to be loaded (though not without `~/.vim/.mrconfig`
+# also being listed in the ~/.mrtrust file).
+chain = true
+infuse = ${MR_HOME:-${HOME}}/.waffle/infuse-vim "${@}"
+# Add to 'vim' group, à la `MR_INCLUDE=vim mr -d / ls`.
+skip = mr_exclusive "vim"
+
+# NOTE: The autocommit for ~/.vim/spell/spell/en.utf-8.add
+#   in under ~/.waffle, above.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+#  Oh, My Repos! (this project, hello!)
+
+[${HOME}/.ohmyrepos]
+checkout = git clone 'git@github.com:landonb/ohmyrepos.git' '.ohmyrepos'
+infuse =
+  link_private_exclude "${@}"
+  link_private_ignore "${@}"
+skip = mr_exclusive "home"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+#  Notes & Such
+
+# This is example of how autocommit can be used to stage and commit all
+# tracked and untracked files in a repository. This technique could be
+# used to track notes files if you don't care so much about auditing
+# commits or writing special commit messages (b/c they're just notes!).
+# - This example is different than previous examples: it shows the
+#   'git_auto_commit_new' option.
+
+[/path/to/my-notes]
+checkout = [ -z ${MR_REMOTE} ] && fatal 'You must set MR_REMOTE' ||
+  git clone "${MR_REMOTE}/path/to/my-notes" 'my-notes'
+autocommit = git_auto_commit_all "${@}" && git_auto_commit_new "${@}"
+# This example also shows how to include the project in multiple groups, e.g.,
+# use `MR_INCLUDE=personal mr -d / ls`
+#  or `MR_INCLUDE=notes mr -d / ls`
+#  or a plain `mr -d / ls` to include this project.
+skip = mr_exclusive "personal" && mr_exclusive "notes"
+
