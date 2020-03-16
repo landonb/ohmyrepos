@@ -1,0 +1,117 @@
+#!/bin/bash
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=dosini
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/ohmyrepos#😤
+# License: MIT
+
+# USAGE: Source this script from your own ~/.mrconfig, e.g.,:
+#
+#         - Trust this file first:
+#
+#           $ echo "/path/to/ohmyrepos/.mrconfig-omr" >> ~/.mrtrust
+#
+#         - Sourch this file from your user's ~/.mrconfig:
+#
+#           $ cat >> ~/.mrconfig <<'EOF'
+#           [DEFAULT]
+#           lib =
+#             OHMYREPOS_LIB="${OHMYREPOS_LIB:-/path/to/ohmyrepos/lib}"
+#             SHCOLORS_BIN="${SHCOLORS_BIN:-/path/to/sh-colors/bin}"
+#             SHLOGGER_BIN="${SHLOGGER_BIN:-/path/to/sh-logger/bin}"
+#           include =
+#             cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
+#           EOF
+#
+#           (or look at `.mrconfig.example`, in this project!).
+#
+#         - Then use it! E.g.,
+#
+#           $ mr -d / mystatus
+
+[DEFAULT]
+# So that the scripts themselves can perform worry-free sourcing,
+# add the OMR lib to PATH.
+lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.local/bin}"
+
+# Add the "shoilerplate" dependencies to PATH.
+# - Wire the color library:
+#   https://github.com/landonb/sh-colors.
+lib = PATH="${PATH}:${SHCOLORS_BIN:-${HOME}/.local/bin}"
+# - Wire the logger library:
+#   https://github.com/landonb/sh-logger.
+lib = PATH="${PATH}:${SHLOGGER_BIN:-${HOME}/.local/bin}"
+
+[DEFAULT]
+# Oh My Repos offers a handful of actions and utilities, included here,
+# one-by-one. Each of these files -- each a mrconfig file -- use `lib =`
+# to load their corresponding shell (.sh) file (so these `include` calls
+# must follow the `lib = PATH` calls, above).
+# - Note that it's difficult to debug parse errors with glob, e.g.,
+#     include = cat ${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/*
+#   because any line number printed will not be very meaningful.
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/fetch-selective"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-auto-commit"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-my-merge-status"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/infuse-no-op"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-exclude"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-ignore"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-add"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-grouping"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sorted-commit"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote"
+
+[DEFAULT]
+# Use the _append feature to chain setup and teardown functions.
+setup_dispatch_append = git_any_cache_setup "${@}"
+setup_dispatch_append = git_status_cache_setup "${@}"
+setup_dispatch_append = git_travel_cache_setup "${@}"
+teardown_dispatch_append = git_travel_cache_teardown "${@}"
+teardown_dispatch_append = git_status_cache_teardown "${@}"
+# Order matters: Ensure the 'any' teardown is last, so it runs last.
+teardown_dispatch_append = git_any_cache_teardown "${@}"
+
+[DEFAULT]
+# For all actions (any action), do not print blank line between repos.
+no_print_sep = true
+
+# For mystatus action, do not print action or directory header line.
+no_print_action_mystatus = true
+no_print_dir_mystatus = true
+# For mystatus action, do not print if repo fails (action will do it).
+no_print_failed_mystatus = true
+
+# Likewise for `ffssh`...
+no_print_action_ffssh = true
+no_print_dir_ffssh = true
+no_print_failed_ffssh = true
+
+# ... and the `travel` command.
+no_print_action_travel = true
+no_print_dir_travel = true
+no_print_failed_travel = true
+
+# ... and the `unpack` command.
+no_print_action_unpack = true
+no_print_dir_unpack = true
+no_print_failed_unpack = true
+
+# ... and the `autocommit` command.
+# Note also the `[DEFAULT] autocommit = true`,
+# below, which further reduces amount of output.
+no_print_action_autocommit = true
+no_print_dir_autocommit = true
+no_print_failed_autocommit = true
+
+# 2020-03-14: (lb): I added these 2 no-prints to try quieter
+# `run` commands, e.g., `mr -d / run bash -c '...'`. While I
+# am not committed (yet) to keeping these, so far, I like.
+no_print_dir_run = true
+no_print_failed_run = true
+
+[DEFAULT]
+# Default the `autocommit` action true so that, for projects
+# that do not define this action, `mr -d / autocommit` will
+# not report 'failed'.
+autocommit = true
+
