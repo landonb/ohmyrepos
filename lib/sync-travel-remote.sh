@@ -583,7 +583,7 @@ git_merge_ff_only () {
   # - Be sure color is enabled, lest:
   #     /bin/sed: -e expression #1, char 7: unterminated `s' command
   #   because $() returns empty.
-  HOMEFRIES_NO_COLOR=false
+  SHCOLORS_OFF=false
   local grep_sed_sed='
     /bin/sed "s/\$/\\$(attr_reset)/g" |
     /bin/sed "s/^/\\$(bg_blue)/g"
