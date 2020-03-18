@@ -49,7 +49,7 @@ git_any_command_started () {
 
 git_any_command_stopped () {
   local setup_time_0=$(cat "${OMR_RUNTIME_TEMPFILE}")
-  [ -z ${setup_time_0} ] && error "ERROR:" \
+  [ -z "${setup_time_0}" ] && error "ERROR:" \
     "Missing start time! Be sure to call \`git_status_cache_setup\`."
   local setup_time_n="$(date +%s.%N)"
   local seconds=$(echo "${setup_time_n} - ${setup_time_0}" | bc -l)
