@@ -302,7 +302,7 @@ git_report_fancy () {
   _debug "${rpath}  ${synop}"
 }
 
-git_report_quick () {
+git_report_short_unchanged () {
   _debug "  $(attr_emphasis)$(git_status_format_minty "unchanged")  " \
     "$(git_status_format_minty "${MR_REPO}")"
 }
@@ -321,8 +321,8 @@ git_my_merge_status () {
 
   if ${OMR_MYSTATUS_FANCY}; then
     git_report_fancy
-  else
-    git_report_quick
+  elif ! ${UNTIDY_REPO}; then
+    git_report_short_unchanged
   fi
 
   # Return falsey/1 in repo has chore work, so `mr` marks repo as failed,
