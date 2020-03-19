@@ -79,13 +79,13 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote"
 # Use the _append feature to chain setup and teardown functions.
 setup_dispatch_append = git_any_cache_setup "${@}"
 # Optional: https://github.com/landonb/git-my-merge-status
-setup_dispatch_append = command -v "git_status_cache_setup" &&
+setup_dispatch_append = command -v "git_status_cache_setup" > /dev/null &&
   git_status_cache_setup "${@}"
 setup_dispatch_append = git_travel_cache_setup "${@}"
 
 teardown_dispatch_append = git_travel_cache_teardown "${@}"
 # Optional: https://github.com/landonb/git-my-merge-status
-teardown_dispatch_append = command -v "git_status_cache_teardown" &&
+teardown_dispatch_append = command -v "git_status_cache_teardown" > /dev/null &&
   git_status_cache_teardown "${@}"
 # Order matters: Ensure the 'any' teardown is last, so it runs last.
 teardown_dispatch_append = git_any_cache_teardown "${@}"
