@@ -7,10 +7,8 @@
 #          of how the author has their config file... configured.
 
 [DEFAULT]
-lib =
-  OHMYREPOS_LIB="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
-include =
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
+lib = OHMYREPOS_LIB="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # NOTE: The remainder of this file is just to inspire you, and
