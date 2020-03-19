@@ -7,8 +7,9 @@
 #          of how the author has their config file... configured.
 
 [DEFAULT]
+lib =
+  OHMYREPOS_LIB="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
 include =
-  export OHMYREPOS_LIB="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

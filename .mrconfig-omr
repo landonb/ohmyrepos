@@ -4,13 +4,38 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-# USAGE: Source this script from your own ~/.mrconfig, e.g.,:
+# USAGE: Source this script from your own ~/.mrconfig.
+#
+#        If you clone ohmyrepos to, e.g., ~/.ohmyrepos, it's easy:
 #
 #         - Trust this file first:
 #
-#           $ echo "/path/to/ohmyrepos/.mrconfig-omr" >> ~/.mrtrust
+#           $ echo "${HOME}/.ohmyrepos/.mrconfig-omr" >> ~/.mrtrust
 #
 #         - Sourch this file from your user's ~/.mrconfig:
+#
+#           $ cat >> ~/.mrconfig <<'EOF'
+#           [DEFAULT]
+#           lib = OHMYREPOS_LIB="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+#           include = cat "${OHMYREPOS_LIB}/../.mrconfig-omr"
+#           EOF
+#
+#         - Then use it! E.g.,
+#
+#           $ mr -d / mystatus
+#
+#         - For more inspiration, look at `.mrconfig.example`.
+
+[DEFAULT]
+# So that the scripts themselves can perform worry-free sourcing,
+# add the OMR lib to PATH.
+lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+
+# Also add the "shoilerplate" dependencies to PATH.
+#
+# Note that ohmyrepos will default to the dependencies committed to this
+# project, under deps/. But if you checked them out separately, use the
+# two environs, SHCOLORS_BIN and SHLOGGER_BIN, to specify their paths, e.g.,
 #
 #           $ cat >> ~/.mrconfig <<'EOF'
 #           [DEFAULT]
@@ -18,28 +43,16 @@
 #             OHMYREPOS_LIB="${OHMYREPOS_LIB:-/path/to/ohmyrepos/lib}"
 #             SHCOLORS_BIN="${SHCOLORS_BIN:-/path/to/sh-colors/bin}"
 #             SHLOGGER_BIN="${SHLOGGER_BIN:-/path/to/sh-logger/bin}"
-#           include =
-#             cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
+#           include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
 #           EOF
-#
-#           (or look at `.mrconfig.example`, in this project!).
-#
-#         - Then use it! E.g.,
-#
-#           $ mr -d / mystatus
 
-[DEFAULT]
-# So that the scripts themselves can perform worry-free sourcing,
-# add the OMR lib to PATH.
-lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.local/bin}"
-
-# Add the "shoilerplate" dependencies to PATH.
 # - Wire the color library:
 #   https://github.com/landonb/sh-colors.
-lib = PATH="${PATH}:${SHCOLORS_BIN:-${HOME}/.local/bin}"
+lib = PATH="${PATH}:${SHCOLORS_BIN:-${OHMYREPOS_LIB}/../deps/sh-colors/bin}"
+
 # - Wire the logger library:
 #   https://github.com/landonb/sh-logger.
-lib = PATH="${PATH}:${SHLOGGER_BIN:-${HOME}/.local/bin}"
+lib = PATH="${PATH}:${SHLOGGER_BIN:-${OHMYREPOS_LIB}/../deps/sh-logger/bin}"
 
 [DEFAULT]
 # Oh My Repos offers a handful of actions and utilities, included here,
