@@ -10,51 +10,31 @@ command extensions and actions.
 Setup
 #####
 
-Add a bunch of includes and appends to the top of your ``.mrconfig``,
-like this::
+For the following setup, you'll want to clone this project
+to ``${HOME}/.ohmyrepos``, or you'll want to set the
+``OHMYREPOS_LIB`` variable accordingly.
 
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime"
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-auto-commit"
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-my-merge-status"
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/infuse-no-op"
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-exclude"
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-ignore"
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-add"
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sorted-commit"
-  include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote"
+To use ohmyrepos, include its config file.
 
-You could instead include them all at once, but then the files are concatenated
-together, which makes it difficult to debug, because then lines number make
-no sense, e.g.,::
+First, tell ``mr`` to trust the config file.::
 
-  # include = cat ${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/*
+  OMR_CONFIG="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
+  echo "$(readlink -e --  "${OMR_CONFIG}")" >> ~/.mrtrust
 
-To take full advantage of all the features (discussed below),
-wire the additional behavior, as well::
+Then source the config from your own ``~/.mrconfig``::
 
-  [DEFAULT]
-  # Use the _append feature to chain setup and teardown functions.
-  # Also: The any-teardown comes last, so it runs last.
-  setup_dispatch_append = git_any_cache_setup "${@}"
-  setup_dispatch_append = git_status_cache_setup "${@}"
-  setup_dispatch_append = git_travel_cache_setup "${@}"
-  teardown_dispatch_append = git_travel_cache_teardown "${@}"
-  teardown_dispatch_append = git_status_cache_teardown "${@}"
-  teardown_dispatch_append = git_any_cache_teardown "${@}"
+   $ cat >> ~/.mrconfig <<'EOF'
+   [DEFAULT]
+   lib = OHMYREPOS_LIB="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+   include = cat "${OHMYREPOS_LIB}/../.mrconfig-omr"
+   EOF
 
-  [DEFAULT]
-  autocommit = true
+Finally, use it! E.g.,::
 
-############
-Dependencies
-############
+  mr -d / mystatus
 
-This project uses Bash functionality from my Bash dotfiles project,
-`home-fries <https://github.com/landonb/home-fries>`__.
-
-- Clone the repo to ``$HOME/.homefries``,
-  or set the ``OHMYREPOS_LIB`` environment variable
-  to the path to the ``home-fries/lib`` directory.
+Bonus: For inspiration of how you might like to setup your ``~/.mrconfig``,
+take a look at ``.mrconfig.example``.
 
 ############################
 Usage: ``.mrconfig`` Actions
