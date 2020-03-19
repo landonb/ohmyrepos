@@ -31,10 +31,22 @@ Then source the config from your own ``~/.mrconfig``::
 
 Finally, use it! E.g.,::
 
-  mr -d / mystatus
+  mr -d / autocommit
 
-Bonus: For inspiration of how you might like to setup your ``~/.mrconfig``,
-take a look at ``.mrconfig.example``.
+ohmyrepos defines a few actions, but mostly it's a collection
+of useful shell functions that you can add to your ``.mrconfig``
+files.
+
+For some inspiration on how you might like to setup your
+``~/.mrconfig``, take a look at ``.mrconfig.example``.
+
+Also keep reading for a description of actions and commands.
+
+Consider also installing the excellent
+`git-my-merge-status <https://github.com/landonb/git-my-merge-status>`__.
+which provides the colorful and information-packed ``mystatus`` action::
+
+  mr -d / mystatus
 
 ############################
 Usage: ``.mrconfig`` Actions
