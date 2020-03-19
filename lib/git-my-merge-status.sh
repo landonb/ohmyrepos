@@ -136,11 +136,16 @@ git_status_check_reset () {
   UNTIDY_REPO=false
 }
 
-git_mrrepo_not_git_root () {
+git_mrrepo_at_git_root () {
   # When a git command runs, the working directory is set to the project root,
   # and $GIT_PREFIX reflects the subdirectory, if any, where the command ran.
   # But this isn't a git command, so check with rev-parse, rather than [ -d .git/ ].
-  [ "$(git rev-parse --show-toplevel)" = "$(pwd)" ] && return 1 || return 0
+  if [ "$(git rev-parse --show-toplevel)" = "$(pwd)" ] ||
+     [ "$(git rev-parse --show-toplevel)" = "$(pwd -P)" ]; \
+   then
+    return 0
+  fi
+  return 1
 }
 
 # ***
@@ -311,7 +316,7 @@ git_my_merge_status () {
   insist_installed
 
   git_status_check_reset
-  git_mrrepo_not_git_root && return 0
+  git_mrrepo_at_git_root || return 0
   git_status_check_unstaged
   git_status_check_uncommitted
   git_status_check_untracked
