@@ -462,6 +462,13 @@ git_change_branches_if_necessary () {
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
 
+  local wasref newref
+  if git_is_bare_repository; then
+    wasref="$(git show-ref -s refs/heads/master)"
+    git update-ref refs/heads/${source_branch} remotes/${MR_REMOTE}/${source_branch}
+    newref="$(git show-ref -s refs/heads/master)"
+  fi
+
   if [ "${source_branch}" != "${target_branch}" ]; then
     _git_echo_long_op_start 'branchin’'
     #
@@ -483,6 +490,12 @@ git_change_branches_if_necessary () {
     info "  $(fg_mintgreen)$(attr_emphasis)✓ checkout $(attr_reset)" \
       "$(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
+  elif [ "${wasref}" != "${newref}" ]; then
+    # FIXME/2020-03-21: Added this elif and info, not sure I want to keep.
+    info "  $(fg_mintgreen)$(attr_emphasis)✓ updt-ref $(attr_reset)" \
+      "${target_branch}: " \
+      "$(fg_lightorange)$(attr_underline)${wasref}$(attr_reset)" \
+      "》$(fg_lightorange)$(attr_underline)${newref}$(attr_reset)"
   fi
 
   cd "${before_cd}"
