@@ -443,6 +443,11 @@ git_fetch_remote_travel () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+git_show_ref_master_sha8 () {
+  git show-ref -s refs/heads/master |
+    /bin/sed 's/^\(.\{8\}\).*/\1/'
+}
+
 git_change_branches_if_necessary () {
   local source_branch="$1"
   local target_branch="$2"
@@ -464,9 +469,9 @@ git_change_branches_if_necessary () {
 
   local wasref newref
   if git_is_bare_repository; then
-    wasref="$(git show-ref -s refs/heads/master)"
+    wasref="$(git_show_ref_master_sha8)"
     git update-ref refs/heads/${source_branch} remotes/${MR_REMOTE}/${source_branch}
-    newref="$(git show-ref -s refs/heads/master)"
+    newref="$(git_show_ref_master_sha8)"
   fi
 
   if [ "${source_branch}" != "${target_branch}" ]; then
