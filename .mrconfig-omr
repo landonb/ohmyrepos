@@ -53,6 +53,7 @@ lib = PATH="${PATH}:${SHCOLORS_BIN:-${OHMYREPOS_LIB}/../deps/sh-colors/bin}"
 # - Wire the logger library:
 #   https://github.com/landonb/sh-logger.
 lib = PATH="${PATH}:${SHLOGGER_BIN:-${OHMYREPOS_LIB}/../deps/sh-logger/bin}"
+lib = LOG_LEVEL=${LOG_LEVEL_INFO}
 
 [DEFAULT]
 # Oh My Repos offers a handful of actions and utilities, included here,
