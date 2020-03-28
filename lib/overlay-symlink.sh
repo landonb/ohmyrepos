@@ -431,6 +431,8 @@ symlink_overlay_typed () {
   local sourcep="$2"
   local targetp="${3:-$(basename "${sourcep}")}"
 
+  params_register_defaults
+
   # Caller cd'ed us to "${MR_REPO}".
 
   # Uses CLI params to check -s/--safe or -f/--force.
@@ -513,7 +515,7 @@ mrinfuse_findup_canonic () {
   dirpath="$(dirname -- "$(readlink -m "$(pwd)")")"
   mr_root="$(dirname -- "$(readlink -m "${MR_CONFIG}")")"
   while [ "${dirpath}" != '/' ]; do
-    local trypath="${dirpath}/${MRT_INFUSE_DIR}"
+    local trypath="${dirpath}/${MRT_INFUSE_DIR:-.mrinfuse}"
     if [ -d "${trypath}" ]; then
       echo "${dirpath}"
       break
@@ -529,7 +531,7 @@ mrinfuse_findup () {
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
   local dirpath=""
   while [ -z "${dirpath}" -o "$(readlink -m \"${dirpath}\")" != '/' ]; do
-    if [ -d "${dirpath}${MRT_INFUSE_DIR}" ]; then
+    if [ -d "${dirpath}${MRT_INFUSE_DIR:-.mrinfuse}" ]; then
       echo "${dirpath}"
       return 0
     fi
@@ -571,7 +573,8 @@ path_to_mrinfuse_resolve () {
       mrinfuse_full=$(readlink -m '.')
     fi
     relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
-    mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR}/${relative_path}${fpath}"
+    mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR:-.mrinfuse}/${relative_path}${fpath}"
+
     # MAYBE/2020-01-23: Option to return full path?
     #                     canonicalized=$(readlink -m "${mrinfuse_path}")
     #                   - I like the shorter relative path.
@@ -590,6 +593,8 @@ symlink_mrinfuse_typed () {
   local optional="$2"
   local lnkpath="$3"
   local targetp="${4:-${lnkpath}}"
+
+  params_register_defaults
 
   local before_cd="$(pwd -L)"
   cd "${MR_REPO}"
