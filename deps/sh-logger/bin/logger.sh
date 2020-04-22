@@ -33,8 +33,14 @@ source_deps () {
   # Allow user to symlink executables and not libraries.
   prefix="$(dirname -- "$(readlink -e -- "${thispth}")")"
 
+  #                                                                 |
+  # *** end boilerplate. -------------------------------------------|
+
   # https://github.com/landonb/sh-colors
   _source_it "${prefix}" "../deps/sh-colors/bin" "colors.sh"
+
+  # *** finish with boilerplate. -----------------------------------|
+  #                                                                 |
 
   ! ${depsnok}
 }
