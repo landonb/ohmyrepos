@@ -22,6 +22,7 @@ reveal_biz_vars () {
   # that the user can run my-merge-status separately simultanesouly.
   OMR_MYSTATUS_TMP_CHORES_FILE="/tmp/gitsmart-ohmyrepos-mystatus-chores-${PPID}"
   OMR_MYSTATUS_TMP_TIMEIT_FILE="/tmp/gitsmart-ohmyrepos-mystatus-timeit-${PPID}"
+  OMR_MYSTATUS_TMP_FLPFLP_FILE="/tmp/gitsmart-ohmyrepos-mystatus-flpflp-${PPID}"
   # MAYBE/2020-02-26: Could adjust width based on terminal width.
   OMR_MYSTATUS_ECHO_PATH_WIDTH=${OMR_MYSTATUS_ECHO_PATH_WIDTH:-60}
 
@@ -76,13 +77,18 @@ print_status () {
     fi
   fi
 
-  echo "${prefix}${@}"
+# FIXME/2020-04-28 02:50: make optional:
+  # echo "${prefix}${@}"
+  # Alternate line backgrounds: Replace $(attr_reset) with same + bg color,
+  # i.e., start background color again after each attr reset.
+  printf '%s' "${prefix}${@}" | sed -E "s/\x1b\[0m/\x1b[0m$(bg_ff)/g"
+  printf '%s\n' "$(attr_reset)"
 }
 
 git_status_cache_setup () {
   ([ "${MR_ACTION}" != 'status' ] && return 0) || true
   truncate -s 0 "${OMR_MYSTATUS_TMP_CHORES_FILE}"
-
+  truncate -s 0 "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
   # Set the start time for the elapsed time display.
   if [ "${OMR_MYSTATUS_SHOW_PROG}" = 'elapsed' ]; then
     print_nanos_now > ${OMR_MYSTATUS_TMP_TIMEIT_FILE}
@@ -164,12 +170,58 @@ git_mrrepo_at_git_root () {
 
 git_status_format_alert () {
   local text="$1"
-  echo "$(fg_lightorange)${text}$(attr_reset)"
+  echo "$(bg_ff)$(fg_lightorange)${text}$(attr_reset)"
 }
 
 git_status_format_minty () {
   local text="$1"
-  echo "$(fg_mintgreen)${text}$(attr_reset)"
+  echo "$(bg_ff)$(fg_mintgreen)${text}$(attr_reset)"
+}
+
+# https://coolors.co/dec5e3-a9f8fb-81f7e5-b0f2b4-a5c4d4
+
+bg_a5c4d4 () {
+  printf "\033[48;2;165;196;212m"
+}
+
+bg_b0f2b4 () {
+  printf "\033[48;2;176;242;180m"
+}
+
+bg_2e2532 () {
+  printf "\033[48;2;46;37;50m"
+}
+
+bg_2c2730 () {
+  # Raisin black
+  printf "\033[48;2;44;39;48m"
+}
+
+bg_2a2a69 () {
+  # St. Patrick's blue
+  printf "\033[48;2;42;42;105m"
+}
+
+bg_flipflop () {
+  touch "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
+  local flipflopflag="$(cat "${OMR_MYSTATUS_TMP_FLPFLP_FILE}")"
+  if [ "${flipflopflag}" = "1" ]; then
+    flipflopflag="0"
+    bg_2e2532
+  else
+    flipflopflag="1"
+    bg_2a2a69
+  fi
+  printf %s "${flipflopflag}" > "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
+}
+
+bg_ff () {
+  local flipflopflag="$(cat "${OMR_MYSTATUS_TMP_FLPFLP_FILE}")"
+  if [ "${flipflopflag}" = "1" ]; then
+    bg_2e2532
+  else
+    bg_2a2a69
+  fi
 }
 
 # ***
@@ -326,6 +378,7 @@ git_report_short_unchanged () {
 git_my_merge_status () {
   insist_installed
 
+  bg_flipflop
   git_status_check_reset
   git_mrrepo_at_git_root || return 0
   git_status_check_unstaged
