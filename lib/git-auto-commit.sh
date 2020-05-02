@@ -36,15 +36,24 @@ git_auto_commit_noop () {
 }
 
 git_auto_commit_one () {
-  local repo_file="$1"
-  shift
-
-  # 2019-10-28: (lb): Trying just base filename, for shorter message.
-  # MR_GIT_AUTO_COMMIT_MSG="Myrepos: Autocommit: “${repo_file}” [@$(hostname)]."
-  # MR_GIT_AUTO_COMMIT_MSG="Myrepos: Autocommit: “$(basename ${repo_file})” [@$(hostname)]."
-  MR_GIT_AUTO_COMMIT_MSG="myrepos: autoci: Add Favorite: [@$(hostname)] “$(basename ${repo_file})”."
-  git_auto_commit_parse_args "${@}"
   git_auto_commit_hello
+  git_auto_commit_parse_args "${@}"
+  if ! git_auto_commit_process_rest "git_auto_commit_path_one" "${@}"; then
+    fatal "ERROR: Expecting a path to git_auto_commit_one."
+    exit 1
+  fi
+  git_auto_commit_seeya
+}
+
+git_auto_commit_path_one () {
+  local repo_file="$1"
+  if [ -z "${repo_file}" ]; then
+    fatal "ERROR: Expecting a path to git_auto_commit_one."
+    exit 1
+  fi
+
+  local msg_prefix="myrepos: autoci: Add Favorite: [@$(hostname)]"
+  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename ${repo_file})”.}"
 
   local extcd
   (git status --porcelain "${repo_file}" |
@@ -73,7 +82,7 @@ git_auto_commit_one () {
       #   fatal: Exiting because of an unresolved conflict.
       # (but it could be that the code won't make it here anymore on
       # those conditions, e.g., maybe merge conflicts are seen earlier).
-      git commit -m "${MR_GIT_AUTO_COMMIT_MSG}" >/dev/null 2>&1
+      git commit -m "${commit_msg}" >/dev/null 2>&1
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
       fi
@@ -83,14 +92,17 @@ git_auto_commit_one () {
 
   # else, the file is not dirty.
   fi
-
-  git_auto_commit_seeya
 }
 
 git_auto_commit_all () {
-  MR_GIT_AUTO_COMMIT_MSG="myrepos: autoci: Add All Dirty [@$(hostname)]."
-  git_auto_commit_parse_args "${@}"
   git_auto_commit_hello
+
+  git_auto_commit_parse_args "${@}"
+  if git_auto_commit_process_rest "git_auto_commit_path_all" "${@}"; then
+    fatal "ERROR: Not expecting a path to git_auto_commit_path_all."
+    exit 1
+  fi
+  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-myrepos: autoci: Add All Dirty [@$(hostname)].}"
 
   # We ignore untracted files here because they cannot be added
   # by a generic `git add -u` -- in fact, git should complain.
@@ -129,7 +141,7 @@ git_auto_commit_all () {
 
     if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
       git add -u
-      git commit -m "${MR_GIT_AUTO_COMMIT_MSG}" >/dev/null 2>&1
+      git commit -m "${commit_msg}" >/dev/null 2>&1
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
       else
@@ -143,13 +155,24 @@ git_auto_commit_all () {
   git_auto_commit_seeya
 }
 
-git_auto_commit_new () {
-  MR_GIT_AUTO_COMMIT_MSG="myrepos: autoci: Add Untracked [@$(hostname)]."
-  git_auto_commit_parse_args "${@}"
-  git_auto_commit_new_matches "${@}"
+git_auto_commit_path_all () {
+  :  # pass/no-op.
 }
 
-git_auto_commit_new_matches () {
+git_auto_commit_new () {
+  git_auto_commit_hello
+  git_auto_commit_parse_args "${@}"
+  if ! git_auto_commit_process_rest "git_auto_commit_path_new" "${@}"; then
+    # If not path/files/globs specified, run on repo root.
+    git_auto_commit_path_new "."
+  fi
+  git_auto_commit_seeya
+}
+
+git_auto_commit_process_rest () {
+  local processor="$1"
+  shift
+
   local processed_path=false
   while [ "$1" != '' ]; do
     if [ "$1" = '--' ]; then
@@ -182,7 +205,7 @@ git_auto_commit_new_matches () {
         shift 2
         ;;
       *)
-        git_auto_commit_path "$1"
+        eval "${processor} \"$1\""
         shift
         processed_path=true
         ;;
@@ -192,20 +215,24 @@ git_auto_commit_new_matches () {
   if [ $# -gt 0 ]; then
     # Saw --.
     while [ "$1" != '' ]; do
-      git_auto_commit_path "$1"
+      eval "${processor} \"$1\""
       shift
       processed_path=true
     done
   fi
 
-  # If not path/files/globs specified, run on repo root.
-  ${processed_path} || git_auto_commit_path "."
+  ${processed_path}
 }
 
-git_auto_commit_path () {
+git_auto_commit_path_new () {
   local add_path="${1:-.}"
 
-  git_auto_commit_hello
+  local msg_prefix="myrepos: autoci: Add Untracked [@$(hostname)]"
+  local msg_postfix
+  if [ "${add_path}" != "." ]; then
+    msg_postfix=" “${add_path}”"
+  fi
+  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix}${msg_postfix}.}"
 
   local extcd
   (git status --porcelain "${add_path}" | grep "^[\?][\?]" >/dev/null 2>&1) || extcd=$?
@@ -232,7 +259,7 @@ git_auto_commit_path () {
       # TOO INCLUSIVE: git add .  # Adds edited files, too.
       # Interactive: 4. [a]dd untracked / 7: [q]uit.
       echo "a\n*\nq\n" | git add -i "${add_path}" >/dev/null 2>&1
-      git commit -m "${MR_GIT_AUTO_COMMIT_MSG}" >/dev/null 2>&1
+      git commit -m "${commit_msg}" >/dev/null 2>&1
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
       else
@@ -242,8 +269,6 @@ git_auto_commit_path () {
       echo 'Skipped!'
     fi
   fi
-
-  git_auto_commit_seeya
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

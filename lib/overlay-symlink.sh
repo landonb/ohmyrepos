@@ -11,7 +11,6 @@ params_register_defaults () {
 }
 
 params_register_switches () {
-  MR_GIT_AUTO_COMMIT_MSG="${MR_GIT_AUTO_COMMIT_MSG:-""}"
   while [ "$1" != '' ]; do
     if [ "$1" = '--' ]; then
       shift
