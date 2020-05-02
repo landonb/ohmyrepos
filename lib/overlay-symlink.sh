@@ -11,7 +11,12 @@ params_register_defaults () {
 }
 
 params_register_switches () {
+  MR_GIT_AUTO_COMMIT_MSG="${MR_GIT_AUTO_COMMIT_MSG:-""}"
   while [ "$1" != '' ]; do
+    if [ "$1" = '--' ]; then
+      shift
+      break
+    fi
     case $1 in
       -f)
         MRT_LINK_FORCE=0
@@ -38,9 +43,13 @@ params_register_switches () {
         shift
         ;;
       *)
-        fatal "ERROR: Unrecognized argument: $1"
+        # Test if starts with prefix and assume an --option.
+        # User can -- to specify filenames that start with dash.
+        if [ "${1#-}" != "$1" ]; then
+          fatal "ERROR: Unrecognized argument: $1"
+          exit 1  # Be mean.
+        fi
         shift
-        exit 1  # Be mean.
         ;;
     esac
   done
