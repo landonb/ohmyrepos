@@ -146,10 +146,69 @@ git_auto_commit_all () {
 git_auto_commit_new () {
   MR_GIT_AUTO_COMMIT_MSG="myrepos: autoci: Add Untracked [@$(hostname)]."
   git_auto_commit_parse_args "${@}"
+  git_auto_commit_new_matches "${@}"
+}
+
+git_auto_commit_new_matches () {
+  local processed_path=false
+  while [ "$1" != '' ]; do
+    if [ "$1" = '--' ]; then
+      shift
+      break
+    fi
+    case $1 in
+      -f)
+        shift
+        ;;
+      --force)
+        shift
+        ;;
+      -s)
+        shift
+        ;;
+      --safe)
+        shift
+        ;;
+      -y)
+        shift
+        ;;
+      --yes)
+        shift
+        ;;
+      -m)
+        shift 2
+        ;;
+      --message)
+        shift 2
+        ;;
+      *)
+        git_auto_commit_path "$1"
+        shift
+        processed_path=true
+        ;;
+    esac
+  done
+
+  if [ $# -gt 0 ]; then
+    # Saw --.
+    while [ "$1" != '' ]; do
+      git_auto_commit_path "$1"
+      shift
+      processed_path=true
+    done
+  fi
+
+  # If not path/files/globs specified, run on repo root.
+  ${processed_path} || git_auto_commit_path "."
+}
+
+git_auto_commit_path () {
+  local add_path="${1:-.}"
+
   git_auto_commit_hello
 
   local extcd
-  (git status --porcelain . | grep "^[\?][\?]" >/dev/null 2>&1) || extcd=$?
+  (git status --porcelain "${add_path}" | grep "^[\?][\?]" >/dev/null 2>&1) || extcd=$?
 
   if [ -z ${extcd} ]; then
     local yorn
@@ -170,8 +229,9 @@ git_auto_commit_new () {
       # (Because `git add .` adds untracked files but also includes
       # edited files; but we provide git_auto_commit_all for edited
       # files.)
-      # TOO INCLUSIVE: git add .
-      echo "a\n*\nq\n" | git add -i >/dev/null 2>&1
+      # TOO INCLUSIVE: git add .  # Adds edited files, too.
+      # Interactive: 4. [a]dd untracked / 7: [q]uit.
+      echo "a\n*\nq\n" | git add -i "${add_path}" >/dev/null 2>&1
       git commit -m "${MR_GIT_AUTO_COMMIT_MSG}" >/dev/null 2>&1
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
