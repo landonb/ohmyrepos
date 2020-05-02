@@ -5,13 +5,6 @@ reveal_biz_vars () {
 }
 
 git_auto_commit_parse_args () {
-  MR_GIT_AUTO_COMMIT_MSG="${MR_GIT_AUTO_COMMIT_MSG:-""}"
-  # Assume first param the commit message unless an -o/--option.
-  if [ -n "${1}" ] && [ "${1#-}" = "$1" ]; then
-    MR_GIT_AUTO_COMMIT_MSG="${1}"
-    shift
-  fi
-
   # Note that both `shift` and `set -- $@` are scoped to this function,
   # so we'll process all args in one go (rather than splitting into two
   # functions, because myrepostravel_opts_parse complains on unknown args).

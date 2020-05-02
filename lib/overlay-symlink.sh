@@ -42,6 +42,16 @@ params_register_switches () {
         MRT_AUTO_YES=0
         shift
         ;;
+      -m)
+        shift
+        MR_GIT_AUTO_COMMIT_MSG="${1}"
+        shift
+        ;;
+      --message)
+        shift
+        MR_GIT_AUTO_COMMIT_MSG="${1}"
+        shift
+        ;;
       *)
         # Test if starts with prefix and assume an --option.
         # User can -- to specify filenames that start with dash.
