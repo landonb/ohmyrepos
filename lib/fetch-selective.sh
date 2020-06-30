@@ -3,7 +3,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 reveal_biz_vars () {
-  GITFLU_FETCH_REMOTES="${GITFLU_FETCH_REMOTES:-proving release starter myclone origin upstream}"
+  GITSMART_FETCH_REMOTES="${GITSMART_FETCH_REMOTES:-proving release starter myclone origin upstream}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -39,10 +39,10 @@ fetch_each () {
 
 fetch_selective () {
   local remotes
-  if [ -z "$1" ] && [ -n "${GITFLU_FETCH_REMOTES}" ]; then
+  if [ -z "$1" ] && [ -n "${GITSMART_FETCH_REMOTES}" ]; then
     # Because POSIX, only one array, the positional parameters.
     # NOTE: No quotes, else seen as just one var.
-    set -- ${GITFLU_FETCH_REMOTES}
+    set -- ${GITSMART_FETCH_REMOTES}
   fi
 
   if [ -z "$1" ]; then
