@@ -456,6 +456,42 @@ git_change_branches_if_necessary () {
   # Instead of $(pwd), could use environ:
   #   local target_repo="${3:-${MR_REPO}}"
 
+  # BEWARE/2020-07-02: (lb): I don't quite understand the mechanics, but:
+  #
+  # If there's a HEAD file, the source_branch will have a 'heads/' prefix, e.g.,
+  #     source_branch=heads/release
+  # and then the `git update-ref` below will fail on the error:
+  #     fatal: remotes/<DEVICE>/heads/<branch>: not a valid SHA1
+  #
+  # This happens if you do something like:
+  #     $ git remote set-head release --auto
+  # Because then (as called from git_checkedout_branch_name_direct):
+  #     $ git rev-parse --abbrev-ref HEAD
+  #     heads/release
+  # Which occurs because of the file:
+  #     $ cat .git/refs/remotes/release/HEAD
+  #     ref: refs/remotes/release/release
+  #
+  # You can resolve this issue by removing the HEAD file thusly:
+  #     $ git remote set-head release --delete
+  # And then:
+  #     $ git rev-parse --abbrev-ref HEAD
+  #     release
+  #
+  # (I did not create the HEAD file intentionally; I renamed all 'master'
+  # branches, mostly to 'release', and deleted said branch from GitHub,
+  # and then I had this issue in a few of my projects, but not all.)
+  #
+  # In lieu of fixing this automatically, check for it.
+  # (NOTE: Because POSIX, we use case for wildcard matching, i.e.,
+  #        in Bash we could [[ "${source_branch}" == heads/* ]]; but
+  #          not in POSIX
+  #        endbut
+  case "${source_branch}" in
+    "heads/"*) >&2 error "ERROR?: Try \`cd <source_repo> &&" \
+                         "git remote set-head ${target_branch} --delete\`"
+  esac
+
   # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
   if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
     # If (detached) HEAD is active branch, do naught.
