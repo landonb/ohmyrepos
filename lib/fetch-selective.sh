@@ -3,7 +3,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 reveal_biz_vars () {
-  GITFLU_FETCH_REMOTES="${GITFLU_FETCH_REMOTES:-origin upstream}"
+  GITFLU_FETCH_REMOTES="${GITFLU_FETCH_REMOTES:-proving release starter myclone origin upstream}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
