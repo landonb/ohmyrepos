@@ -64,6 +64,7 @@ _info_path_exclude () {
 try_clobbering_exclude_otherwise_try_normal_overlay () {
   local sourcep="$1"
 
+  mkdir -p .git/info
   cd .git/info
   # Because of the two directories nowunder:
   if is_relative_path "${sourcep}"; then
