@@ -249,7 +249,7 @@ else
     export_log_funcs
   else
     # Sourced, but not in Bash, so $0 is, e.g., '-dash', and BASH_SOURCE
-    # not set. Not our problem; user need to configure PATH in the case.
+    # not set. Not our problem; user needs to configure PATH in the case.
     source_deps
   fi
   export_log_levels
