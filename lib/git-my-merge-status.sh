@@ -301,7 +301,7 @@ git_report_fancy () {
     GITSMART_MYST_ALIGN_COLS=true \
     git-my-merge-status \
     | head -n 1 \
-    | /bin/sed -E "s/([^0-9])([0-9]\.[0-9]{2}([^0-9]|$))/\1 \2/"
+    | /usr/bin/env sed -E "s/([^0-9])([0-9]\.[0-9]{2}([^0-9]|$))/\1 \2/"
   )"
 
   _debug "${rpath}  ${synop}"

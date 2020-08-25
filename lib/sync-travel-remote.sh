@@ -64,7 +64,7 @@ _git_echo_long_op_finis () {
   #      "[WAIT] 2019-10-30 @ 19:34:04 ⏳ fetchin’  /..." → 43 chars
   #                                       fetched🤙 /kit/Coldsprints
   _echon "                                           "  # add one extra for Unicode, or something.
-  _echon "$(echo "${MR_REPO}..." | /bin/sed -E "s/./ /g")"
+  _echon "$(echo "${MR_REPO}..." | /usr/bin/env sed -E "s/./ /g")"
   _echon "\r"
   LONG_OP_MSG=
 }
@@ -79,7 +79,7 @@ is_ssh_path () {
 }
 
 lchop_sep () {
-  echo $1 | /bin/sed "s#^/##"
+  echo $1 | /usr/bin/env sed "s#^/##"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -274,7 +274,7 @@ git_checkedout_branch_name_remote () {
   branch_name=$( \
     git remote show ${remote_name} |
     grep "HEAD branch:" |
-    /bin/sed -e "s/^.*HEAD branch:\s*//" \
+    /usr/bin/env sed -e "s/^.*HEAD branch:\s*//" \
   )
   cd "${before_cd}"
   echo "${branch_name}"
@@ -446,7 +446,7 @@ git_fetch_remote_travel () {
 git_show_ref_branch_sha8 () {
   local target_branch="${1:-release}"
   git show-ref -s refs/heads/${target_branch} |
-    /bin/sed 's/^\(.\{8\}\).*/\1/'
+    /usr/bin/env sed 's/^\(.\{8\}\).*/\1/'
 }
 
 git_change_branches_if_necessary () {
@@ -636,12 +636,12 @@ git_merge_ff_only () {
   #   local changes_bin="$(echo "${git_resp}" | grep -P "${pattern_bin}")"
   # So use sed to sandwich each line with color changes.
   # - Be sure color is enabled, lest:
-  #     /bin/sed: -e expression #1, char 7: unterminated `s' command
+  #     /usr/bin/env sed: -e expression #1, char 7: unterminated `s' command
   #   because $() returns empty.
   SHCOLORS_OFF=false
   local grep_sed_sed='
-    /bin/sed "s/\$/\\$(attr_reset)/g" |
-    /bin/sed "s/^/\\$(bg_blue)/g"
+    /usr/bin/env sed "s/\$/\\$(attr_reset)/g" |
+    /usr/bin/env sed "s/^/\\$(bg_blue)/g"
   '
   #
   local changes_txt="$( \
