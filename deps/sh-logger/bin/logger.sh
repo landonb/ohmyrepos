@@ -5,6 +5,55 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# *** <beg boilerplate `source_deps`: ------------------------------|
+#                                                                   |
+
+readlink_f () {
+  local resolve_path="$1"
+  local ret_code=0
+  if [ "$(readlink --version 2> /dev/null)" ]; then
+    # Linux: Modern readlink.
+    resolve_path="$(readlink -f -- "${resolve_path}")"
+  else
+    # macOHHHH-ESS/macOS: No `readlink -f`.
+    local before_cd="$(pwd -L)"
+    while [ -n "${resolve_path}" ] && [ -h "${resolve_path}" ]; do
+      local basedir_link="$(dirname -- "${resolve_path}")"
+      # `readlink -f` checks all but final component exist.
+      # So if dir path leading to final componenet missing, return empty string.
+      if [ ! -e "${basedir_link}" ]; then
+        resolve_path=""
+        ret_code=1
+      else
+        local resolve_file
+        resolve_link="$(readlink -- "${resolve_path}")"
+        case "${resolve_link}" in
+          /*)
+            # Absolute path.
+            resolve_file="${resolve_link}"
+            ;;
+          *)
+            # Relative path.
+            resolve_file="${basedir_link}/${resolve_link}"
+            ;;
+        esac
+        local resolved_dir="$(dirname -- "${resolve_file}")"
+        if [ ! -d "${resolved_dir}" ]; then
+          resolve_path=""
+          ret_code=1
+        else
+          cd $(dirname -- "${resolve_file}") > /dev/null
+          resolve_path="$(pwd -P)/$(basename -- "${resolve_file}")"
+        fi
+      fi
+    done
+    cd "${before_cd}"
+  fi
+  echo -n "${resolve_path}"
+  [ -n "${resolve_path}" ] && echo
+  return ${ret_code}
+}
+
 source_deps () {
   local thispth="$1"
   local prefix=""
@@ -31,21 +80,28 @@ source_deps () {
   }
 
   # Allow user to symlink executables and not libraries.
-  prefix="$(dirname -- "$(readlink -e -- "${thispth}")")"
+  # E.g., `ln -s /path/to/bin/logger.sh /tmp/logger.sh ; /tmp/logger.sh`
+  # knows that it can look relative to /path/to/bin/ for sourceable files.
+  prefix="$(dirname -- "$(readlink_f "${thispth}")")"
 
   #                                                                 |
-  # *** end boilerplate. -------------------------------------------|
+  # *** stop boilerplate> ------------------------------------------|
 
   # https://github.com/landonb/sh-colors
   _source_it "${prefix}" "../deps/sh-colors/bin" "colors.sh"
 
-  # *** finish with boilerplate. -----------------------------------|
+  # *** <more boilerplate: -----------------------------------------|
   #                                                                 |
 
   ! ${depsnok}
 }
 
+#                                                                   |
+# *** end boilerplate `source_deps`> -------------------------------|
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# ***
 
 export_log_levels () {
   # The Python logging library defines the following levels,
