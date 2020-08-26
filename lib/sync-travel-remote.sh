@@ -37,12 +37,22 @@ reveal_biz_vars () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# MAYBE/2020-08-26 01:26: Is the `echo -e` test because some shells
+# does not support that option? (and just echo the '-e'). The -e and -n
+# options are defined by some shells but not all, e.g., Bash defines -n,
+# but /bin/sh on macOS does not recogniez `echo -n`. But `/bin/echo -n`
+# works on macOS. Interestingly, Bash `echo -e` works, but not the same
+# in /bin/sh shell, not via `/bin/echo -e` and so therefore not via
+# `/usr/env/bin -e`, either, so `echo -e` only available via Bash on
+# macOS...
+# MAYBE/FIXME/2020-08-26 01:32: How would we replace with printf?
+
 _echo () {
   [ "$(echo -e)" = '' ] && echo -e "${@}" || echo "${@}"
 }
 
 _echon () {
-  [ "$(echo -e)" = '' ] && echo -e -n "${@}" || echo -n "${@}"
+  [ "$(echo -e)" = '' ] && echo -e -n "${@}" || /usr/bin/env echo -n "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

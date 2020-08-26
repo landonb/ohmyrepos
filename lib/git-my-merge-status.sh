@@ -46,12 +46,12 @@ _debug () {
     local file_time_0="${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
     local elapsed_frac="$(echo "(${time_n} - $(cat ${file_time_0}))" | bc -l)"
     local elapsed_secs=$(echo ${elapsed_frac} | xargs printf "%04.1f")
-    echo -n "(${elapsed_secs}s) "
+    /usr/bin/env echo -n "(${elapsed_secs}s) "
   }
 
   _debug_show_clock_time () {
     local clock=$(date "+%T")
-    echo -n "${clock}: "
+    /usr/bin/env echo -n "${clock}: "
   }
 
   local prefix=''

@@ -64,7 +64,7 @@ git_auto_commit_path_one () {
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       echo
       echo "Yo! This file is dirty: $(fg_lightorange)${MR_REPO}/${repo_file}$(attr_reset)"
-      echo -n "Commit the file changes? [y/n] "
+      /usr/bin/env echo -n "Commit the file changes? [y/n] "
       read yorn
     else
       debug "Committing dirty file: $(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
@@ -131,7 +131,7 @@ git_auto_commit_all () {
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       echo
       echo "Yo! This repo is dirty: $(fg_lightorange)${MR_REPO}$(attr_reset)"
-      echo -n "Commit *all* object changes? [y/n] "
+      /usr/bin/env echo -n "Commit *all* object changes? [y/n] "
       read yorn
     else
       local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_reset)"
@@ -242,7 +242,7 @@ git_auto_commit_path_new () {
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       echo
       echo "Yo! This repo has untracked paths: $(fg_lightorange)${MR_REPO}$(attr_reset)"
-      echo -n "Add *untracked* paths therein? [y/n] "
+      /usr/bin/env echo -n "Add *untracked* paths therein? [y/n] "
       read yorn
     else
       local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_reset)"
