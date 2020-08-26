@@ -26,6 +26,20 @@ reveal_biz_vars () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# FIXME/2020-08-26: Move home_fries_nanos_now to shared dependency.
+home_fries_nanos_now () {
+  if command -v gdate > /dev/null; then
+    # macOS (brew install coreutils).
+    gdate +%s.%N
+  elif date --version &> /dev/null; then
+    # Linux/GNU.
+    date +%s.%N
+  else
+    # macOS pre-coreutils.
+    python -c 'import time; print("{:.9f}".format(time.time()))'
+  fi
+}
+
 python_prettify_elapsed () {
   local seconds="${1:-0}"
   # This spits to stderr if user does not have package installed.
@@ -44,14 +58,14 @@ simple_bc_elapsed () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_any_command_started () {
-  date +%s.%N > "${OMR_RUNTIME_TEMPFILE}"
+  home_fries_nanos_now > "${OMR_RUNTIME_TEMPFILE}"
 }
 
 git_any_command_stopped () {
   local setup_time_0=$(cat "${OMR_RUNTIME_TEMPFILE}")
   [ -z "${setup_time_0}" ] && error "ERROR:" \
     "Missing start time! Be sure to call \`git_any_cache_setup\`."
-  local setup_time_n="$(date +%s.%N)"
+  local setup_time_n="$(home_fries_nanos_now)"
   local seconds=$(echo "${setup_time_n} - ${setup_time_0}" | bc -l)
   if [ $(echo "${seconds} >= ${OMR_RUNTIME_MIN_SECS}" | bc -l) -ne 0 ]; then
     local time_elapsed="$(python_prettify_elapsed "${seconds}")"
