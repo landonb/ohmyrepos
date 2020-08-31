@@ -48,11 +48,12 @@ reveal_biz_vars () {
 # MAYBE/FIXME/2020-08-26 01:32: How would we replace with printf?
 
 _echo () {
-  [ "$(echo -e)" = '' ] && echo -e "${@}" || echo "${@}"
+  [ "$(/usr/bin/env echo -e)" = '' ] && /usr/bin/env echo -e "${@}" || /usr/bin/env echo "${@}"
 }
 
 _echon () {
-  [ "$(echo -e)" = '' ] && echo -e -n "${@}" || /usr/bin/env echo -n "${@}"
+  # 2020-08-30: Change `echo` to `/usr/bin/env`, and now sure this really necessary anymore...
+  [ "$(/usr/bin/env echo -e)" = '' ] && /usr/bin/env echo -e -n "${@}" || /usr/bin/env echo -n "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -28,11 +28,11 @@ fetch_each () {
     shift
     if remote_exists "${remote}"; then
       # echo "Fetching: ${remote}..."
-      /usr/bin/env echo -n "\r${remote}..."
+      /usr/bin/env echo -en "\r${remote}..."
       git fetch --prune --tags "${remote}"
     fi
   done
-  /usr/bin/env echo -n "\r"
+  /usr/bin/env echo -en "\r"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
