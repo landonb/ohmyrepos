@@ -34,6 +34,12 @@ reveal_biz_vars () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+source_deps () {
+  . "omr-lib-readlink.sh"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -806,9 +812,9 @@ git_update_ensure_ready () {
 git_update_dev_path () {
   # 2019-10-30: To avoid mixing git-dir subdirectories and my subdirs,
   # add a path postfix to the repo path.
-  #   local dev_path=$(readlink -m "${MR_TRAVEL}/${MR_REPO}")
+  #   local dev_path=$(readlink_m "${MR_TRAVEL}/${MR_REPO}")
   local git_name='_0.git'
-  local dev_path=$(readlink -m "${MR_TRAVEL}/${MR_REPO}/${git_name}")
+  local dev_path=$(readlink_m "${MR_TRAVEL}/${MR_REPO}/${git_name}")
   echo "${dev_path}"
 }
 
@@ -833,6 +839,7 @@ git_update_local_fetch_from_device () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  source_deps
   reveal_biz_vars
 }
 

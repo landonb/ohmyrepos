@@ -3,6 +3,12 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+source_deps () {
+  . "omr-lib-readlink.sh"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 params_register_defaults () {
   MRT_LINK_SAFE=1
   MRT_LINK_FORCE=1
@@ -530,8 +536,8 @@ mrinfuse_findup_canonic () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
   local dirpath mr_root
-  dirpath="$(dirname -- "$(readlink -m "$(pwd)")")"
-  mr_root="$(dirname -- "$(readlink -m "${MR_CONFIG}")")"
+  dirpath="$(dirname -- "$(readlink_m "$(pwd)")")"
+  mr_root="$(dirname -- "$(readlink_m "${MR_CONFIG}")")"
   while [ "${dirpath}" != '/' ]; do
     local trypath="${dirpath}/${MRT_INFUSE_DIR:-.mrinfuse}"
     if [ -d "${trypath}" ]; then
@@ -548,7 +554,7 @@ mrinfuse_findup () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
   local dirpath=""
-  while [ -z "${dirpath}" -o "$(readlink -m \"${dirpath}\")" != '/' ]; do
+  while [ -z "${dirpath}" ] || [ "$(readlink_m "${dirpath}")" != '/' ]; do
     if [ -d "${dirpath}${MRT_INFUSE_DIR:-.mrinfuse}" ]; then
       echo "${dirpath}"
       return 0
@@ -586,15 +592,15 @@ path_to_mrinfuse_resolve () {
     mrinfuse_root="$(mrinfuse_findup)"
     [ $? -eq 0 ] || ( >&2 echo "ERROR: Missing .mrinfuse/" && exit 1 )
     if [ -n "${mrinfuse_root}" ]; then
-      mrinfuse_full=$(readlink -m "${mrinfuse_root}")
+      mrinfuse_full=$(readlink_m "${mrinfuse_root}")
     else
-      mrinfuse_full=$(readlink -m '.')
+      mrinfuse_full=$(readlink_m '.')
     fi
     relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
     mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR:-.mrinfuse}/${relative_path}${fpath}"
 
     # MAYBE/2020-01-23: Option to return full path?
-    #                     canonicalized=$(readlink -m "${mrinfuse_path}")
+    #                     canonicalized=$(readlink_m "${mrinfuse_path}")
     #                   - I like the shorter relative path.
     canonicalized="${mrinfuse_path}"
     _info_path_resolve "${relative_path}" "${mrinfuse_path}" "${canonicalized}"
@@ -684,8 +690,8 @@ symlink_mrinfuse_file_first_optional () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  source_deps
   # Caller will call functions explicitly as appropriate.
-  :
 }
 
 main "$@"
