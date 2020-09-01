@@ -270,7 +270,7 @@ To create a symlink to any file (i.e., to a file *not* under a parent-level
 ``.mrinfuse/`` directory), use ``symlink_overlay_file``.
 
 You can use either relative paths or absolute paths, considering that the
-symlink command (``/bin/ls``) runs in the context of the project directory
+symlink command (``/bin/ln``) runs in the context of the project directory
 (aka ``$MR_REPO``).
 
 For example, let's symlink a private notes file in my project working tree::
