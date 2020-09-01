@@ -106,12 +106,12 @@ infuser_set_envs () {
 
   # Ensure MR_REPO set so script can be called manually,
   # outside context of myrepos.
-  MR_REPO="${repodir}"
+  export MR_REPO="${repodir}"
 
   # Note that if '.vim/.mrconfig' is absent, myrepos will have most likely set
   # MR_CONFIG=~/.mrconfig; but if it's present, then MR_CONFIG=~/.vim/.mrconfig.
   # So that the rest of the script works properly, force the MR_CONFIG value.
-  MR_CONFIG="${MR_CONFIG:-"${MR_REPO}/.mrconfig"}"
+  export MR_CONFIG="${MR_CONFIG:-"${MR_REPO}/.mrconfig"}"
 }
 
 # 2019-10-26: This does not belong here. But all my infusers at least
