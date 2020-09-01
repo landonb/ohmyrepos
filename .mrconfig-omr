@@ -48,11 +48,11 @@ lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
 
 # - Wire the color library:
 #   https://github.com/landonb/sh-colors.
-lib = PATH="${PATH}:${SHCOLORS_BIN:-${OHMYREPOS_LIB}/../deps/sh-colors/bin}"
+lib = PATH="${PATH}:${SHCOLORS_BIN:-${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-colors/bin}"
 
 # - Wire the logger library:
 #   https://github.com/landonb/sh-logger.
-lib = PATH="${PATH}:${SHLOGGER_BIN:-${OHMYREPOS_LIB}/../deps/sh-logger/bin}"
+lib = PATH="${PATH}:${SHLOGGER_BIN:-${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin}"
 lib = LOG_LEVEL=${LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
 
 [DEFAULT]
