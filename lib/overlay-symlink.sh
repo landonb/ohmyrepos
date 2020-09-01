@@ -4,7 +4,12 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  . "omr-lib-readlink.sh"
+  # Load the logger library, from github.com/landonb/sh-logger.
+  # - The .mrconfig-omr file uses SHLOGGER_BIN to update PATH.
+  # - This also implicitly loads the colors.sh library.
+  . logger.sh
+
+  . omr-lib-readlink.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
