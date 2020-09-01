@@ -221,7 +221,7 @@ git_ensure_or_clone_target () {
   # can clone (into) it.
   if [ -d "${target_repo}" ]; then
     # Check whether the target directory is nonempty and return if so.
-    if [ -n "$(/bin/ls -A ${target_repo} 2>/dev/null)" ]; then
+    if [ -n "$(/usr/bin/env ls -A ${target_repo} 2>/dev/null)" ]; then
       return 0
     fi
   fi
