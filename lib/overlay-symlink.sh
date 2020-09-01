@@ -6,6 +6,8 @@
 source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - The .mrconfig-omr file uses SHLOGGER_BIN to update PATH.
+  #   - Or if your script sources this file directly, just be
+  #     sure the sh-logger/bin is on PATH.
   # - This also implicitly loads the colors.sh library.
   . logger.sh
 

@@ -2,10 +2,5 @@
 
 [DEFAULT]
 lib =
-  # Load dependencies in this file, which is loaded before all other lib/
-  # sources, so they're available to OMR scripts with each script needing
-  # to explicitly source.
-  . "logger.sh"
-
   . "any-action-runtime.sh"
 

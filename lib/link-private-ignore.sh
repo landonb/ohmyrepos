@@ -3,6 +3,9 @@
 
 source_deps () {
   # Load: symlink_*.
+  # 2020-09-01 16:02: (lb): I noticed link-private-excludes uses a fill path:
+  #   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
+  # - but not sure it matters.
   . "overlay-symlink.sh"
 }
 
