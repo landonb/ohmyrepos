@@ -212,7 +212,9 @@ fail_target_exists_not_link () {
   local targetp="$1"
   error "mrt: Failed to create symbolic link!"
   error "  Target exists and is not a symlink at:"
-  error "  $(pwd)/${targetp}"
+  error "    ${targetp}"
+  error "  From working directory:"
+  error "    $(pwd)"
   error "Use -f/--force, or -s/--safe, or remove the file," \
     "and try again, or stop trying."
   exit 1
