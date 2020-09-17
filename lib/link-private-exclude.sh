@@ -1,5 +1,5 @@
 #!/bin/sh
-# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=bash
 
 source_deps () {
   # Load: symlink_*.

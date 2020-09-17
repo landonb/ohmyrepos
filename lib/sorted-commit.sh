@@ -1,4 +1,4 @@
-# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=bash
 
 # USAGE: Useful for sorting and saving changes to your ~/.vim/spell/en.utf-8.add
 #   There are probably additional uses, too.

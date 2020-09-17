@@ -1,4 +1,4 @@
-# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=bash
 
 reveal_biz_vars () {
   MR_GIT_AUTO_COMMIT_SAID_HELLO=false
