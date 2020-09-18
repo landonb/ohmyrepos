@@ -52,6 +52,8 @@ _hofr_no_color () {
 
 # (lb): In Bash, the escape sequences \e, \033 and \x1b can be used
 #       interchangeably, but \033 is the more portable of the 3.
+# [QUESTION/2020-09-18: If they're interchangeable, how is one more portable?
+#  I think years ago I had issues using \e but I apparently didn't say so here.]
 # - The `\e` is a character escape sequence; the other two are Oct.
 #   and Hex. reps., respect. (See also ^[, i.e., you can hit Ctrl-[
 #   to send ESCAPE sequence. And also 27, the decimal equivalent.)
