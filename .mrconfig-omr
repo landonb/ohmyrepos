@@ -135,3 +135,14 @@ no_print_failed_run = true
 # not report 'failed'.
 autocommit = true
 
+[DEFAULT]
+# Wire `mr pull` to git-pull.
+# - Note that myrepos wires pull, but via `update`, e.g., `mr update`.
+#   - If you compare the equivalent update commands for the 9 SCMs that
+#     myrepos supports, you'll see `pull` is less ambiguous than `update`.
+#     - For instance, `svn update` is like `git pull`, but in hg,
+#       `hg pull` is like `git fetch`, and `hg update` like `git merge`,
+#       so hg_update calls `hg pull "$@"; hg update "$@"`.
+#   (lb): But I only use git, so let's wire `mr pull` for parity.
+git_pull = git pull "$@"
+
