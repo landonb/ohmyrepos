@@ -144,5 +144,13 @@ autocommit = true
 #       `hg pull` is like `git fetch`, and `hg update` like `git merge`,
 #       so hg_update calls `hg pull "$@"; hg update "$@"`.
 #   (lb): But I only use git, so let's wire `mr pull` for parity.
-git_pull = git pull "$@"
+# - We could naively wire the function, e.g.,
+#     git_pull = git pull "$@"
+#   but that runs the risk of creating conflicts in the user's projects.
+#   - The user could avoid this with the following in their .gitconfig:
+#       [pull]
+#         ff = only
+#   - Or we could just be explicit about it here (let's do that).
+# git_pull = git pull "$@"
+git_pull = git fetch "$@" && git merge --ff-only "$@" FETCH_HEAD
 
