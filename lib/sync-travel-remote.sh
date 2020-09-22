@@ -293,7 +293,7 @@ git_checkedout_branch_name_direct () {
   local before_cd="$(pwd -L)"
   cd "$1"
   local branch_name
-  branch_name=$(git rev-parse --abbrev-ref HEAD)
+  branch_name=$(git rev-parse --abbrev-ref=loose HEAD)
   cd "${before_cd}"
   printf %s "${branch_name}"
 }
@@ -490,37 +490,48 @@ git_change_branches_if_necessary () {
   # Instead of $(pwd), could use environ:
   #   local target_repo="${3:-${MR_REPO}}"
 
-  # BEWARE/2020-07-02: (lb): I don't quite understand the mechanics, but:
+  # FIXED?/2020-09-21: Avoid the problem described in this comment,
+  # by using `loose`:
   #
-  # If there's a HEAD file, the source_branch will have a 'heads/' prefix, e.g.,
-  #     source_branch=heads/release
-  # and then the `git update-ref` below will fail on the error:
-  #     fatal: remotes/<DEVICE>/heads/<branch>: not a valid SHA1
-  #
-  # This happens if you do something like:
-  #     $ git remote set-head release --auto
-  # Because then (as called from git_checkedout_branch_name_direct):
-  #     $ git rev-parse --abbrev-ref HEAD
-  #     heads/release
-  # Which occurs because of the file:
-  #     $ cat .git/refs/remotes/release/HEAD
-  #     ref: refs/remotes/release/release
-  #
-  # You can resolve this issue by removing the HEAD file thusly:
-  #     $ git remote set-head release --delete
-  # And then:
-  #     $ git rev-parse --abbrev-ref HEAD
+  #     $ git rev-parse --abbrev-ref=loose HEAD
   #     release
   #
-  # (I did not create the HEAD file intentionally; I renamed all 'master'
-  # branches, mostly to 'release', and deleted said branch from GitHub,
-  # and then I had this issue in a few of my projects, but not all.)
+  # Read on for the older (fixed?) comment...
   #
-  # In lieu of fixing this automatically, check for it.
-  # (NOTE: Because POSIX, we use case for wildcard matching, i.e.,
-  #        in Bash we could [[ "${source_branch}" == heads/* ]]; but
-  #          not in POSIX
-  #        endbut
+  #   BEWARE/2020-07-02: (lb): I don't quite understand the mechanics, but:
+  #
+  #   If there's a HEAD file, the source_branch will have a 'heads/' prefix, e.g.,
+  #       source_branch=heads/release
+  #   and then the `git update-ref` below will fail on the error:
+  #       fatal: remotes/<DEVICE>/heads/<branch>: not a valid SHA1
+  #
+  #   This happens if you do something like:
+  #       $ git remote set-head release --auto
+  #   Because then (as called from git_checkedout_branch_name_direct):
+  #       $ git rev-parse --abbrev-ref HEAD
+  #       heads/release
+  #   Which occurs because of the file:
+  #       $ cat .git/refs/remotes/release/HEAD
+  #       ref: refs/remotes/release/release
+  #
+  #   You can resolve this issue by removing the HEAD file thusly:
+  #       $ git remote set-head release --delete
+  #   And then:
+  #       $ git rev-parse --abbrev-ref HEAD
+  #       release
+  #
+  #   (I did not create the HEAD file intentionally; I renamed all 'master'
+  #   branches, mostly to 'release', and deleted said branch from GitHub,
+  #   and then I had this issue in a few of my projects, but not all.)
+  #
+  #   In lieu of fixing this automatically, check for it.
+  #   (NOTE: Because POSIX, we use case for wildcard matching, i.e.,
+  #          in Bash we could [[ "${source_branch}" == heads/* ]]; but
+  #           not in POSIX
+  #           endbut
+  #
+  # NOTE/2020-09-21: This case block might not fire any more, if the change
+  # to `git_checkedout_branch_name_direct` works (I set --abbrev-ref=loose).
   case "${source_branch}" in
     "heads/"*) >&2 error "ERROR?: Try \`cd <source_repo> &&" \
                          "git remote set-head ${target_branch} --delete\`"
