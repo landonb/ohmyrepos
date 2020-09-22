@@ -152,5 +152,8 @@ autocommit = true
 #         ff = only
 #   - Or we could just be explicit about it here (let's do that).
 # git_pull = git pull "$@"
-git_pull = git fetch "$@" && git merge --ff-only "$@" FETCH_HEAD
+git_pull =
+  git fetch "$@" &&
+    git merge --ff-only "$@" FETCH_HEAD \
+      | grep -v "Already up to date." || true
 
