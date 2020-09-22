@@ -26,7 +26,7 @@ readlink_f () {
         ret_code=1
       else
         local resolve_file
-        resolve_link="$(readlink -- "${resolve_path}")"
+        local resolve_link="$(readlink -- "${resolve_path}")"
         case "${resolve_link}" in
           /*)
             # Absolute path.
@@ -42,15 +42,14 @@ readlink_f () {
           resolve_path=""
           ret_code=1
         else
-          cd $(dirname -- "${resolve_file}") > /dev/null
+          cd "${resolved_dir}" > /dev/null
           resolve_path="$(pwd -P)/$(basename -- "${resolve_file}")"
         fi
       fi
     done
     cd "${before_cd}"
   fi
-  echo -n "${resolve_path}"
-  [ -n "${resolve_path}" ] && echo
+  [ -n "${resolve_path}" ] && echo "${resolve_path}"
   return ${ret_code}
 }
 
@@ -127,9 +126,6 @@ export_log_levels () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_sh_logger_echo () {
-  [ "$(echo -e)" = '' ] && echo -e "${@}" || echo "${@}"
-}
 
 _sh_logger_log_msg () {
   local FCN_LEVEL="$1"
@@ -144,9 +140,12 @@ _sh_logger_log_msg () {
     local invert_maybe=''
     [ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ] && invert_maybe=$(bg_maroon)
     [ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ] && invert_maybe=$(bg_hotpink)
-    local echo_msg
-    echo_msg="${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}$@$(attr_reset)"
-    _sh_logger_echo "${echo_msg}"
+    local prefix
+    prefix="${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}"
+    (
+      IFS=" "
+      printf "${prefix}%b$(attr_reset)\n" "$*"
+    )
   fi
 }
 
