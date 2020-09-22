@@ -43,46 +43,63 @@ source_deps () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# MAYBE/2020-08-26 01:26: Is the `echo -e` test because some shells
-# does not support that option? (and just echo the '-e'). The -e and -n
-# options are defined by some shells but not all, e.g., Bash defines -n,
-# but /bin/sh on macOS does not recogniez `echo -n`. But `/bin/echo -n`
-# works on macOS. Interestingly, Bash `echo -e` works, but not the same
-# in /bin/sh shell, not via `/bin/echo -e` and so therefore not via
-# `/usr/env/bin -e`, either, so `echo -e` only available via Bash on
-# macOS...
-# MAYBE/FIXME/2020-08-26 01:32: How would we replace with printf?
+# 2020-09-21: Because `echo -e` not universally supported, and to avoid
+# interpreting unknown input escape-looking characters, we use printf.
+# - The following subshell functions were inspired by this discussion:
+#   https://unix.stackexchange.com/questions/65803/why-is-printf-better-than-echo/65819
+# - Note that we're using a subshell function to scope $IFS changes.
+#   - I.e., `foo () ( ... )`, and not `foo () { ...; }`.
+#   - We could avoid subshell with, e.g., `echo () { local IFS=" "... }`,
+#     but `local` may not be as universal as using a subshell function.
+#   - We could avoid subshell be storing/restoring IFS, but that seems tedious.
+# - Note that "$*" returns a string of args. joined by first char. of IFS.
+#   - We could instead use "$@" which stringifies array with space delimiters.
 
-_echo () {
-  [ "$(/usr/bin/env echo -e)" = '' ] && /usr/bin/env echo -e "${@}" || /usr/bin/env echo "${@}"
-}
+# We only need `echo -e` and `echo -en` replacements herein.
+#
+# Here's what `echo` and `echo -n` would look like:
+#
+#   _echo() (
+#     IFS=" "
+#     printf '%s\n' "$*"
+#   )
+#
+#   _echo_n() (
+#     IFS=" "
+#     printf %s "$*"
+#   )
 
-_echon () {
-  # 2020-08-30: Change `echo` to `/usr/bin/env`, and now sure this really necessary anymore...
-  [ "$(/usr/bin/env echo -e)" = '' ] && /usr/bin/env echo -e -n "${@}" || /usr/bin/env echo -n "${@}"
-}
+_echo_e() (
+  IFS=" "
+  printf '%b\n' "$*"
+)
+
+_echo_en() (
+  IFS=" "
+  printf %b "$*"
+)
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _git_echo_long_op_start () {
   local right_now="$(date "+%Y-%m-%d @ %T")"
   LONG_OP_MSG=
-  LONG_OP_MSG="$( _echo \
+  LONG_OP_MSG="$( _echo_e \
     "$(fg_lightorange)[WAIT]$(attr_reset) ${right_now} "\
     "$(fg_lightorange)⏳ ${1}$(attr_reset)" \
     "$(fg_lightorange)${MR_REPO}...$(attr_reset)" \
   )"
-  _echon "${LONG_OP_MSG}"
+  _echo_en "${LONG_OP_MSG}"
 }
 
 _git_echo_long_op_finis () {
-  _echon "\r"
+  _echo_en "\r"
   # Clear out the previous message (lest ellipses remain in terminal) e.g., clear:
   #      "[WAIT] 2019-10-30 @ 19:34:04 ⏳ fetchin’  /..." → 43 chars
   #                                       fetched🤙 /kit/Coldsprints
-  _echon "                                           "  # add one extra for Unicode, or something.
-  _echon "$(echo "${MR_REPO}..." | /usr/bin/env sed -E "s/./ /g")"
-  _echon "\r"
+  _echo_en "                                           "  # add one extra for Unicode, or something.
+  _echo_en "$(printf "${MR_REPO}..." | /usr/bin/env sed -E "s/./ /g")"
+  _echo_en "\r"
   LONG_OP_MSG=
 }
 
@@ -96,7 +113,7 @@ is_ssh_path () {
 }
 
 lchop_sep () {
-  echo $1 | /usr/bin/env sed "s#^/##"
+  printf "$1" | /usr/bin/env sed "s#^/##"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -278,7 +295,7 @@ git_checkedout_branch_name_direct () {
   local branch_name
   branch_name=$(git rev-parse --abbrev-ref HEAD)
   cd "${before_cd}"
-  echo "${branch_name}"
+  printf %s "${branch_name}"
 }
 
 git_checkedout_branch_name_remote () {
@@ -294,7 +311,7 @@ git_checkedout_branch_name_remote () {
     /usr/bin/env sed -e "s/^.*HEAD branch:\s*//" \
   )
   cd "${before_cd}"
-  echo "${branch_name}"
+  printf %s "${branch_name}"
 }
 
 git_source_branch_deduce () {
@@ -310,7 +327,7 @@ git_source_branch_deduce () {
     source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
   fi
 
-  echo "${source_branch}"
+  printf %s "${source_branch}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -326,7 +343,7 @@ git_checkedout_remote_branch_name () {
   local remote_branch
   remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
   cd "${before_cd}"
-  echo "${remote_branch}"
+  printf %s "${remote_branch}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -421,7 +438,7 @@ git_fetch_remote_travel () {
   # Use `&& true` in case grep does not match anything,
   # so as not to tickle errexit.
   # 2018-03-23: Is the "has become dangling" message meaningful to me?
-  local culled="$(echo "${git_resp}" \
+  local culled="$(printf %s "${git_resp}" \
     | grep -v "^Fetching " \
     | grep -v "^From " \
     | grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" \
@@ -620,7 +637,7 @@ git_merge_ff_only () {
   #       so there are other digits and then backspaces, I'd guess.
   #       Though this doesn't work:
   #         | grep -P -v "^Checking out files: [\d\b]+" \
-  local culled="$(echo "${git_resp}" \
+  local culled="$(printf %s "${git_resp}" \
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
     | grep -v "^Fast-forward$" \
@@ -649,8 +666,8 @@ git_merge_ff_only () {
   # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
   # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
   # but subsequent lines have changed background color to end of line, seems weird:
-  #   local changes_txt="$(echo "${git_resp}" | grep -P "${pattern_txt}")"
-  #   local changes_bin="$(echo "${git_resp}" | grep -P "${pattern_bin}")"
+  #   local changes_txt="$(printf %s "${git_resp}" | grep -P "${pattern_txt}")"
+  #   local changes_bin="$(printf %s "${git_resp}" | grep -P "${pattern_bin}")"
   # So use sed to sandwich each line with color changes.
   # - Be sure color is enabled, lest:
   #     /usr/bin/env sed: -e expression #1, char 7: unterminated `s' command
@@ -662,10 +679,10 @@ git_merge_ff_only () {
   '
   #
   local changes_txt="$( \
-    echo "${git_resp}" | grep -P "${pattern_txt}" | eval "${grep_sed_sed}" \
+    printf %s "${git_resp}" | grep -P "${pattern_txt}" | eval "${grep_sed_sed}" \
   )"
   local changes_bin="$( \
-    echo "${git_resp}" | grep -P "${pattern_bin}" | eval "${grep_sed_sed}" \
+    printf %s "${git_resp}" | grep -P "${pattern_bin}" | eval "${grep_sed_sed}" \
   )"
   #
   if [ -n "${changes_txt}" ]; then
@@ -695,7 +712,7 @@ git_merge_ff_only () {
     warn "Merge failed! \`merge --ff-only $to_commit\` says:"
     warn " ${git_resp}"
     # warn " target_repo: ${target_repo}"
-  elif (echo "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
+  elif (printf %s "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
   elif [ -z "${changes_txt}" ] && [ -z "${changes_bin}" ]; then
@@ -815,7 +832,7 @@ git_update_dev_path () {
   #   local dev_path=$(readlink_m "${MR_TRAVEL}/${MR_REPO}")
   local git_name='_0.git'
   local dev_path=$(readlink_m "${MR_TRAVEL}/${MR_REPO}/${git_name}")
-  echo "${dev_path}"
+  printf %s "${dev_path}"
 }
 
 # The `mr travel` action.

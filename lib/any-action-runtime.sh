@@ -70,7 +70,7 @@ git_any_command_stopped () {
   if [ $(echo "${seconds} >= ${OMR_RUNTIME_MIN_SECS}" | bc -l) -ne 0 ]; then
     local time_elapsed="$(python_prettify_elapsed "${seconds}")"
     [ -z "${time_elapsed}" ] && time_elapsed="$(simple_bc_elapsed "${seconds}")"
-    /usr/bin/env echo -n "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
+    printf %s "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
   fi
   /bin/rm -f "${OMR_RUNTIME_TEMPFILE}"
 }

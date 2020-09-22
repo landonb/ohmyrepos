@@ -59,13 +59,13 @@ _debug () {
     local time_n=$(home_fries_nanos_now)
     local file_time_0="${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
     local elapsed_frac="$(echo "(${time_n} - $(cat ${file_time_0}))" | bc -l)"
-    local elapsed_secs=$(echo ${elapsed_frac} | xargs printf "%04.1f")
-    /usr/bin/env echo -n "(${elapsed_secs}s) "
+    local elapsed_secs=$(printf "${elapsed_frac}" | xargs printf "%04.1f")
+    printf %s "(${elapsed_secs}s) "
   }
 
   _debug_show_clock_time () {
     local clock=$(date "+%T")
-    /usr/bin/env echo -n "${clock}: "
+    printf %s "${clock}: "
   }
 
   local prefix=''
@@ -243,7 +243,8 @@ git_report_untidy_repo () {
   # Note that sh (e.g., dash; or a POSIX shell) does not define `echo -e`
   # like Bash (and in fact `echo -e "some string" echoes "-e some string).
   if [ -n "${OMR_MYSTATUS_TMP_CHORES_FILE}" ]; then
-    echo "  ${OMR_MYSTATUS_SNIP_CD} $(fg_lightorange)${MR_REPO}$(attr_reset) && git my-merge-status" \
+    echo \
+      "  ${OMR_MYSTATUS_SNIP_CD} $(fg_lightorange)${MR_REPO}$(attr_reset) && git my-merge-status" \
       >> "${OMR_MYSTATUS_TMP_CHORES_FILE}"
   fi
 }
@@ -280,8 +281,8 @@ git_report_fancy () {
   fi
   # Correct for Unicode: printf works in bytes, not chars, so add two spaces for
   # each Unicode character (which applies to some but not all Unicode characters).
-  local path_bytes=$(echo "$MR_REPO" | wc --bytes)
-  local path_chars=$(echo "$MR_REPO" | wc --chars)
+  local path_bytes=$(printf "$MR_REPO" | wc --bytes)
+  local path_chars=$(printf "$MR_REPO" | wc --chars)
   if [ ${path_bytes} -ne ${path_chars} ]; then
     # Has Unicode characters. (lb): I don't know the ratio, but most Unicode
     # characters I've seen (but not all) are reported as 3 characters. Because
@@ -291,7 +292,7 @@ git_report_fancy () {
   fi
 
   # Step 1 of 2: Truncate to maximum width.
-  local rpath="$(eval "echo '${MR_REPO}' | grep -o -P '.{0,${padw}}\$'")"
+  local rpath="$(eval "printf '${MR_REPO}' | grep -o -P '.{0,${padw}}\$'")"
 
   # Step 1.5 of 2: Prefix with ellipses if truncated.
   [ "${rpath}" != "${MR_REPO}" ] && rpath="...${rpath}"
