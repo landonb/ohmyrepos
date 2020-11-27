@@ -66,6 +66,7 @@ lib = LOG_LEVEL=${LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/fetch-selective"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-auto-commit"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-config-user-email-privatize"
 # Optional: https://github.com/landonb/git-my-merge-status
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-my-merge-status"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/infuse-no-op"

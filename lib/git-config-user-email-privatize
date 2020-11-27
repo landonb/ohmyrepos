@@ -1,0 +1,23 @@
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
+
+# USAGE: Set Git user.email to user- and machine-specific address.
+#
+#        Useful for your private repos, so git-log shows `name@host` for Author.
+#
+#        E.g., this author keeps their private notes in one repository, and
+#        that repository is shared between my development machines. Using
+#        'username@machine' for the user.email means I can tell from which
+#        machines I committed changes. Also, because for public repos I use
+#        my GH user's shadow email (username@users.noreply.github.com,
+#        specified from ~/.gitconfig.local, loaded globally by ~/.gitconfig),
+#        now I can tell by the Git user that this is a private repo (which I
+#        also indicate by the convention that in private repos I use the
+#        branch name 'private').
+
+[DEFAULT]
+lib = git_config_user_email_privatize () {
+        local user_email="${LOGNAME}@$(hostname)"
+        info " Priv. Git user.email $(font_highlight "${user_email}")"
+        git config --local --replace-all user.email ${user_email}
+      }
+
