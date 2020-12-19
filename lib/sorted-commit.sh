@@ -26,7 +26,8 @@ sort_file_then_commit () {
     local sortedf
     sortedf="$(mktemp --suffix='.myrepostravel')"
 
-    /bin/cat "${targetf}" | /usr/bin/sort > "${sortedf}"
+    # --dictionary-order: Emoji, A-Z, then a-z.
+    cat "${targetf}" | LC_ALL='C' sort -d > "${sortedf}"
     /bin/mv -f "${sortedf}" "${targetf}"
 
     git_auto_commit_one "${targetf}" "${@}"
