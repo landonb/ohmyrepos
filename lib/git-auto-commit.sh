@@ -53,7 +53,7 @@ git_auto_commit_path_one () {
   fi
 
   local msg_prefix="myrepos: autoci: Add Favorite: [@$(hostname)]"
-  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename ${repo_file})”.}"
+  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename "${repo_file}")”.}"
 
   local extcd
   (git status --porcelain "${repo_file}" |
