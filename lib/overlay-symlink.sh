@@ -172,14 +172,18 @@ symlink_verify_source () {
     if [ ! -f "${sourcep}" ]; then
       error "mrt: Failed to create symbolic link!"
       error "  Did not find linkable source file at:"
-      error "  ${sourcep}"
+      error "    ${sourcep}"
+      error "  From our perch at:"
+      error "    $(pwd)"
       exit 1
     fi
   elif [ "${srctype}" = 'dir' ]; then
     if [ ! -d "${sourcep}" ]; then
       error "mrt: Failed to create symbolic link!"
       error "  Did not find linkable source directory at:"
-      error "  ${sourcep}"
+      error "    ${sourcep}"
+      error "  From our perch at:"
+      error "    $(pwd)"
       exit 1
     fi
   else
