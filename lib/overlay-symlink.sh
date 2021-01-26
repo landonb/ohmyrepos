@@ -265,9 +265,10 @@ symlink_create_informative () {
     exit 1
   fi
 
-  # Use as many columns as the "Updated ... symlink" messages' final output
-  # columns use (which show filenames and dirnames) so those values align.
-  info " $(font_lesslight "Created") $(font_emphasize ${srctype}) symlink $(font_highlight ${targetp})"
+  # Created new symlink.
+  info_msg="$(symlink_get_msg_informative "$(font_lesslight "Created")" "${srctype}" "${targetp}")"
+
+  info "${info_msg}"
 }
 
 symlink_update_informative () {
@@ -277,12 +278,8 @@ symlink_update_informative () {
 
   local info_msg
   if [ -h "${targetp}" ]; then
-    local targetd
-    [ "${srctype}" = 'dir' ] && targetd='/' || true
-    # Turn 'dir' into 'dir.' so same count as 'file' and output (filenames and dirnames) align.
-    [ "${srctype}" = 'dir' ] && srctype='dir.' || true
-    # Overwriting existing symlink.
-    info_msg=" Updated $(font_emphasize ${srctype}) symlink $(font_highlight ${targetp}${targetd})"
+    # (Will be) Overwriting existing symlink.
+    info_msg="$(symlink_get_msg_informative "Updated" "${srctype}" "${targetp}")"
   elif [ -f "${targetp}" ]; then
     # For how this function is used, the code would already have checked
     # that the user specified -f/--force; or else the code didn't care to
@@ -309,6 +306,23 @@ symlink_update_informative () {
   fi
 
   info "${info_msg}"
+}
+
+symlink_get_msg_informative () {
+  local what="$1"
+  local srctype="$2"
+  local targetp="$3"
+  local targetd
+
+  # Like `/bin/ls -F`, "Display a slash (`/') ... after each pathname that is a [dir]."
+  [ "${srctype}" = 'dir' ] && targetd='/' || true
+
+  # Turn 'dir' into 'dir.' so same count as 'file' and output (filenames and dirnames) align.
+  [ "${srctype}" = 'dir' ] && srctype='dir.' || true
+
+  info_msg=" ${what} $(font_emphasize ${srctype}) symlink $(font_highlight ${targetp}${targetd})"
+
+  printf "%s" "${info_msg}"
 }
 
 # ***
