@@ -312,12 +312,10 @@ git_report_fancy () {
     rpath="$(git_status_format_minty "${rpath}")"
   fi
 
-  # sed: Add extra space before single-digit pedantic-timedeltas.
   local synop="$( \
     GITSMART_MYST_ALIGN_COLS=true \
     git-my-merge-status \
-    | head -n 1 \
-    | /usr/bin/env sed -E "s/([^0-9])([0-9]\.[0-9]{2}([^0-9]|$))/\1 \2/"
+    | head -n 1
   )"
 
   print_status "${rpath}  ${synop}"
