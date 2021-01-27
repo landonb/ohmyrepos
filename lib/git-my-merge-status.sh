@@ -78,6 +78,7 @@ print_status () {
       prefix="$(_print_status_show_clock_time)"
     fi
   fi
+
   echo "${prefix}${@}"
 }
 
@@ -281,8 +282,8 @@ git_report_fancy () {
   fi
   # Correct for Unicode: printf works in bytes, not chars, so add two spaces for
   # each Unicode character (which applies to some but not all Unicode characters).
-  local path_bytes=$(printf "$MR_REPO" | wc --bytes)
-  local path_chars=$(printf "$MR_REPO" | wc --chars)
+  local path_bytes=$(printf "${MR_REPO}" | wc --bytes)
+  local path_chars=$(printf "${MR_REPO}" | wc --chars)
   if [ ${path_bytes} -ne ${path_chars} ]; then
     # Has Unicode characters. (lb): I don't know the ratio, but most Unicode
     # characters I've seen (but not all) are reported as 3 characters. Because
