@@ -47,7 +47,7 @@ home_fries_nanos_now () {
   fi
 }
 
-_debug () {
+print_status () {
   # Originally used debug mechanism:
   #   debug "${@}"
   # but that takes valuable line space; and who cares about today's YYYY-MM-DD?
@@ -55,7 +55,7 @@ _debug () {
   #   echo "${@}"
   # but I do sorta like knowing how fast the operation is going, so add a short
   # elapsed time report to each line. So defaulting to not showing progress time.
-  _debug_show_elapsed_time () {
+  _print_status_show_elapsed_time () {
     local time_n=$(home_fries_nanos_now)
     local file_time_0="${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
     local elapsed_frac="$(echo "(${time_n} - $(cat ${file_time_0}))" | bc -l)"
@@ -63,7 +63,7 @@ _debug () {
     printf %s "(${elapsed_secs}s) "
   }
 
-  _debug_show_clock_time () {
+  _print_status_show_clock_time () {
     local clock=$(date "+%T")
     printf %s "${clock}: "
   }
@@ -73,9 +73,9 @@ _debug () {
     if [ "${OMR_MYSTATUS_SHOW_PROG}" = 'elapsed' ] &&
        [ -s ${OMR_MYSTATUS_TMP_TIMEIT_FILE} ]
     then
-      prefix="$(_debug_show_elapsed_time)"
+      prefix="$(_print_status_show_elapsed_time)"
     elif [ "${OMR_MYSTATUS_SHOW_PROG}" = 'clock' ]; then
-      prefix="$(_debug_show_clock_time)"
+      prefix="$(_print_status_show_clock_time)"
     fi
   fi
   echo "${prefix}${@}"
@@ -185,7 +185,7 @@ git_status_check_report_9chars () {
   status_adj="$1"
   opt_prefix="$2"
   opt_suffix="$3"
-  _debug " "\
+  print_status " "\
     "${opt_prefix}$(attr_underline)$(git_status_format_alert "${status_adj}")${opt_suffix}" \
     "  $(attr_underline)$(git_status_format_alert "${MR_REPO}")  $(fg_hotpink)✗$(attr_reset)"
 }
@@ -319,11 +319,11 @@ git_report_fancy () {
     | /usr/bin/env sed -E "s/([^0-9])([0-9]\.[0-9]{2}([^0-9]|$))/\1 \2/"
   )"
 
-  _debug "${rpath}  ${synop}"
+  print_status "${rpath}  ${synop}"
 }
 
 git_report_short_unchanged () {
-  _debug "  $(attr_emphasis)$(git_status_format_minty "unchanged")  " \
+  print_status "  $(attr_emphasis)$(git_status_format_minty "unchanged")  " \
     "$(git_status_format_minty "${MR_REPO}")"
 }
 
