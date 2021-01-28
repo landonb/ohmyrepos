@@ -16,7 +16,8 @@ source_deps () {
 reveal_biz_vars () {
   # (lb): Because myrepos uses subprocesses, we cannot share values
   # using environment variables. So we use a temporary file instead.
-  OMR_RUNTIME_TEMPFILE='/tmp/home-fries-myrepos.rntime-ieWeich9kaph5eiR'
+  # And we use the parent process ID so `mr` can run in parallel.
+  OMR_RUNTIME_TEMPFILE="/tmp/gitsmart-ohmyrepos-all-cmds-timing-${PPID}"
 
   # YOU: Set this to minimum threshold for elapsed time to be displayed.
   # - Default: 0 secs., i.e., always show the action runtime (which is just

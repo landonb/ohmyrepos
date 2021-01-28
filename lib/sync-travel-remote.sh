@@ -28,9 +28,10 @@ GIT_BARE_REPO='--bare'
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 reveal_biz_vars () {
-  # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet for
-  # maintaining data across all repos is to use temporary files.
-  MR_TMP_TRAVEL_HINT_FILE='/tmp/home-fries-myrepos.travel-ieWeich9kaph5eiR'
+  # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet (read:
+  # lazy path to profit) to collect data from all repos is with temporaries.
+  # Add the parent process ID so this command may be run in parallel.
+  MR_TMP_TRAVEL_HINT_FILE="/tmp/gitsmart-ohmyrepos-travel-${PPID}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

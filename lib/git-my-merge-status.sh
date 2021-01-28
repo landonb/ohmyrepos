@@ -9,8 +9,12 @@ source_deps () {
 }
 
 reveal_biz_vars () {
-  OMR_MYSTATUS_TMP_CHORES_FILE='/tmp/home-fries-myrepos.chores-ieWeich9kaph5eiR'
-  OMR_MYSTATUS_TMP_TIMEIT_FILE='/tmp/home-fries-myrepos.chores-sohFiex2Noh2loa2'
+  # Each my_merge_status runs in a separate subshell without direct
+  # inter-process communication, so we use temp files with specific
+  # filenames to cache data for the final report. The $PPID ensures
+  # that the user can run my-merge-status separately simultanesouly.
+  OMR_MYSTATUS_TMP_CHORES_FILE="/tmp/gitsmart-ohmyrepos-mystatus-chores-${PPID}"
+  OMR_MYSTATUS_TMP_TIMEIT_FILE="/tmp/gitsmart-ohmyrepos-mystatus-timeit-${PPID}"
   # MAYBE/2020-02-26: Could adjust width based on terminal width.
   OMR_MYSTATUS_ECHO_PATH_WIDTH=${OMR_MYSTATUS_ECHO_PATH_WIDTH:-60}
 
