@@ -10,6 +10,17 @@ git_auto_commit_parse_args () {
   # functions, because myrepostravel_opts_parse complains on unknown args).
   myrepostravel_opts_parse "${@}"
   [ ${MRT_AUTO_YES} -eq 0 ] && MR_AUTO_COMMIT=true || true
+
+  # These two variables are use by git_auto_commit_many.
+  # - The commit count is incremented by git_auto_commit_one, which the
+  #   git_auto_commit_many feature uses (because DRY), and indicates if
+  #   there's anything to commit. (We can either keep count, or we could
+  #   check git-status and ignore untracked. But we prefer the count
+  #   because it helps (but doesn't prevent) autocommit from committing
+  #   previously staged work).
+  MR_GIT_AUTO_COMMIT_STAGE_COUNT=0
+  # This tracks the names of committed files to help craft the --message.
+  MR_GIT_AUTO_COMMIT_FILES_ADDED=""
 }
 
 git_auto_commit_hello () {
@@ -37,16 +48,20 @@ git_auto_commit_noop () {
 
 git_auto_commit_one () {
   git_auto_commit_hello
+
   git_auto_commit_parse_args "${@}"
   if ! git_auto_commit_process_rest "git_auto_commit_path_one" "${@}"; then
     fatal "ERROR: Expecting a path to git_auto_commit_one."
     exit 1
   fi
+
   git_auto_commit_seeya
 }
 
 git_auto_commit_path_one () {
   local repo_file="$1"
+  local skip_commit=${2:-false}
+
   if [ -z "${repo_file}" ]; then
     fatal "ERROR: Expecting a path to git_auto_commit_one."
     exit 1
@@ -73,25 +88,67 @@ git_auto_commit_path_one () {
 
     if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
       git add "${repo_file}"
-      # FIXME/2017-04-13: Handle errors better (and maybe don't send to /dev/null).
-      # E.g., I saw errors on uncommitted changes here years ago:
-      #   U	path/to/my.file
-      #   error: Committing is not possible because you have unmerged files.
-      #   hint: Fix them up in the work tree, and then use 'git add/rm <file>'
-      #   hint: as appropriate to mark resolution and make a commit.
-      #   fatal: Exiting because of an unresolved conflict.
-      # (but it could be that the code won't make it here anymore on
-      # those conditions, e.g., maybe merge conflicts are seen earlier).
-      git commit -m "${commit_msg}" >/dev/null 2>&1
-      if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
-        echo 'Committed!'
-      fi
+      MR_GIT_AUTO_COMMIT_STAGE_COUNT=$((MR_GIT_AUTO_COMMIT_STAGE_COUNT + 1))
+      ${skip_commit} || git_auto_commit_path_one_or_many "${commit_msg}"
     elif [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       echo 'Skipped!'
     fi
 
   # else, the file is not dirty.
   fi
+}
+
+git_auto_commit_path_one_or_many () {
+  local commit_msg="$1"
+
+  # FIXME/2017-04-13: Handle errors better (and maybe don't send to /dev/null).
+  # E.g., I saw errors on uncommitted changes here years ago:
+  #   U	path/to/my.file
+  #   error: Committing is not possible because you have unmerged files.
+  #   hint: Fix them up in the work tree, and then use 'git add/rm <file>'
+  #   hint: as appropriate to mark resolution and make a commit.
+  #   fatal: Exiting because of an unresolved conflict.
+  # (but it could be that the code won't make it here anymore on
+  # those conditions, e.g., maybe merge conflicts are seen earlier).
+  git commit -m "${commit_msg}" >/dev/null 2>&1
+
+  if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
+    echo 'Committed!'
+  fi
+}
+
+git_auto_commit_many () {
+  git_auto_commit_hello
+
+  git_auto_commit_parse_args "${@}"
+  if ! git_auto_commit_process_rest "git_auto_commit_path_many" "${@}"; then
+    fatal "ERROR: Expecting a path(s) to git_auto_commit_many."
+    exit 1
+  fi
+
+  if [ ${MR_GIT_AUTO_COMMIT_STAGE_COUNT} -gt 0 ]; then
+    local msg_prefix="myrepos: autoci: Add Favorite: [@$(hostname)]"
+    local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} ${MR_GIT_AUTO_COMMIT_FILES_ADDED}.}"
+    git_auto_commit_path_one_or_many "${commit_msg}"
+  fi
+
+  git_auto_commit_seeya
+}
+
+git_auto_commit_path_many () {
+  local repo_file="$1"
+  if [ -z "${repo_file}" ]; then
+    fatal "ERROR: Expecting a path to git_auto_commit_path_many."
+    exit 1
+  fi
+
+  local skip_commit=true
+
+  [ -z "${MR_GIT_AUTO_COMMIT_FILES_ADDED}" ] \
+    || MR_GIT_AUTO_COMMIT_FILES_ADDED="${MR_GIT_AUTO_COMMIT_FILES_ADDED}, "
+  MR_GIT_AUTO_COMMIT_FILES_ADDED="${MR_GIT_AUTO_COMMIT_FILES_ADDED}“$(basename "${repo_file}")”"
+
+  git_auto_commit_path_one "${repo_file}" ${skip_commit}
 }
 
 git_auto_commit_all () {
@@ -179,6 +236,8 @@ git_auto_commit_process_rest () {
       shift
       break
     fi
+    # These options were previously processed by params_register_switches.
+    # Here we just need to ignore them.
     case $1 in
       -f)
         shift
