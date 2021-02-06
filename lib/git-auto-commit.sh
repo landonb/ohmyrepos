@@ -70,9 +70,16 @@ git_auto_commit_path_one () {
   local msg_prefix="myrepos: autoci: Add Favorite: [@$(hostname)]"
   local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename "${repo_file}")”.}"
 
+  # Check for ' M unstaged/files'
+  #       and '?? untracked/files',
+  #       at least.
+  # We could also check 'M  staged/files'
+  # and for combination 'MM staged/and/unstaged/changes'
+  # but I'd rather start strict and see if the latter is
+  # something for which I eventually yearn.
   local extcd
   (git status --porcelain "${repo_file}" |
-    grep "^\W*M\W*${repo_file}" >/dev/null 2>&1) || extcd=$?
+    grep "^\( M\|??\) ${repo_file}$" >/dev/null 2>&1) || extcd=$?
 
   if [ -z ${extcd} ]; then
     local yorn
