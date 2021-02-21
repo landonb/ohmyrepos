@@ -71,12 +71,12 @@ source_deps () {
 #   )
 
 _echo_e() (
-  IFS=" "
+  local IFS=" "
   printf '%b\n' "$*"
 )
 
 _echo_en() (
-  IFS=" "
+  local IFS=" "
   printf %b "$*"
 )
 
