@@ -50,7 +50,7 @@ link_hard () {
     # Compare inode values.
     if [ "${canon_inode}" = "${local_inode}" ]; then
       # Same inode; already at the desired state.
-      info "Hard link confirmed: $(basename ${local_file})"
+      info " Hard link $(font_emphasize inode) same $(font_highlight "$(basename ${local_file})")"
       return 0
     elif ! diff -q "${canon_file}" "${local_file}" > /dev/null; then
       # Different inode, and different file contents. Cannot proceed.
@@ -63,7 +63,7 @@ link_hard () {
   # Different inode but nothing diff means we're cleared to clobber.
   ln -f "${canon_file}" "${local_file}"
   # info "File hard link created: $(basename ${local_file})"
-  info "Hard link created: $(basename ${local_file})"
+  info " Placed new $(font_emphasize "hard link") $(font_highlight "$(basename ${local_file})")"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
