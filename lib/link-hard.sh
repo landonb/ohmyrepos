@@ -16,8 +16,7 @@ source_deps () {
 link_hard () {
   # The reference file.
   local canon_file="$1"
-  # The local project's ($MR_REPO's) reference.
-  local local_file="${MR_REPO}/$2"
+  local local_file="${2:-${MR_REPO}/$(basename "${canon_file}")}"
 
   # Use `ls -i` to get the inode, e.g.,:
   #   $ ls -i ${canon_file}
