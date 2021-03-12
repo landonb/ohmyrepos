@@ -60,6 +60,8 @@ link_hard () {
     fi
   fi
 
+  mkdir -p "$(dirname "${local_file}")"
+
   # Different inode but nothing diff means we're cleared to clobber.
   ln -f "${canon_file}" "${local_file}"
   # info "File hard link created: $(basename ${local_file})"
