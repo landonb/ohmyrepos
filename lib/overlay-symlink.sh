@@ -462,21 +462,13 @@ symlink_file_clobber () {
   symlink_clobber_typed 'file' "${sourcep}" "${targetp}"
 }
 
+# NOTE: (lb): I have nothing that calls symlink_dir_clobber,
+#       but it's provided to complement symlink_file_clobber.
 symlink_dir_clobber () {
   local sourcep="$1"
   local targetp="${2:-$(basename "${sourcep}")}"
   symlink_clobber_typed 'dir' "${sourcep}" "${targetp}"
 }
-
-# FIXME/2019-10-26 13:47: delete these:
-#
-#symlink_local_file () {
-#  return symlink_file_clobber "$1/$2" "${3:-$2}"
-#}
-#
-#symlink_local_dir () {
-#  return symlink_dir_clobber "$1/$2" "${3:-$2}"
-#}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
