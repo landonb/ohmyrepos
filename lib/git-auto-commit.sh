@@ -85,11 +85,11 @@ git_auto_commit_path_one () {
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       printf '\n'
-      printf '%s\n' "Yo! This file is dirty: $(fg_lightorange)${MR_REPO}/${repo_file}$(attr_reset)"
+      printf '%s\n' "Yo! This file has changes: $(fg_lightorange)${MR_REPO}/${repo_file}$(attr_reset)"
       printf '%s' "Commit the file changes? [y/n] "
       read yorn
     else
-      debug "Committing dirty file: $(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
+      debug "Committing changes: $(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
       yorn="Y"
     fi
 
@@ -100,7 +100,7 @@ git_auto_commit_path_one () {
     elif [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       echo 'Skipped!'
     fi
-  # else, the file is not dirty.
+  # else, the file has no changes/not changed.
   fi
 }
 
@@ -165,7 +165,7 @@ git_auto_commit_all () {
     fatal "ERROR: Not expecting a path to git_auto_commit_path_all."
     exit 1
   fi
-  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-myrepos: autoci: Add All Dirty [@$(hostname)].}"
+  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-myrepos: autoci: Add All Changes [@$(hostname)].}"
 
   # We ignore untracted files here because they cannot be added
   # by a generic `git add -u` -- in fact, git should complain.
@@ -193,7 +193,7 @@ git_auto_commit_all () {
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       printf '\n'
-      printf '%s\n' "Yo! This repo is dirty: $(fg_lightorange)${MR_REPO}$(attr_reset)"
+      printf '%s\n' "Yo! This repo has changes: $(fg_lightorange)${MR_REPO}$(attr_reset)"
       printf '%s' "Commit *all* object changes? [y/n] "
       read yorn
     else
