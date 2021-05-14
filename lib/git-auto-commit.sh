@@ -93,7 +93,7 @@ git_auto_commit_path_one () {
       yorn="Y"
     fi
 
-    if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
+    if [ "${yorn#y}" != "${yorn}" ] || [ "${yorn#Y}" != "${yorn}" ]; then
       git add "${repo_file}"
       MR_GIT_AUTO_COMMIT_STAGE_COUNT=$((MR_GIT_AUTO_COMMIT_STAGE_COUNT + 1))
       ${skip_commit} || git_auto_commit_path_one_or_many "${commit_msg}"
@@ -202,7 +202,7 @@ git_auto_commit_all () {
       yorn="Y"
     fi
 
-    if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
+    if [ "${yorn#y}" != "${yorn}" ] || [ "${yorn#Y}" != "${yorn}" ]; then
       git add -u
       git commit -m "${commit_msg}" >/dev/null 2>&1
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
@@ -315,7 +315,7 @@ git_auto_commit_path_new () {
       yorn="Y"
     fi
 
-    if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
+    if [ "${yorn#y}" != "${yorn}" ] || [ "${yorn#Y}" != "${yorn}" ]; then
       # Hilarious. There's one way to programmatically add only
       # untracked files, and it's using the interactive feature.
       # (Because `git add .` adds untracked files but also includes
