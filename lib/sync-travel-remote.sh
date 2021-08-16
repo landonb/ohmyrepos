@@ -455,6 +455,13 @@ git_fetch_remote_travel () {
   # Ignore uninteresting git-fetch messages.
   # - Ignore basic messages, including the "From" line and all
   #   the "... some/branch -> remote/some/branch ..." lines.
+  # - Also ignore the auto-packing message, which is purely informative, e.g.,
+  #     Auto packing the repository in background for optimum performance.
+  #     See "git help gc" for manual housekeeping.
+  # - Although mewonders now if using --quiet would be more appropriate...
+  #   except then `verbose $git_resp` is not possible. Whatever, it's more
+  #   work to filter, but at least we'll find out if there other any other
+  #   interesting messages to care about.
   # - Don't worry about the became-dangling message, which is no longer
   #   possible now that the travel repos are all bare.
   #     | grep -v "(refs/remotes/origin/HEAD has become dangling)"
@@ -468,6 +475,8 @@ git_fetch_remote_travel () {
     | grep -v -P '\* \[new branch\] +.* -> .*' \
     | grep -v -P '\* \[new tag\] +.* -> .*' \
     | grep -v "^ \?- \[deleted\] \+(none) \+-> .*" \
+    | grep -v "^Auto packing the repository in background for optimum performance.$" \
+    | grep -v '^See "git help gc" for manual housekeeping.$' \
   )"
 
   [ -n "${culled}" ] && warn "git fetch wha?\n${culled}" || true
