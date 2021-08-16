@@ -1,0 +1,38 @@
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
+
+[DEFAULT]
+
+# Use no_travel for repos you want synced machine-to-machine, but not
+# to a travel device.
+#
+# - Use case: Your travel device uses a tomb, which must be created with
+#   a fixed size, and which takes longer to mount the larger the size,
+#   and your USB device has limited capactity compared to machine disks,
+#   so there are some projects you don't want to be synced to the travel
+#   device.
+#
+# - Use case: You use an encrypted shadow repo to manage personal files
+#   on a corporate device. On your personal machine, you have both the
+#   encrypted and plaintext directories of the same repo, and you only
+#   want to sync the plaintext directory to the (already) encrypted
+#   travel device (and also the encrypted shadow repo grows hugely big
+#   with every change).
+#
+# Usage, e.g.,:
+#
+#   [/path/to/project]
+#   checkout = private_clone
+#   skip = no_travel
+#
+# To disable no_travel, set the MR_ARCHIVED environment, e.g.,:
+#
+#   MR_ARCHIVED=1 mr -d /path/to/project ffssh
+#
+# no_travel: The project will be synced between hosts, but it won't be
+# archived to the travel device.
+lib =
+  no_travel () {
+    [ -z ${MR_ARCHIVED+x} ] &&
+    [ -n "${MR_TRAVEL}" ]
+  }
+
