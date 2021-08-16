@@ -264,10 +264,26 @@ git_ensure_or_clone_target () {
   #
   local retco=0
   local git_respf="$(mktemp --suffix='.myrepostravel-clone')"
+
+  # 2021-08-16: I'm, like, 100% positive this script always called with
+  # `set -e` in effect, but it's a little confusing because errexit is
+  # not set *by* this script. So honor whatever it might be.
+  # OH, BASH: Piping $SHELLOPTS will always disable errexit. E.g.,
+  #           `echo $SHELLOPTS | grep -q "\berrexit\b"` is always false,
+  #           because errexit is removed for the echo before the pipe.
+  local shell_opts="${SHELLOPTS}"
+  # Another Bashism? Variable set to empty string evaluate true:
+  #   empty="" && $empty && echo "so true"
+  # So being lazy: echoing false if false, else nothing (empty string).
+  local restore_errexit=$(echo "${shell_opts}" | grep -q "\berrexit\b" || echo false)
+
   set +e
+
   git clone ${GIT_BARE_REPO} -- "${source_repo}" "${target_repo}" >"${git_respf}" 2>&1
   retco=$?
-  set -e
+
+  ${restore_errexit} && set -e
+
   local git_resp="$(<"${git_respf}")"
   /bin/rm "${git_respf}"
   #
