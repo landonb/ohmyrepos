@@ -452,9 +452,15 @@ git_fetch_remote_travel () {
   _git_echo_long_op_finis
 
   verbose "git fetch says:\n${git_resp}"
-  # Note that `local` always returns true, so even when `grep -v` returns
-  # nonzero, it won't tickle errexit (so long as within `local` context).
-  # 2018-03-23: Is the "has become dangling" message meaningful to me?
+  # Ignore uninteresting git-fetch messages.
+  # - Ignore basic messages, including the "From" line and all
+  #   the "... some/branch -> remote/some/branch ..." lines.
+  # - Don't worry about the became-dangling message, which is no longer
+  #   possible now that the travel repos are all bare.
+  #     | grep -v "(refs/remotes/origin/HEAD has become dangling)"
+  #
+  # - Note that `local` always returns true. So even when `grep -v` returns
+  #   nonzero, it won't tickle errexit (so long as within `local` context).
   local culled="$(printf %s "${git_resp}" \
     | grep -v "^Fetching " \
     | grep -v "^From " \
@@ -462,7 +468,6 @@ git_fetch_remote_travel () {
     | grep -v -P '\* \[new branch\] +.* -> .*' \
     | grep -v -P '\* \[new tag\] +.* -> .*' \
     | grep -v "^ \?- \[deleted\] \+(none) \+-> .*" \
-    | grep -v "(refs/remotes/origin/HEAD has become dangling)" \
   )"
 
   [ -n "${culled}" ] && warn "git fetch wha?\n${culled}" || true
