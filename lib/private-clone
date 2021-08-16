@@ -1,0 +1,37 @@
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
+
+[DEFAULT]
+
+# Use private_clone for private repos that you don't publish online. So
+# the only method to clone the repo is from another host, e.g., via SSH.
+#
+# Usage, e.g.,:
+#
+#   [/path/to/project]
+#   checkout = private_clone '/path/to/project'
+#
+# Or more simply (assumes path at $MR_REPO on remote host):
+#
+#   [/path/to/project]
+#   checkout = private_clone
+#
+# Or if you want to clone to a specially named directory:
+#
+#   [/path/to/project]
+#   checkout = private_clone '/path/to/project' 'psyche'
+#
+# Then just specify the remote host when running OMR:
+#
+#   MR_REMOTE=hostname mr -d /path/to/project checkout
+
+lib =
+  private_clone () {
+    [ -z ${MR_REMOTE} ] &&
+      error 'You must set MR_REMOTE' &&
+      return 1
+    #
+    git clone -o "${MR_REMOTE}" \
+      "ssh://${MR_REMOTE}${1:-${MR_REPO}}" \
+      "${2:-$(basename ${1:-${MR_REPO}})}"
+  }
+
