@@ -436,8 +436,8 @@ git_fetch_remote_travel () {
   _git_echo_long_op_finis
 
   verbose "git fetch says:\n${git_resp}"
-  # Use `&& true` in case grep does not match anything,
-  # so as not to tickle errexit.
+  # Note that `local` always returns true, so even when `grep -v` returns
+  # nonzero, it won't tickle errexit (so long as within `local` context).
   # 2018-03-23: Is the "has become dangling" message meaningful to me?
   local culled="$(printf %s "${git_resp}" \
     | grep -v "^Fetching " \
