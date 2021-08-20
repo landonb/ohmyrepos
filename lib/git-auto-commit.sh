@@ -167,7 +167,7 @@ git_auto_commit_all () {
   fi
   local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-myrepos: autoci: Add All Changes [@$(hostname)].}"
 
-  # We ignore untracted files here because they cannot be added
+  # We ignore untracked files here because they cannot be added
   # by a generic `git add -u` -- in fact, git should complain.
   #
   # So auto-commit works on existing git files, but not on new ones.
