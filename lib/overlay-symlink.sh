@@ -164,6 +164,10 @@ file_exists_and_not_symlink () {
   [ -e "${1}" ] && [ ! -h "${1}" ]
 }
 
+file_exists_and_not_linked_to_source () {
+  [ -e "${1}" ] && ! [ "${1}" -ef "${2}" ]
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # Source verification.
 
@@ -217,78 +221,108 @@ safe_backup_existing_target () {
 
 fail_target_exists_not_link () {
   local targetp="$1"
-  error "mrt: Failed to create symbolic link!"
-  error "  Target exists and is not a symlink at:"
-  error "    ${targetp}"
-  error "  From working directory:"
-  error "    $(pwd)"
+  local link_type="$2"
+
+  error "mrt: Failed to create ${link_type}!"
+  error "  Target exists and is not recognized by ohmyrepos."
+  error "  Please examine the file:"
+  error "    $(pwd)/${targetp}"
   error "Use -f/--force, or -s/--safe, or remove the file," \
     "and try again, or stop trying."
+
   exit 1
 }
 
 safely_backup_or_die_if_not_forced () {
   local targetp="$1"
+  local link_type="$2"
 
   if [ ${MRT_LINK_SAFE:-1} -eq 0 ]; then
     safe_backup_existing_target "${targetp}"
   elif [ ${MRT_LINK_FORCE:-1} -ne 0 ]; then
-    fail_target_exists_not_link "${targetp}"
+    fail_target_exists_not_link "${targetp}" "${link_type}"
   fi
 }
 
 # ***
 
-ensure_target_writable () {
+ensure_symlink_target_overwritable () {
   local targetp="$1"
 
   file_exists_and_not_symlink "${targetp}" || return 0
 
-  safely_backup_or_die_if_not_forced "${targetp}"
+  safely_backup_or_die_if_not_forced "${targetp}" 'symlink'
+}
+
+ensure_hardlink_target_overwritable () {
+  local targetp="$1"
+  local sourcep="$2"
+
+  file_exists_and_not_linked_to_source "${targetp}" "${sourcep}" || return 0
+
+  safely_backup_or_die_if_not_forced "${targetp}" 'hard link'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # Symlink creation.
 
-symlink_create_informative () {
+makelink_create_informative () {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
+  local symlink="$4"
 
   # Caller guarantees (via ! -e and ! -h) that $targetp does not exist.
 
   local targetd="$(dirname "${targetp}")"
   mkdir -p "${targetd}"
 
-  /bin/ln -s "${sourcep}" "${targetp}"
+  eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'"
   if [ $? -ne 0 ]; then
-    error "Failed to create symlink at: ${targetp}"
+    local link_type='hard link'
+    [ -n "${symlink}" ] && link_type='symlink'
+
+    error "Failed to create ${link_type} at: ${targetp}"
+
     exit 1
   fi
 
   # Created new symlink.
-  info_msg="$(symlink_get_msg_informative "$(font_lesslight "Created")" "${srctype}" "${targetp}")"
+  info_msg="$( \
+    symlink_get_msg_informative \
+      "$(font_lesslight "Created")" "${srctype}" "${targetp}" "${symlink}" \
+  )"
 
   info "${info_msg}"
 }
 
-symlink_update_informative () {
+makelink_update_informative () {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
+  local symlink="$4"
+
+  local link_type='hard link'
+  [ -n "${symlink}" ] && link_type='symlink'
 
   local info_msg
   if [ -h "${targetp}" ]; then
     # (Will be) Overwriting existing symlink.
-    info_msg="$(symlink_get_msg_informative "Updated" "${srctype}" "${targetp}")"
+    info_msg="$(symlink_get_msg_informative "Updated" "${srctype}" "${targetp}" "${symlink}")"
   elif [ -f "${targetp}" ]; then
-    # For how this function is used, the code would already have checked
-    # that the user specified -f/--force; or else the code didn't care to
-    # ask. See:
-    #   safely_backup_or_die_if_not_forced.
-    info_msg=" Clobbered file with symlink $(font_highlight ${targetp})"
+    if ! [ "${sourcep}" -ef "${targetp}" ]; then
+      # For how this function is used, the code would already have checked
+      # that the user specified -f/--force; or else the code didn't care to
+      # ask. See:
+      #   safely_backup_or_die_if_not_forced.
+      info_msg=" Clobbered file with ${link_type} $(font_highlight ${targetp})"
+    else
+      info_msg="$(symlink_get_msg_informative "Checked" "${srctype}" "${targetp}" "${symlink}")"
+      info "${info_msg}"
+      return 0
+    fi
   else
-    fatal "Unexpected path: target neither symlink nor file, but exists?"
+    fatal "Unexpected path: target neither ${link_type} nor file, but exists?"
     exit 1
   fi
 
@@ -300,7 +334,7 @@ symlink_update_informative () {
   # either a file or a directory -- remove the target first.
   /bin/rm "${targetp}"
 
-  /bin/ln -s "${sourcep}" "${targetp}"
+  eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'"
   if [ $? -ne 0 ]; then
     error "Failed to replace symlink at: ${targetp}"
     exit 1
@@ -313,6 +347,11 @@ symlink_get_msg_informative () {
   local what="$1"
   local srctype="$2"
   local targetp="$3"
+  local symlink="$4"
+
+  local link_type='hard link'
+  [ -n "${symlink}" ] && link_type='symlink'
+
   local targetd
 
   # Like `/bin/ls -F`, "Display a slash (`/') ... after each pathname that is a [dir]."
@@ -321,7 +360,7 @@ symlink_get_msg_informative () {
   # Turn 'dir' into 'dir.' so same count as 'file' and output (filenames and dirnames) align.
   [ "${srctype}" = 'dir' ] && srctype='dir.' || true
 
-  info_msg=" ${what} $(font_emphasize ${srctype}) symlink $(font_highlight ${targetp}${targetd})"
+  info_msg=" ${what} $(font_emphasize ${srctype}) ${link_type} $(font_highlight ${targetp}${targetd})"
 
   printf "%s" "${info_msg}"
 }
@@ -369,7 +408,7 @@ symlink_adjust_source_relative () {
 
   if ! is_relative_path "${targetp}"; then
     local msg="Not coded for relative source but absolute target"
-    >&2 echo "ERROR: symlink_clobber_typed: ${msg}"
+    >&2 echo "ERROR: makelink_clobber_typed: ${msg}"
     >&2 echo "        source: ${sourcep}"
     >&2 echo "        target: ${targetp}"
     return 1
@@ -393,7 +432,7 @@ symlink_adjust_source_relative () {
     local curname="$(basename -- "${walk_off}")"
     if [ "${curname}" = '..' ]; then
       local msg="Not coded that way! relative target should not dot dot: ${targetp}"
-      >&2 echo "ERROR: symlink_clobber_typed: ${msg}"
+      >&2 echo "ERROR: makelink_clobber_typed: ${msg}"
       return 1
     fi
     [ "${curname}" != '.' ] && prent_walk="../${prent_walk}"
@@ -425,10 +464,12 @@ symlink_adjusted_source_verify_target () {
 }
 
 # Informative because calls info and warn.
-symlink_clobber_typed () {
+makelink_clobber_typed () {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
+  local symlink="$4"
+
   # LATER/2020-01-23: Remove development cruft.
   # >&2 echo "srctype: ${srctype} / sourcep: ${sourcep} / targetp: ${targetp}"
 
@@ -441,9 +482,9 @@ symlink_clobber_typed () {
   local errcode
   # Check if target does not exist (and be sure not broken symlink).
   if [ ! -e "${targetp}" ] && [ ! -h "${targetp}" ]; then
-    symlink_create_informative "${srctype}" "${sourcep}" "${targetp}"
+    makelink_create_informative "${srctype}" "${sourcep}" "${targetp}" "${symlink}"
   else
-    symlink_update_informative "${srctype}" "${sourcep}" "${targetp}"
+    makelink_update_informative "${srctype}" "${sourcep}" "${targetp}" "${symlink}"
   fi
   errcode=$?
   # Will generally be 0, as errexit would trip on nonzero earlier.
@@ -457,7 +498,8 @@ symlink_clobber_typed () {
 symlink_file_clobber () {
   local sourcep="$1"
   local targetp="${2:-$(basename "${sourcep}")}"
-  symlink_clobber_typed 'file' "${sourcep}" "${targetp}"
+
+  makelink_clobber_typed 'file' "${sourcep}" "${targetp}" '-s'
 }
 
 # NOTE: (lb): I have nothing that calls symlink_dir_clobber,
@@ -465,7 +507,8 @@ symlink_file_clobber () {
 symlink_dir_clobber () {
   local sourcep="$1"
   local targetp="${2:-$(basename "${sourcep}")}"
-  symlink_clobber_typed 'dir' "${sourcep}" "${targetp}"
+
+  makelink_clobber_typed 'dir' "${sourcep}" "${targetp}" '-s'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -480,18 +523,42 @@ symlink_overlay_typed () {
   # Caller cd'ed us to "${MR_REPO}".
 
   # Uses CLI params to check -s/--safe or -f/--force.
-  ensure_target_writable "${targetp}"
+  ensure_symlink_target_overwritable "${targetp}"
 
-  symlink_clobber_typed "${srctype}" "${sourcep}" "${targetp}"
+  makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}" '-s'
 }
 
-# FIXME/2020-02-12 12:39: Are we missing an optional variant of this command?
 symlink_overlay_file () {
   symlink_overlay_typed 'file' "${@}"
 }
 
 symlink_overlay_dir () {
   symlink_overlay_typed 'dir' "${@}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+hardlink_overlay_typed () {
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="${3:-$(basename "${sourcep}")}"
+
+  params_register_defaults
+
+  # Caller cd'ed us to "${MR_REPO}".
+
+  # Uses CLI params to check -s/--safe or -f/--force.
+  ensure_hardlink_target_overwritable "${targetp}" "${sourcep}"
+
+  makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}"
+}
+
+hardlink_overlay_file () {
+  hardlink_overlay_typed 'file' "${@}"
+}
+
+hardlink_overlay_dir () {
+  hardlink_overlay_typed 'dir' "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
