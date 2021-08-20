@@ -229,7 +229,6 @@ fail_target_exists_not_link () {
 
 safely_backup_or_die_if_not_forced () {
   local targetp="$1"
-  shift
 
   if [ ${MRT_LINK_SAFE:-1} -eq 0 ]; then
     safe_backup_existing_target "${targetp}"
@@ -242,7 +241,6 @@ safely_backup_or_die_if_not_forced () {
 
 ensure_target_writable () {
   local targetp="$1"
-  shift
 
   file_exists_and_not_symlink "${targetp}" || return 0
 
