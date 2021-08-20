@@ -3,6 +3,9 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
+# ========================================================================
+# ------------------------------------------------------------------------
+
 # USAGE: Source this script from your own ~/.mrconfig.
 #
 #        If you clone ohmyrepos to, e.g., ~/.ohmyrepos, it's easy:
@@ -24,6 +27,9 @@
 #           $ mr -d / mystatus
 #
 #         - For more inspiration, look at `.mrconfig.example`.
+
+# ========================================================================
+# ------------------------------------------------------------------------
 
 [DEFAULT]
 # So that the scripts themselves can perform worry-free sourcing,
@@ -54,6 +60,9 @@ lib = PATH="${PATH}:${SHCOLORS_BIN:-${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../
 lib = PATH="${PATH}:${SHLOGGER_BIN:-${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin}"
 lib = LOG_LEVEL=${LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
 
+# ========================================================================
+# ------------------------------------------------------------------------
+
 [DEFAULT]
 # Oh My Repos offers a handful of actions and utilities, included here,
 # one-by-one. Each of these files -- each a mrconfig file -- use `lib =`
@@ -80,6 +89,9 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-grouping"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sorted-commit"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote"
 
+# ========================================================================
+# ------------------------------------------------------------------------
+
 [DEFAULT]
 # Use the _append feature to chain setup and teardown functions.
 setup_dispatch_append = git_any_cache_setup "${@}"
@@ -94,6 +106,9 @@ teardown_dispatch_append = command -v "git_status_cache_teardown" > /dev/null &&
   git_status_cache_teardown "${@}"
 # Order matters: Ensure the 'any' teardown is last, so it runs last.
 teardown_dispatch_append = git_any_cache_teardown "${@}"
+
+# ========================================================================
+# ------------------------------------------------------------------------
 
 [DEFAULT]
 # For all actions (any action), do not print blank line between repos.
@@ -139,6 +154,9 @@ no_print_failed_run = true
 # not report 'failed'.
 autocommit = true
 
+# ========================================================================
+# ------------------------------------------------------------------------
+
 [DEFAULT]
 # Wire `mr pull` to git-pull.
 # - Note that myrepos wires pull, but via `update`, e.g., `mr update`.
@@ -160,4 +178,9 @@ git_pull =
   git fetch "$@" &&
     git merge --ff-only "$@" FETCH_HEAD \
       | grep -v "Already up to date." || true
+
+# ========================================================================
+# ------------------------------------------------------------------------
+
+# **********************************************************************
 

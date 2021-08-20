@@ -1,5 +1,8 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=dosini
 
+# ========================================================================
+# ------------------------------------------------------------------------
+
 # USAGE: Copy the following 4-line [DEFAULT] section to your uesr's
 #        ~/.mrconfig file to load and use OhMyRepos.
 #
@@ -9,6 +12,9 @@
 [DEFAULT]
 lib = OHMYREPOS_LIB="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
+
+# ========================================================================
+# ------------------------------------------------------------------------
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # NOTE: The remainder of this file is just to inspire you, and
@@ -44,6 +50,9 @@ skip = mr_exclusive "home"
 #   committed -- a very lengthy and well-commented ~/.gitignore file
 #   that I use to keep notes on what files are in the home directory.
 #   This means I also get alerted when things change in the home directory.
+
+# ========================================================================
+# ------------------------------------------------------------------------
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 #  Home Fries (published dotfiles)
@@ -81,6 +90,9 @@ order = 11
 
 # Add to the 'home' group, e.g., `MR_INCLUDE=home mr -d / ls`.
 skip = mr_exclusive "home"
+
+# ========================================================================
+# ------------------------------------------------------------------------
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 #  Waffle Fries (private dotfiles)
@@ -142,6 +154,9 @@ autocommit =
 
 skip = mr_exclusive "home"
 
+# ========================================================================
+# ------------------------------------------------------------------------
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 #  Dubs Vim (~/.vim foundation and lightweight ~/.vimrc)
 
@@ -162,6 +177,9 @@ skip = mr_exclusive "vim"
 # NOTE: The autocommit for ~/.vim/spell/spell/en.utf-8.add
 #   in under ~/.waffle, above.
 
+# ========================================================================
+# ------------------------------------------------------------------------
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 #  Oh, My Repos! (this project, hello!)
 
@@ -171,6 +189,9 @@ infuse =
   link_private_exclude "${@}"
   link_private_ignore "${@}"
 skip = mr_exclusive "home"
+
+# ========================================================================
+# ------------------------------------------------------------------------
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 #  Notes & Such
@@ -191,4 +212,9 @@ autocommit = git_auto_commit_all "${@}" && git_auto_commit_new "${@}"
 #  or `MR_INCLUDE=notes mr -d / ls`
 #  or a plain `mr -d / ls` to include this project.
 skip = mr_exclusive "personal" && mr_exclusive "notes"
+
+# ========================================================================
+# ------------------------------------------------------------------------
+
+# **********************************************************************
 
