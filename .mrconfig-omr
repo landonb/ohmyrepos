@@ -85,6 +85,9 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/no-travel"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/private-clone"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/rebase-tip"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-add"
+# CAVEAT: Though `. skip-grouping.sh` called by `skip-grouping`, it's via
+# a `lib` block, which run after `include` blocks. So to use `mr_exclusive`
+# from an include block, you need to `. skip-grouping.sh` from that block.
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-grouping"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sorted-commit"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote"
