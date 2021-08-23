@@ -67,6 +67,13 @@ git_auto_commit_path_one () {
     exit 1
   fi
 
+  # NOTE/2021-08-22: The -f/--force option was originally plumbed for
+  #                  overlay-symlink, hence the var name, MRT_LINK_FORCE.
+  if [ ! -f "${repo_file}" ] && [ ${MRT_LINK_FORCE:-1} -eq 1 ]; then
+    fatal "ERROR: Expected a file at “${repo_file}” (git_auto_commit_one)"
+    exit 1
+  fi
+
   local msg_prefix="myrepos: autoci: Add Favorite: [@$(hostname)]"
   local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename "${repo_file}")”.}"
 
