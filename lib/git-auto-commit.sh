@@ -23,8 +23,8 @@ git_auto_commit_parse_args () {
   MR_GIT_AUTO_COMMIT_FILES_ADDED=""
 }
 
-git_auto_commit_hello () {
-  # Only pring the "examining" message once, e.g., affects calls such as:
+git_auto_commit_cd_mrrepo () {
+  # Only print the "examining" message once, e.g., affects calls such as:
   #     autocommit =
   #       git_auto_commit_one 'some/file' "${@}"
   #       git_auto_commit_one 'ano/ther' "${@}"
@@ -37,7 +37,7 @@ git_auto_commit_hello () {
   MR_GIT_AUTO_COMMIT_SAID_HELLO=true
 }
 
-git_auto_commit_seeya () {
+git_auto_commit_cd_return () {
   cd "${MR_GIT_AUTO_COMMIT_BEFORE_CD}"
 }
 
@@ -47,7 +47,7 @@ git_auto_commit_noop () {
 }
 
 git_auto_commit_one () {
-  git_auto_commit_hello
+  git_auto_commit_cd_mrrepo
 
   git_auto_commit_parse_args "${@}"
   if ! git_auto_commit_process_rest "git_auto_commit_path_one" "${@}"; then
@@ -55,7 +55,7 @@ git_auto_commit_one () {
     exit 1
   fi
 
-  git_auto_commit_seeya
+  git_auto_commit_cd_return
 }
 
 git_auto_commit_path_one () {
@@ -124,7 +124,7 @@ git_auto_commit_path_one_or_many () {
 }
 
 git_auto_commit_many () {
-  git_auto_commit_hello
+  git_auto_commit_cd_mrrepo
 
   git_auto_commit_parse_args "${@}"
   if ! git_auto_commit_process_rest "git_auto_commit_path_many" "${@}"; then
@@ -138,7 +138,7 @@ git_auto_commit_many () {
     git_auto_commit_path_one_or_many "${commit_msg}"
   fi
 
-  git_auto_commit_seeya
+  git_auto_commit_cd_return
 }
 
 git_auto_commit_path_many () {
@@ -158,7 +158,7 @@ git_auto_commit_path_many () {
 }
 
 git_auto_commit_all () {
-  git_auto_commit_hello
+  git_auto_commit_cd_mrrepo
 
   git_auto_commit_parse_args "${@}"
   if git_auto_commit_process_rest "git_auto_commit_path_all" "${@}"; then
@@ -215,7 +215,7 @@ git_auto_commit_all () {
     fi
   fi
 
-  git_auto_commit_seeya
+  git_auto_commit_cd_return
 }
 
 git_auto_commit_path_all () {
@@ -223,13 +223,13 @@ git_auto_commit_path_all () {
 }
 
 git_auto_commit_new () {
-  git_auto_commit_hello
+  git_auto_commit_cd_mrrepo
   git_auto_commit_parse_args "${@}"
   if ! git_auto_commit_process_rest "git_auto_commit_path_new" "${@}"; then
     # If not path/files/globs specified, run on repo root.
     git_auto_commit_path_new "."
   fi
-  git_auto_commit_seeya
+  git_auto_commit_cd_return
 }
 
 git_auto_commit_process_rest () {
