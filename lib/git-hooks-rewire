@@ -1,0 +1,67 @@
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=bash
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/ohmyrepos#😤
+# License: MIT
+
+# A few useful (to me) git hooks helpers to call from an `install` task.
+
+# ************************************************************************
+
+# Disables the specified Git hook (by renaming it with "-OFF" postfix).
+#
+# If this task runs again and finds that the hook was replaced, it'll
+# compare against the old "-OFF" file to see that nothing changed. If
+# confirmed, the replaced file is clobbered and the task succeeds. Or
+# if the files differ, the task fails.
+
+[DEFAULT]
+lib =
+  git_hooks_disable_hook () {
+    local hook_name="$1"
+    if [ -h ".git/hooks/${hook_name}" ]; then
+      info " Checked $(font_emphasize "file") symlink $(font_highlight ".git/hooks/${hook_name}")"
+    elif [ -e ".git/hooks/${hook_name}" ]; then
+      if [ -e ".git/hooks/${hook_name}-OFF" ]; then
+        if cmp -s ".git/hooks/${hook_name}" ".git/hooks/${hook_name}-OFF"; then
+          # This happens on re-install.
+          /bin/rm ".git/hooks/${hook_name}"
+          info " Removed $(font_emphasize "file") useless $(font_highlight ".git/hooks/${hook_name}")"
+        else
+          error "ERROR: Failed: cmp -s '.git/hooks/${hook_name}' '.git/hooks/${hook_name}-OFF'"
+        fi
+      else
+        mv ".git/hooks/${hook_name}" ".git/hooks/${hook_name}-OFF"
+        info " Retired $(font_emphasize "file") useless $(font_highlight ".git/hooks/${hook_name}")"
+      fi
+    else
+      info " Checked $(font_emphasize "file") missing $(font_highlight ".git/hooks/${hook_name}")"
+    fi
+  }
+
+# ************************************************************************
+
+# Disables the pre-commit hook (usually one created by husky).
+
+[DEFAULT]
+lib =
+  git_hooks_disable_pre_commit_hook () {
+    git_hooks_disable_hook 'pre-commit'
+  }
+
+# ************************************************************************
+
+# Wires (or rewires) the pre-push hook to run ESLint and Jest checks.
+#
+#   DEPENDS: https://github.com/landonb/git-smart#💡
+
+[DEFAULT]
+lib =
+  git_hooks_enable_pre_push_eslint_jest_hook () {
+    git_hooks_disable_hook 'pre-push'
+    symlink_mrinfuse_file \
+      "${GITSMARTPATH:-${GITREPOSPATH:-${HOME}/.kit/git}/git-smart}/lib/pre-push-eslint-jest" \
+      '.git/hooks/pre-push'
+  }
+
+# ************************************************************************
+
