@@ -1,4 +1,7 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=bash
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/ohmyrepos#😤
+# License: MIT
 
 # USAGE: Useful for sorting and saving changes to your ~/.vim/spell/en.utf-8.add
 #   There are probably additional uses, too.

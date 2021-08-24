@@ -1,4 +1,7 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=bash
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/ohmyrepos#😤
+# License: MIT
 
 reveal_biz_vars () {
   MR_GIT_AUTO_COMMIT_SAID_HELLO=false
