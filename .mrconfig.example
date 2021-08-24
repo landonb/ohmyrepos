@@ -1,6 +1,6 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=bash
 #  Note that ft=config and ft=dosini also work.
-#  It's tough to say which does best highlight.
+#  Though ft=bash seems to give best highlight.
 
 # ========================================================================
 # ------------------------------------------------------------------------
