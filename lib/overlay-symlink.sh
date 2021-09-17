@@ -131,7 +131,7 @@ infuser_prepare () {
   shift
 
   infuser_set_envs "${repodir}"
-  info "Infusing $(repo_highlight ${repodir})"
+  info "Infusing $(repo_highlight ${repodir}) [for ‘$(basename $0)’]"
   myrepostravel_opts_parse "${@}"
 }
 
