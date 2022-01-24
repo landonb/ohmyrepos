@@ -19,7 +19,7 @@ To use ohmyrepos, include its config file.
 First, tell ``mr`` to trust the config file.::
 
   OMR_CONFIG="${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
-  echo "$(readlink -e --  "${OMR_CONFIG}")" >> ~/.mrtrust
+  echo "$(realpath -e --  "${OMR_CONFIG}")" >> ~/.mrtrust
 
 Then source the config from your own ``~/.mrconfig``::
 
@@ -112,7 +112,7 @@ And then here's how I've wired the ``.mrconfig`` rule::
   checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
   infuse = link_private_exclude
 
-After running ``mr infuse``, the infuse action will be placed the
+After running ``mr infuse``, the infuse action will have placed the
 symlink, e.g.,::
 
   $ cd /path/to/projects/.mrinfuse/ohmyrepos

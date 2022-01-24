@@ -13,8 +13,6 @@ source_deps () {
   #     sure the sh-logger/bin is on PATH.
   # - This also implicitly loads the colors.sh library.
   . logger.sh
-
-  . omr-lib-readlink.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -626,8 +624,8 @@ mrinfuse_findup_canonic () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
   local dirpath mr_root
-  dirpath="$(dirname -- "$(readlink_m "$(pwd)")")"
-  mr_root="$(dirname -- "$(readlink_m "${MR_CONFIG}")")"
+  dirpath="$(dirname -- "$(realpath -m -- "$(pwd)")")"
+  mr_root="$(dirname -- "$(realpath -m -- "${MR_CONFIG}")")"
   while [ "${dirpath}" != '/' ]; do
     local trypath="${dirpath}/${MRT_INFUSE_DIR:-.mrinfuse}"
     if [ -d "${trypath}" ]; then
@@ -644,7 +642,7 @@ mrinfuse_findup () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
   local dirpath=""
-  while [ -z "${dirpath}" ] || [ "$(readlink_m "${dirpath}")" != '/' ]; do
+  while [ -z "${dirpath}" ] || [ "$(realpath -m -- "${dirpath}")" != '/' ]; do
     if [ -d "${dirpath}${MRT_INFUSE_DIR:-.mrinfuse}" ]; then
       echo "${dirpath}"
       return 0
@@ -682,15 +680,15 @@ path_to_mrinfuse_resolve () {
     mrinfuse_root="$(mrinfuse_findup)"
     [ $? -eq 0 ] || ( >&2 echo "ERROR: Missing .mrinfuse/" && exit 1 )
     if [ -n "${mrinfuse_root}" ]; then
-      mrinfuse_full=$(readlink_m "${mrinfuse_root}")
+      mrinfuse_full=$(realpath -m -- "${mrinfuse_root}")
     else
-      mrinfuse_full=$(readlink_m '.')
+      mrinfuse_full=$(realpath -m -- '.')
     fi
     relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
     mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR:-.mrinfuse}/${relative_path}${fpath}"
 
     # MAYBE/2020-01-23: Option to return full path?
-    #                     canonicalized=$(readlink_m "${mrinfuse_path}")
+    #                     canonicalized=$(realpath -m -- "${mrinfuse_path}")
     #                   - I like the shorter relative path.
     canonicalized="${mrinfuse_path}"
     _info_path_resolve "${relative_path}" "${mrinfuse_path}" "${canonicalized}"
