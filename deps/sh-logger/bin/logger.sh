@@ -210,7 +210,7 @@ else
   unset -f export_log_levels
   unset -f export_log_funcs
 
-  unset this_file_name
+  unset -v this_file_name
   unset -f shell_sourced
   unset -f bash_sourced
 fi
