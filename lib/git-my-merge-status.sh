@@ -40,8 +40,8 @@ reveal_biz_vars () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# FIXME/2020-08-26: Move home_fries_nanos_now to shared dependency.
-home_fries_nanos_now () {
+# FIXME/2022-10-11: Replace with sh-print-nanos-now deps/ dependency.
+print_nanos_now () {
   if command -v gdate > /dev/null 2>&1; then
     # macOS (brew install coreutils).
     gdate +%s.%N
@@ -63,7 +63,7 @@ print_status () {
   # but I do sorta like knowing how fast the operation is going, so add a short
   # elapsed time report to each line. So defaulting to not showing progress time.
   _print_status_show_elapsed_time () {
-    local time_n=$(home_fries_nanos_now)
+    local time_n=$(print_nanos_now)
     local file_time_0="${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
     local elapsed_frac="$(echo "(${time_n} - $(cat ${file_time_0}))" | bc -l)"
     local elapsed_secs=$(printf "${elapsed_frac}" | xargs printf "%04.1f")
@@ -95,7 +95,7 @@ git_status_cache_setup () {
 
   # Set the start time for the elapsed time display.
   if [ "${OMR_MYSTATUS_SHOW_PROG}" = 'elapsed' ]; then
-    home_fries_nanos_now > ${OMR_MYSTATUS_TMP_TIMEIT_FILE}
+    print_nanos_now > ${OMR_MYSTATUS_TMP_TIMEIT_FILE}
   fi
 }
 
