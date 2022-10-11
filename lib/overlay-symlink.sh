@@ -464,18 +464,17 @@ symlink_adjusted_source_verify_target () {
   return 0
 }
 
-# Informative because calls info and warn.
 makelink_clobber_typed () {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
   local symlink="$4"
 
-  # LATER/2020-01-23: Remove development cruft.
-  # >&2 echo "srctype: ${srctype} / sourcep: ${sourcep} / targetp: ${targetp}"
+  # LATER/2020-01-23: Remove this development cruft:
+  #  >&2 echo "srctype: ${srctype} / sourcep: ${sourcep} / targetp: ${targetp}"
 
   # Check that the source file or directory exists.
-  # This may interrupt the flow if errexit.
+  # - This may interrupt the flow if errexit.
   symlink_verify_source "${sourcep}" "${srctype}"
 
   sourcep="$(symlink_adjust_source_relative "${srctype}" "${sourcep}" "${targetp}")"
@@ -551,13 +550,27 @@ hardlink_overlay_typed () {
   # Uses CLI params to check -s/--safe or -f/--force.
   ensure_hardlink_target_overwritable "${targetp}" "${sourcep}"
 
-  makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}"
-}
-
+# SAVVY/2022-10-10: You should probably call `link_hard` instead.
+# - hardlink_overlay_file has parity with symlink_overlay_file:
+#   It's similarly named, and it honors --force and --safe options.
+# - But link_hard checks the inode and reports when file is already
+#   hard-linked.
+#   - And you probably don't want to use --force to clobber an
+#     existing file, but would probably want to know if two
+#     versions of what should be the same file have diverged.
+# 
+# - MAYBE/2022-10-10: Remove this function.
+#   - I'm pretty sure that this function doesn't do anything
+#     that `link_hard` doesn't do, except support --force and
+#     --safe, but I'm also pretty sure we don't need those.
 hardlink_overlay_file () {
   hardlink_overlay_typed 'file' "${@}"
 }
 
+  makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}"
+}
+
+# SAVVY/2022-10-10: This fcn. is not used by any of the author's projects.
 hardlink_overlay_dir () {
   hardlink_overlay_typed 'dir' "${@}"
 }
