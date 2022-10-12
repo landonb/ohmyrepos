@@ -141,5 +141,6 @@ main () {
   source_deps
 }
 
-main "${@}"
+main "$@"
+unset -f main
 
