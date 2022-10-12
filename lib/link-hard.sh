@@ -4,10 +4,6 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-source_deps () {
-  :
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Pass in a full path to the canon file ($1)
@@ -71,10 +67,4 @@ link_hard () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-main () {
-  source_deps
-}
-
-main "$@"
 
