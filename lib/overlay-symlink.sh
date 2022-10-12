@@ -12,6 +12,7 @@ source_deps () {
   #   - Or if your script sources this file directly, just be
   #     sure the sh-logger/bin is on PATH.
   # - This also implicitly loads the colors.sh library.
+  # - Note that .mrconfig-omr sets PATH so OMR's deps/ copy found.
   . logger.sh
 }
 

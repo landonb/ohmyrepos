@@ -36,28 +36,13 @@
 # add the OMR lib to PATH.
 lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
 
-# Also add the "shoilerplate" dependencies to PATH.
-#
-# Note that ohmyrepos will default to the dependencies committed to this
-# project, under deps/. But if you checked them out separately, use the
-# two environs, SHCOLORS_BIN and SHLOGGER_BIN, to specify their paths, e.g.,
-#
-#           $ cat >> ~/.mrconfig <<'EOF'
-#           [DEFAULT]
-#           lib =
-#             OHMYREPOS_LIB="${OHMYREPOS_LIB:-/path/to/ohmyrepos/lib}"
-#             SHCOLORS_BIN="${SHCOLORS_BIN:-/path/to/sh-colors/bin}"
-#             SHLOGGER_BIN="${SHLOGGER_BIN:-/path/to/sh-logger/bin}"
-#           include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
-#           EOF
-
-# - Wire the color library:
+# - Wire the color library dependency.
 #   https://github.com/landonb/sh-colors.
-lib = PATH="${PATH}:${SHCOLORS_BIN:-${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-colors/bin}"
+lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-colors/bin"
 
-# - Wire the logger library:
+# - Wire the logger library dependency.
 #   https://github.com/landonb/sh-logger.
-lib = PATH="${PATH}:${SHLOGGER_BIN:-${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin}"
+lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
 lib = LOG_LEVEL=${LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
 
 # ========================================================================

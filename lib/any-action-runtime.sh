@@ -13,6 +13,7 @@ source_deps () {
   # - Lastly, the .mrconfig-omr file sets, e.g., `lib = PATH=...`
   #   which enables the path-less source logger.sh here to work.
   # Load the logger library, from github.com/landonb/sh-logger.
+  # - Note that .mrconfig-omr sets PATH so OMR's deps/ copy found.
   . logger.sh
 }
 

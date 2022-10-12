@@ -6,7 +6,8 @@
 
 source_deps () {
   # Load: symlink_*.
-  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
+  # - Note that .mrconfig-omr sets PATH to include OMR's lib/.
+  . "overlay-symlink.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -7,7 +7,7 @@
 
 source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
-  # - The .mrconfig-omr file uses SHLOGGER_BIN to update PATH.
+  # - Note that .mrconfig-omr sets PATH so OMR's deps/ copy found.
   . logger.sh
 }
 
