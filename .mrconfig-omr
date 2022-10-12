@@ -37,13 +37,17 @@
 lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
 
 # - Wire the color library dependency.
-#   https://github.com/landonb/sh-colors.
+#   https://github.com/landonb/sh-colors#💥
 lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-colors/bin"
 
 # - Wire the logger library dependency.
-#   https://github.com/landonb/sh-logger.
+#   https://github.com/landonb/sh-logger#🎮🐸
 lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
 lib = LOG_LEVEL=${LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
+
+# - Wire the timing library dependency.
+#   https://github.com/landonb/sh-print-nanos-now#⏱️
+lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-print-nanos-now/bin"
 
 # ========================================================================
 # ------------------------------------------------------------------------

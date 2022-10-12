@@ -4,6 +4,8 @@
 # License: MIT
 
 source_deps () {
+  # Note .mrconfig-omr sets PATH so deps found in OMR's deps/.
+
   # Load the log library, which includes `warn`, etc.
   # - As a side-effect, this also loads the stream-injectable
   #   color/style library, colors.sh.
@@ -13,8 +15,10 @@ source_deps () {
   # - Lastly, the .mrconfig-omr file sets, e.g., `lib = PATH=...`
   #   which enables the path-less source logger.sh here to work.
   # Load the logger library, from github.com/landonb/sh-logger.
-  # - Note that .mrconfig-omr sets PATH so OMR's deps/ copy found.
   . logger.sh
+
+  # Load `print_nanos_now`.
+  . print-nanos-now.sh
 }
 
 reveal_biz_vars () {
@@ -30,20 +34,6 @@ reveal_biz_vars () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# FIXME/2022-10-11: Replace with sh-print-nanos-now deps/ dependency.
-print_nanos_now () {
-  if command -v gdate > /dev/null 2>&1; then
-    # macOS (brew install coreutils).
-    gdate +%s.%N
-  elif date --version > /dev/null 2>&1; then
-    # Linux/GNU.
-    date +%s.%N
-  else
-    # macOS pre-coreutils.
-    python -c 'import time; print("{:.9f}".format(time.time()))'
-  fi
-}
 
 python_prettify_elapsed () {
   local seconds="${1:-0}"
