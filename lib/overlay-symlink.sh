@@ -32,6 +32,7 @@ params_register_switches () {
   while [ "$1" != '' ]; do
     if [ "$1" = '--' ]; then
       shift
+
       break
     fi
     case $1 in
@@ -74,6 +75,7 @@ params_register_switches () {
         # User can -- to specify filenames that start with dash.
         if [ "${1#-}" != "$1" ]; then
           fatal "ERROR: Unrecognized argument: $1"
+
           exit 1  # Be mean.
         fi
         shift
@@ -102,6 +104,7 @@ _debug_spew_and_die () {
     >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
     >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
     >&2 echo "current dir: $(pwd)"
+
     exit 1
   fi
 }
@@ -159,6 +162,7 @@ is_relative_path () {
     *) return 0 ;;
   esac
   >&2 echo "Unreachable!"
+
   exit 1
 }
 
@@ -184,6 +188,7 @@ symlink_verify_source () {
       error "    ${sourcep}"
       error "  From our perch at:"
       error "    $(pwd)"
+
       exit 1
     fi
   elif [ "${srctype}" = 'dir' ]; then
@@ -193,10 +198,12 @@ symlink_verify_source () {
       error "    ${sourcep}"
       error "  From our perch at:"
       error "    $(pwd)"
+
       exit 1
     fi
   else
     fatal "Not a real srctype: ${srctype}"
+
     exit 2
   fi
 }
@@ -217,7 +224,9 @@ safe_backup_existing_target () {
   local targetf="$(basename "${targetp}")"
   local backup_postfix=$(date +%Y.%m.%d.%H.%M.%S)
   local backup_targetp="${targetp}-${backup_postfix}"
+
   /bin/mv "${targetp}" "${targetp}-${backup_postfix}"
+
   info "Collision resolved: Moved existing ‘${targetf}’ to: ${backup_targetp}"
 }
 
@@ -321,10 +330,12 @@ makelink_update_informative () {
     else
       info_msg="$(symlink_get_msg_informative "Checked" "${srctype}" "${targetp}" "${symlink}")"
       info "${info_msg}"
+
       return 0
     fi
   else
     fatal "Unexpected path: target neither ${link_type} nor file, but exists?"
+
     exit 1
   fi
 
@@ -339,6 +350,7 @@ makelink_update_informative () {
   eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'"
   if [ $? -ne 0 ]; then
     error "Failed to replace symlink at: ${targetp}"
+
     exit 1
   fi
 
@@ -405,6 +417,7 @@ symlink_adjust_source_relative () {
 
   if ! is_relative_path "${sourcep}"; then
     echo "${sourcep}"
+
     return 0
   fi
 
@@ -451,7 +464,7 @@ symlink_adjust_source_relative () {
   fi
 
   sourcep="${prent_walk}${sourcep}"
-  # >&2 echo "sourcep: $sourcep / targetp: ${targetp} / cwd: $(pwd)"
+
   echo "${sourcep}"
 }
 
@@ -462,6 +475,7 @@ symlink_adjusted_source_verify_target () {
     >&2 echo "ERROR: targetp symlink is broken!: ${targetp}"
     return 1
   fi
+
   return 0
 }
 
@@ -470,9 +484,6 @@ makelink_clobber_typed () {
   local sourcep="$2"
   local targetp="$3"
   local symlink="$4"
-
-  # LATER/2020-01-23: Remove this development cruft:
-  #  >&2 echo "srctype: ${srctype} / sourcep: ${sourcep} / targetp: ${targetp}"
 
   # Check that the source file or directory exists.
   # - This may interrupt the flow if errexit.
@@ -590,12 +601,14 @@ symlink_overlay_file_first_handler () {
     if [ -e ${sourcep} ]; then
       symlink_overlay_file "${sourcep}" "${targetp}"
       found_one=true
+
       break
     fi
   done
 
   if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
     warn "Did not find existing source file to symlink as: ${targetp}"
+
     exit 1
   fi
 }
@@ -628,6 +641,7 @@ _info_path_resolve () {
     >&2 echo "current dir: $(pwd)"
     >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
     >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
+
     exit 1
   fi
 }
@@ -644,8 +658,10 @@ mrinfuse_findup_canonic () {
     local trypath="${dirpath}/${MRT_INFUSE_DIR:-.mrinfuse}"
     if [ -d "${trypath}" ]; then
       echo "${dirpath}"
+
       break
     elif [ "${dirpath}" = "${mr_root}" ]; then
+
       break
     fi
     dirpath="$(dirname -- "${dirpath}")"
@@ -659,10 +675,12 @@ mrinfuse_findup () {
   while [ -z "${dirpath}" ] || [ "$(realpath -m -- "${dirpath}")" != '/' ]; do
     if [ -d "${dirpath}${MRT_INFUSE_DIR:-.mrinfuse}" ]; then
       echo "${dirpath}"
+
       return 0
     fi
     dirpath="${dirpath}../"
   done
+
   return 1
 }
 
@@ -731,8 +749,10 @@ symlink_mrinfuse_typed () {
   if [ ! -e ${sourcep} ]; then
     if [ "${optional}" -eq 0 ]; then
       warn "Non-optional symlink source not found: ${sourcep}"
+
       exit 1
     fi
+
     return 0
   fi
 
@@ -771,12 +791,14 @@ symlink_mrinfuse_file_first_handler () {
     if [ -e ${sourcep} ]; then
       symlink_overlay_file "${sourcep}" "${targetp}"
       found_one=true
+
       break
     fi
   done
 
   if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
     warn "Did not find existing source file to symlink as: ${targetp}"
+
     exit 1
   fi
 }
