@@ -161,7 +161,8 @@ is_relative_path () {
     /*) return 1 ;;
     *) return 0 ;;
   esac
-  >&2 echo "Unreachable!"
+
+  error "Unreachable code!"
 
   exit 1
 }
@@ -422,11 +423,11 @@ symlink_adjust_source_relative () {
   fi
 
   if ! is_relative_path "${targetp}"; then
-    local msg="Not coded for relative source but absolute target"
-    >&2 echo "ERROR: makelink_clobber_typed: ${msg}"
-    >&2 echo "        source: ${sourcep}"
-    >&2 echo "        target: ${targetp}"
-    return 1
+    error "Cannot link absolute target using a relative source path"
+    error "- source: ${sourcep}"
+    error "- target: ${targetp}"
+
+    exit 1
   fi
 
   # "Walk off" the release target path, directory by directory, ignoring
@@ -446,9 +447,11 @@ symlink_adjust_source_relative () {
   while [ "${walk_off}" != '.' ]; do
     local curname="$(basename -- "${walk_off}")"
     if [ "${curname}" = '..' ]; then
-      local msg="Not coded that way! relative target should not dot dot: ${targetp}"
-      >&2 echo "ERROR: makelink_clobber_typed: ${msg}"
-      return 1
+      error "A relative target cannot use dot dots in its path (No \`..\`)"
+      error "- source: ${sourcep}"
+      error "- target: ${targetp}"
+
+      exit 1
     fi
     [ "${curname}" != '.' ] && prent_walk="../${prent_walk}"
     walk_off="$(dirname -- "${walk_off}")"
@@ -472,8 +475,9 @@ symlink_adjusted_source_verify_target () {
   local targetp="$1"
   # Double-check that symlink_adjust_source_relative worked!
   if [ ! -e "${targetp}" ]; then
-    >&2 echo "ERROR: targetp symlink is broken!: ${targetp}"
-    return 1
+    error "The target symlink is broken at: ${targetp}"
+
+    exit 1
   fi
 
   return 0
@@ -498,9 +502,6 @@ makelink_clobber_typed () {
   else
     makelink_update_informative "${srctype}" "${sourcep}" "${targetp}" "${symlink}"
   fi
-  errcode=$?
-  # Will generally be 0, as errexit would trip on nonzero earlier.
-  [ ${errcode} -ne 0 ] && return ${errcode}
 
   symlink_adjusted_source_verify_target "${targetp}"
 }
