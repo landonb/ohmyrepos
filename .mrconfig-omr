@@ -44,8 +44,13 @@ lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-colors/b
 #   https://github.com/landonb/sh-logger#🎮🐸
 lib =
   PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
+  # Let the caller override the LOG_LEVEL. Note that we don't check LOG_LEVEL
+  # itself, because the user might be using logger.sh in their own environment
+  # and have the level set to their liking for their environment, but that does
+  # not mean it's the best value for when they run `mr`. So if the user wants
+  # to change the log level for the `mr` command, they must use MR_LOG_LEVEL.
   . logger.sh
-  LOG_LEVEL=${LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
+  LOG_LEVEL=${MR_LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
 
 # - Wire the timing library dependency.
 #   https://github.com/landonb/sh-print-nanos-now#⏱️
