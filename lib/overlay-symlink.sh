@@ -289,15 +289,14 @@ makelink_create_informative () {
   local targetd="$(dirname "${targetp}")"
   mkdir -p "${targetd}"
 
-  eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'"
-  if [ $? -ne 0 ]; then
+  eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'" || (
     local link_type='hard link'
     [ -n "${symlink}" ] && link_type='symlink'
 
     error "Failed to create ${link_type} at: ${targetp}"
 
     exit 1
-  fi
+  )
 
   # Created new symlink.
   info_msg="$( \
@@ -348,12 +347,11 @@ makelink_update_informative () {
   # either a file or a directory -- remove the target first.
   /bin/rm "${targetp}"
 
-  eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'"
-  if [ $? -ne 0 ]; then
+  eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'" || (
     error "Failed to replace symlink at: ${targetp}"
 
     exit 1
-  fi
+  )
 
   info "${info_msg}"
 }
@@ -707,11 +705,12 @@ path_to_mrinfuse_resolve () {
     local mrinfuse_path
     local repo_path_n_sep
     repo_path_n_sep="${MR_REPO}/"
-    # This produces longer, fuller paths:
-    #   mrinfuse_root="$(dirname ${MR_CONFIG})"
-    # But I like to avoid `ls` output wrapping, when possible.
-    mrinfuse_root="$(mrinfuse_findup)"
-    [ $? -eq 0 ] || ( >&2 echo "ERROR: Missing .mrinfuse/" && exit 1 )
+    mrinfuse_root="$(mrinfuse_findup)" || (
+      error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
+      error "- path: ${fpath}"
+
+      exit 1
+    )
     if [ -n "${mrinfuse_root}" ]; then
       mrinfuse_full=$(realpath -m -- "${mrinfuse_root}")
     else
