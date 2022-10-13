@@ -6,6 +6,14 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+source_deps () {
+  # Load the logger library, from github.com/landonb/sh-logger.
+  # - Includes print commands: info, warn, error, debug.
+  . logger.sh
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Pass in a full path to the canon file ($1)
 # and a partial path to local deps/ file to hard link.
 # WHY: If you package shell or Git dependencies in source code of
@@ -67,4 +75,12 @@ link_hard () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  source_deps
+}
+
+main "$@"
+unset -f main
+unset -f source_deps
 

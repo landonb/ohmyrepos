@@ -3,6 +3,16 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+source_deps () {
+  # Load the logger library, from github.com/landonb/sh-logger.
+  # - Includes print commands: info, warn, error, debug.
+  . logger.sh
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 reveal_biz_vars () {
   MR_GIT_AUTO_COMMIT_SAID_HELLO=false
 }
@@ -349,9 +359,11 @@ git_auto_commit_path_new () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  source_deps
   reveal_biz_vars
 }
 
 main "$@"
 unset -f main
+unset -f source_deps
 

@@ -15,6 +15,14 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+source_deps () {
+  # Load the logger library, from github.com/landonb/sh-logger.
+  # - Includes print commands: info, warn, error, debug.
+  . logger.sh
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 sort_file_then_commit () {
   local targetf="$1"
   shift
@@ -46,4 +54,12 @@ sort_file_then_commit () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  source_deps
+}
+
+main "$@"
+unset -f main
+unset -f source_deps
 

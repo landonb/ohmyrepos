@@ -39,6 +39,16 @@
 # other developers a little hint that the branch they're looking at
 # is not a normal feature or development branch.
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+source_deps () {
+  # Load the logger library, from github.com/landonb/sh-logger.
+  # - Includes print commands: info, warn, error, debug.
+  . logger.sh
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 rebase_tip () {
   local remote_ref="$1"
   [ -z "${remote_ref}" ] &&
@@ -78,4 +88,14 @@ rebase_tip () {
 
   return 0
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  source_deps
+}
+
+main "$@"
+unset -f main
+unset -f source_deps
 

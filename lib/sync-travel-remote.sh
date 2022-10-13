@@ -30,6 +30,14 @@ GIT_BARE_REPO='--bare'
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+source_deps () {
+  # Load the logger library, from github.com/landonb/sh-logger.
+  # - Includes print commands: info, warn, error, debug.
+  . logger.sh
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 reveal_biz_vars () {
   # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet (read:
   # lazy path to profit) to collect data from all repos is with temporaries.
@@ -897,9 +905,11 @@ git_update_local_fetch_from_device () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  source_deps
   reveal_biz_vars
 }
 
 main "$@"
 unset -f main
+unset -f source_deps
 

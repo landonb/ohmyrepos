@@ -87,4 +87,5 @@ main () {
 
 main "$@"
 unset -f main
+unset -f source_deps
 
