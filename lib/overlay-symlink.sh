@@ -425,9 +425,9 @@ symlink_adjust_source_relative () {
   fi
 
   if ! is_relative_path "${targetp}"; then
-    error "Cannot link absolute target using a relative source path"
-    error "- source: ${sourcep}"
-    error "- target: ${targetp}"
+    >&2 error "Cannot link absolute target using a relative source path"
+    >&2 error "- source: ${sourcep}"
+    >&2 error "- target: ${targetp}"
 
     exit 1
   fi
@@ -449,9 +449,9 @@ symlink_adjust_source_relative () {
   while [ "${walk_off}" != '.' ]; do
     local curname="$(basename -- "${walk_off}")"
     if [ "${curname}" = '..' ]; then
-      error "A relative target cannot use dot dots in its path (No \`..\`)"
-      error "- source: ${sourcep}"
-      error "- target: ${targetp}"
+      >&2 error "A relative target cannot use dot dots in its path (No \`..\`)"
+      >&2 error "- source: ${sourcep}"
+      >&2 error "- target: ${targetp}"
 
       exit 1
     fi
@@ -717,8 +717,8 @@ path_to_mrinfuse_resolve () {
     repo_path_n_sep="${MR_REPO}/"
 
     mrinfuse_root="$(mrinfuse_findup)" || (
-      error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
-      error "- path: ${fpath}"
+      >&2 error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
+      >&2 error "- path: ${fpath}"
 
       exit 1
     )
