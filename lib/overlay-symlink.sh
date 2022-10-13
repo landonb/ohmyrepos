@@ -91,7 +91,7 @@ myrepostravel_opts_parse () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# FIXME/2019-10-26 15:20: Should move this to new lib file.
+# MAYBE/2019-10-26 15:20: Could move these environ and echo fcns. to new lib file.
 
 _debug_spew_and_die () {
   #
@@ -209,10 +209,12 @@ symlink_verify_source () {
   fi
 }
 
+# NOTE: Orphan function (not called but this project, or any of author's).
 ensure_source_file_exists () {
   symlink_verify_source "$1" 'file'
 }
 
+# NOTE: Orphan function (not called but this project, or any of author's).
 ensure_source_dir_exists () {
   symlink_verify_source "$1" 'dir'
 }
@@ -409,6 +411,8 @@ symlink_get_msg_informative () {
 #         but specifying an absolute target; if the target needs to be
 #         an absolute path, there's no reason not to also specify an
 #         absolute path for the source.)
+#
+# Note this fcn. prints the path to stdout, so errors should go to stderr.
 symlink_adjust_source_relative () {
   local srctype="$1"
   local sourcep="$2"
@@ -647,6 +651,7 @@ _info_path_resolve () {
 
 # ***
 
+# NOTE: Orphan function (not called but this project, or any of author's).
 mrinfuse_findup_canonic () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
@@ -667,6 +672,7 @@ mrinfuse_findup_canonic () {
   done
 }
 
+# Note this fcn. prints the path to stdout, so errors should go to stderr.
 mrinfuse_findup () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
@@ -683,39 +689,46 @@ mrinfuse_findup () {
   return 1
 }
 
+# CONVENTION: Store private files under a directory named .mrinfuse,
+# located in the same directory as the .mrconfig file whose repo config
+# calls this function, or located along the oath between the root and repo.
+# Under the .mrinfuse directory, mimic the directory alongside the .mrconfig
+# file. For instance, suppose you had a config file at:
+#   /my/work/projects/.mrconfig
+# and you had a public repo underneath that project space at:
+#   /my/work/projects/cool/product/
+# you would store your private .ignore file at:
+#   /my/work/projects/.mrinfuse/cool/product/.ignore
+# then your infuse function would be specified in your .mrconfig as:
+#   [cool/product]
+#   symlink_mrinfuse_file '.ignore'
+#
+# Note this fcn. prints the path to stdout, so errors should go to stderr.
 path_to_mrinfuse_resolve () {
   local fpath="$1"
-  # CONVENTION: Store private files under a directory named .mrinfuse,
-  # located in the same directory as the .mrconfig file whose repo config
-  # calls this function, or located along the oath between the root and repo.
-  # Under the .mrinfuse directory, mimic the directory alongside the .mrconfig
-  # file. For instance, suppose you had a config file at:
-  #   /my/work/projects/.mrconfig
-  # and you had a public repo underneath that project space at:
-  #   /my/work/projects/cool/product/
-  # you would store your private .ignore file at:
-  #   /my/work/projects/.mrinfuse/cool/product/.ignore
-  # then your infuse function would be specified in your .mrconfig as:
-  #   [cool/product]
-  #   symlink_mrinfuse_file '.ignore'
   local canonicalized
+
   if is_relative_path "${fpath}"; then
     local relative_path
     local mrinfuse_root
     local mrinfuse_path
     local repo_path_n_sep
+
     repo_path_n_sep="${MR_REPO}/"
+
     mrinfuse_root="$(mrinfuse_findup)" || (
       error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
       error "- path: ${fpath}"
 
       exit 1
     )
+
     if [ -n "${mrinfuse_root}" ]; then
       mrinfuse_full=$(realpath -m -- "${mrinfuse_root}")
     else
       mrinfuse_full=$(realpath -m -- '.')
     fi
+
     relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
     mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR:-.mrinfuse}/${relative_path}${fpath}"
 
@@ -723,10 +736,11 @@ path_to_mrinfuse_resolve () {
     #                     canonicalized=$(realpath -m -- "${mrinfuse_path}")
     #                   - I like the shorter relative path.
     canonicalized="${mrinfuse_path}"
-    _info_path_resolve "${relative_path}" "${mrinfuse_path}" "${canonicalized}"
+    # _info_path_resolve "${relative_path}" "${mrinfuse_path}" "${canonicalized}"
   else
     canonicalized="${fpath}"
   fi
+
   echo "${canonicalized}"
 }
 
