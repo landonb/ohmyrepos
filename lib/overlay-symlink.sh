@@ -367,7 +367,7 @@ symlink_get_msg_informative () {
   local link_type='hard link'
   [ -n "${symlink}" ] && link_type='symlink'
 
-  local targetd
+  local targetd=''
 
   # Like `/bin/ls -F`, "Display a slash (`/') ... after each pathname that is a [dir]."
   [ "${srctype}" = 'dir' ] && targetd='/' || true
