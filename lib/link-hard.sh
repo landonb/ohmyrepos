@@ -48,20 +48,27 @@ link_hard () {
   }
 
   if [ -e "${local_file}" ]; then
-    local canon_inode
     local local_inode
-    canon_inode=$(file_index_number_or_warn "${canon_file}") || return 1
+    local canon_inode
     local_inode=$(file_index_number_or_warn "${local_file}") || return 1
+    canon_inode=$(file_index_number_or_warn "${canon_file}") || return 1
 
     # Compare inode values.
-    if [ "${canon_inode}" = "${local_inode}" ]; then
+    if [ "${local_inode}" = "${canon_inode}" ]; then
       # Same inode; already at the desired state.
       info " Hard link $(font_emphasize inode) same $(font_highlight "$(basename ${local_file})")"
+
       return 0
-    elif ! diff -q "${canon_file}" "${local_file}" > /dev/null; then
+    elif ! diff -q "${local_file}" "${canon_file}" > /dev/null; then
       # Different inode, and different file contents. Cannot proceed.
-      warn "Refuses to hard link disparate files:"
-      warn "  meld '${canon_file}' '${local_file}' &"
+      warn "Refuses to hard link disparate files."
+      warn "- Depending on your workflow, this might help:"
+      warn "    cd '$(pwd -L)'"
+      warn "    meld '${local_file}' '${canon_file}' &"
+      warn "    git add '${local_file}'"
+      warn "    git commit -m 'Deps: Update dependency.'"
+      warn "    mr -d . -n infuse"
+
       return 1
     fi
   fi
