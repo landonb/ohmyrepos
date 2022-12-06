@@ -30,7 +30,7 @@
 #
 # and then any of these will include <path>:
 #
-#   $ MR_INCLUDE=group1 mr -d / ls
+#   $ MR_INCLUDE=group1 mr -d / ls  # chooses `mr_exclusive "group1"` projects
 #   $ MR_INCLUDE=group2 mr -d / ls
 #   $ mr -d / ls
 
