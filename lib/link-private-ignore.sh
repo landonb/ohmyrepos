@@ -46,6 +46,11 @@ link_private_ignore_force () {
   link_private_ignore "$@" --force
 }
 
+# Another alias.
+link_private_ignore_ () {
+  link_private_ignore "_ignore" "$@"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
