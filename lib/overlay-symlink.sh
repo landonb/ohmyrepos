@@ -85,7 +85,7 @@ params_register_switches () {
 }
 
 myrepostravel_opts_parse () {
-  params_register_defaults "${@}"
+  params_register_defaults
   params_register_switches "${@}"
 }
 
