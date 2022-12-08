@@ -146,10 +146,7 @@ order = 10
 autocommit =
   git_auto_commit_parse_args "${@}"
   #
-  # Auto-commit project.vim files.
-  # - Note that infuse-waffle makes symlinks, e.g.,
-  #     ~/.vim/my-vimprojects/.vimprojects ->
-  #       ~/.waffle/home/.vim/my-vimprojects/.vimprojects
+  # Auto-commit Vimprojects tray file, and grep-steady mapping.
   git_auto_commit_one 'home/.vim/my-vimprojects/.vimprojects'
   git_auto_commit_one 'home/.vim/dubs_grep_steady/dubs_projects.vim'
   #
