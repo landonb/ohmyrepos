@@ -21,11 +21,11 @@ source_deps () {
 params_register_defaults () {
   # Note that these names are backwards, or maybe it's the internal
   # values. We're using 0 to represent truthy, and 1 to signal off.
-  MRT_LINK_SAFE=1
-  MRT_LINK_FORCE=1
-  MRT_AUTO_YES=1
-  MR_GIT_AUTO_COMMIT_MSG=""
-  MRT_INFUSE_DIR=".mrinfuse"
+  MRT_LINK_SAFE=${MRT_LINK_SAFE:-1}
+  MRT_LINK_FORCE=${MRT_LINK_FORCE:-1}
+  MRT_AUTO_YES=${MRT_AUTO_YES:-1}
+  MR_GIT_AUTO_COMMIT_MSG="${MR_GIT_AUTO_COMMIT_MSG}"
+  MRT_INFUSE_DIR="${MRT_INFUSE_DIR:-.mrinfuse}"
 }
 
 params_register_switches () {
