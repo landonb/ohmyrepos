@@ -99,6 +99,8 @@ git_auto_commit_path_one () {
   local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename "${repo_file}")”.}"
 
   # - Check for ' M unstaged/files'
+  #         and ' T typechanged/files' (but only if MRT_LINK_FORCE=0, b/c obscure case,
+  #                                     and user probably wants to know if typechanged),
   #         and '?? untracked/files',
   #         at least.
   #   We could also check 'M  staged/files'
@@ -106,8 +108,10 @@ git_auto_commit_path_one () {
   #   but I'd rather start strict and see if the latter is
   #   something for which I eventually yearn.
   # - Note that a path with spaces or special characters will be quoted.
+  local inclT=""
+  [ ${MRT_LINK_FORCE} -ne 0 ] || inclT=" T|"
   git status --porcelain "${repo_file}" |
-    grep -q -E -e "^( M|\?\?) \"?${repo_file}\"?$"
+    grep -q -E -e "^(${inclT} M|\?\?) \"?${repo_file}\"?$"
 
   if [ $? -eq 0 ]; then
     local yorn
