@@ -129,6 +129,12 @@ git_auto_commit_path_one () {
 git_auto_commit_path_one_or_many () {
   local commit_msg="$1"
 
+  if [ -z "${commit_msg}" ]; then
+    fatal "ERROR: Expecting a commit message to git_auto_commit_path_one_or_many."
+
+    exit 1
+  fi
+
   # FIXME/2017-04-13: Handle errors better (and maybe don't send to /dev/null).
   # E.g., I saw errors on uncommitted changes here years ago:
   #   U	path/to/my.file
