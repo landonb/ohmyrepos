@@ -84,8 +84,14 @@ git_auto_commit_path_one () {
 
   # NOTE/2021-08-22: The -f/--force option was originally plumbed for
   #                  overlay-symlink, hence the var name, MRT_LINK_FORCE.
-  if [ ! -f "${repo_file}" ] && [ ${MRT_LINK_FORCE:-1} -eq 1 ]; then
-    fatal "ERROR: Expected a file at “${repo_file}” (git_auto_commit_one)"
+  if [ ! -f "${repo_file}" ] && [ ! -h "${repo_file}" ] && [ ${MRT_LINK_FORCE:-1} -eq 1 ]; then
+    error "ERROR: Expected a file or symlink at “${repo_file}” (git_auto_commit_one)"
+    if [ ! -e "${repo_file}" ]; then
+      error "- Found nothing"
+    else
+      error "- Found wrong type: $(gstat -c %F "${repo_file}")"
+    fi
+
     exit 1
   fi
 
