@@ -578,9 +578,10 @@ hardlink_overlay_typed () {
 #   - I'm pretty sure that this function doesn't do anything
 #     that `link_hard` doesn't do, except support --force and
 #     --safe, but I'm also pretty sure we don't need those.
-hardlink_overlay_file () {
-  hardlink_overlay_typed 'file' "${@}"
-}
+#
+#  hardlink_overlay_file () {
+#    hardlink_overlay_typed 'file' "${@}"
+#  }
 
   makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}"
 }
