@@ -65,6 +65,7 @@ git_auto_commit_one () {
   git_auto_commit_parse_args "${@}"
   if ! git_auto_commit_process_rest "git_auto_commit_path_one" "${@}"; then
     fatal "ERROR: Expecting a path to git_auto_commit_one."
+
     exit 1
   fi
 
@@ -77,6 +78,7 @@ git_auto_commit_path_one () {
 
   if [ -z "${repo_file}" ]; then
     fatal "ERROR: Expecting a path to git_auto_commit_one."
+
     exit 1
   fi
 
@@ -149,6 +151,7 @@ git_auto_commit_many () {
   git_auto_commit_parse_args "${@}"
   if ! git_auto_commit_process_rest "git_auto_commit_path_many" "${@}"; then
     fatal "ERROR: Expecting a path(s) to git_auto_commit_many."
+
     exit 1
   fi
 
@@ -165,6 +168,7 @@ git_auto_commit_path_many () {
   local repo_file="$1"
   if [ -z "${repo_file}" ]; then
     fatal "ERROR: Expecting a path to git_auto_commit_path_many."
+
     exit 1
   fi
 
@@ -183,6 +187,7 @@ git_auto_commit_all () {
   git_auto_commit_parse_args "${@}"
   if git_auto_commit_process_rest "git_auto_commit_path_all" "${@}"; then
     fatal "ERROR: Not expecting a path to git_auto_commit_path_all."
+
     exit 1
   fi
   local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-myrepos: autoci: Add All Changes [@$(hostname)].}"
@@ -244,11 +249,13 @@ git_auto_commit_path_all () {
 
 git_auto_commit_new () {
   git_auto_commit_cd_mrrepo
+
   git_auto_commit_parse_args "${@}"
   if ! git_auto_commit_process_rest "git_auto_commit_path_new" "${@}"; then
     # If not path/files/globs specified, run on repo root.
     git_auto_commit_path_new "."
   fi
+
   git_auto_commit_cd_return
 }
 
