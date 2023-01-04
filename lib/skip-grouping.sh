@@ -34,7 +34,20 @@
 #   $ MR_INCLUDE=group2 mr -d / ls
 #   $ mr -d / ls
 
+# mr_exclusive returns True if project should be skipped per MR_INCLUDE.
 mr_exclusive () {
-  ! [ -z ${MR_INCLUDE+x} ] && [ "${MR_INCLUDE}" != "$1" ]
+  # If MR_INCLUDE unset, don't skip anything.
+  [ -z ${MR_INCLUDE+x} ] && return 1
+
+  # MR_INCLUDE is set. Return True unless MR_INCLUDE matches input tag.
+  while [ -n "$1" ]; do
+    # MR_INCLUDE tag matches, so don't skip this project.
+    [ "${MR_INCLUDE}" = "$1" ] && return 1
+
+    shift
+  done
+
+  # MR_INCLUDE tag didn't match, so skip this project.
+  return 0
 }
 
