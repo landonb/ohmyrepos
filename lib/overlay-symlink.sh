@@ -328,7 +328,7 @@ makelink_update_informative () {
       # that the user specified -f/--force; or else the code didn't care to
       # ask. See:
       #   safely_backup_or_die_if_not_forced.
-      info_msg=" Clobbered file with ${link_type} $(font_highlight ${targetp})"
+      info_msg=" Clobbered file with ${link_type} $(font_highlight $(realpath -s ${targetp}))"
     else
       info_msg="$(symlink_get_msg_informative "Checked" "${srctype}" "${targetp}" "${symlink}")"
       info "${info_msg}"
@@ -350,7 +350,7 @@ makelink_update_informative () {
   /bin/rm "${targetp}"
 
   eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'" || (
-    error "Failed to replace symlink at: ${targetp}"
+    error "Failed to replace symlink at: $(realpath -s ${targetp})"
 
     exit 1
   )
@@ -375,7 +375,7 @@ symlink_get_msg_informative () {
   # Turn 'dir' into 'dir.' so same count as 'file' and output (filenames and dirnames) align.
   [ "${srctype}" = 'dir' ] && srctype='dir.' || true
 
-  info_msg=" ${what} $(font_emphasize ${srctype}) ${link_type} $(font_highlight ${targetp}${targetd})"
+  info_msg=" ${what} $(font_emphasize ${srctype}) ${link_type} $(font_highlight $(realpath -s ${targetp})${targetd})"
 
   printf "%s" "${info_msg}"
 }
