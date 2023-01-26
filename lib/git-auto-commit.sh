@@ -44,8 +44,8 @@ git_auto_commit_cd_mrrepo () {
   if ! ${MR_GIT_AUTO_COMMIT_SAID_HELLO}; then
     MR_GIT_AUTO_COMMIT_BEFORE_CD="$(pwd -L)"
     cd "${MR_REPO}"
-    debug "  $(fg_mintgreen)$(attr_emphasis)examining$(attr_reset)  " \
-      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+    debug "$(fg_mintgreen)$(attr_emphasis)autocommiting$(attr_reset)" \
+      "$(fg_lightorange)${MR_REPO}$(attr_reset)"
   fi
   MR_GIT_AUTO_COMMIT_SAID_HELLO=true
 }
