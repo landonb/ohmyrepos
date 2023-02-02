@@ -31,7 +31,8 @@
 # from some Bashrc or equivalent so you don't have to think about it.
 
 git_clone_github () {
-  local github_path=""
+  local github_url=""
+  local target_dir=""
   local remote_name="origin"
 
   local git_server="${OHMYREPOS_GIT_URL_GITHUB:-https://github.com/}"
@@ -49,20 +50,28 @@ git_clone_github () {
         ;;
 
       *)
-        [ -n "${github_path}" ] \
+        [ -n "${github_url}" ] && [ -n "${target_dir}" ] \
           && >&2 echo "ERROR: more than one git_clone_github path" \
           && return 1 || true
 
-        github_path="$1"
+        [ -z "${github_url}" ] \
+          && github_url="$1" \
+          || target_dir="$1"
 
         shift
         ;;
     esac
   done
 
-  [ -z "${github_path}" ] \
-    && >&2 echo "ERROR: missing git_clone_github path" \
+  [ -z "${github_url}" ] \
+    && >&2 echo "ERROR: missing git_clone_github path or URL" \
     && return 1 || true
+
+  # Strip prefix (if included) and replace with one indicated by environ.
+  local github_path="${github_url}"
+  github_path="${github_path#http://github.com/}"
+  github_path="${github_path#https://github.com/}"
+  github_path="${github_path#git@github.com:}"
 
   # ***
 
@@ -70,8 +79,8 @@ git_clone_github () {
 
   # ***
 
-  echo git clone -o "${remote_name}" "${git_url}"
+  echo git clone -o "${remote_name}" "${git_url}" "${target_dir}"
 
-  git clone -o "${remote_name}" "${git_url}"
+  git clone -o "${remote_name}" "${git_url}" "${target_dir}"
 }
 
