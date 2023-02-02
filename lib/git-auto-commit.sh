@@ -44,7 +44,7 @@ git_auto_commit_cd_mrrepo () {
   if ! ${MR_GIT_AUTO_COMMIT_SAID_HELLO}; then
     MR_GIT_AUTO_COMMIT_BEFORE_CD="$(pwd -L)"
     cd "${MR_REPO}"
-    debug "$(fg_mintgreen)$(attr_emphasis)autocommiting$(attr_reset)" \
+    debug "$(fg_mintgreen)$(attr_emphasis)autocommitting$(attr_reset)" \
       "$(fg_lightorange)${MR_REPO}$(attr_reset)"
   fi
   MR_GIT_AUTO_COMMIT_SAID_HELLO=true
@@ -124,7 +124,7 @@ git_auto_commit_path_one () {
       printf '%s' "Commit the file changes? [y/n] "
       read yorn
     else
-      debug "Committing changes: $(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
+      debug "Autocommitting *single* obj.: $(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
       yorn="Y"
     fi
 
@@ -242,7 +242,7 @@ git_auto_commit_all () {
       read yorn
     else
       local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_reset)"
-      notice "Auto-commit *all* objects: ${pretty_path}"
+      notice "Autocommitting *all* objects: ${pretty_path}"
       yorn="Y"
     fi
 
@@ -357,7 +357,7 @@ git_auto_commit_path_new () {
       read yorn
     else
       local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_reset)"
-      notice "Auto-commit *new* objects: ${pretty_path}"
+      notice "Autocommitting *new* objects: ${pretty_path}"
       yorn="Y"
     fi
 
