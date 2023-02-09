@@ -124,7 +124,8 @@ git_auto_commit_path_one () {
       printf '%s' "Commit the file changes? [y/n] "
       read yorn
     else
-      debug "Autocommitting *single* obj.: $(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
+      debug "$(fg_mintgreen)$(attr_emphasis)autocommit one$(attr_reset)" \
+        "$(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
       yorn="Y"
     fi
 
@@ -242,7 +243,8 @@ git_auto_commit_all () {
       read yorn
     else
       local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_reset)"
-      notice "Autocommitting *all* objects: ${pretty_path}"
+      notice "$(fg_mintgreen)$(attr_emphasis)autocommit all$(attr_reset)" \
+        "$(fg_lavender)${pretty_path}$(attr_reset)"
       yorn="Y"
     fi
 
@@ -357,7 +359,8 @@ git_auto_commit_path_new () {
       read yorn
     else
       local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_reset)"
-      notice "Autocommitting *new* objects: ${pretty_path}"
+      notice "$(fg_mintgreen)$(attr_emphasis)autocommit new$(attr_reset)" \
+        "$(fg_lavender)${pretty_path}$(attr_reset)"
       yorn="Y"
     fi
 
