@@ -35,7 +35,7 @@ sort_file_then_commit () {
     # NOTE: cat'ing and sort'ing to the cat'ed file results in a 0-size file!?
     #   So we use an intermediate file.
     local sortedf
-    sortedf="$(mktemp --suffix='.myrepostravel')"
+    sortedf="$(mktemp --suffix='.ohmyrepos')"
 
     # --dictionary-order: Emoji, A-Z, then a-z.
     cat "${targetf}" | LC_ALL='C' sort -d > "${sortedf}"

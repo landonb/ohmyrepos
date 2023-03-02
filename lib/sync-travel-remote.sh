@@ -270,7 +270,7 @@ git_ensure_or_clone_target () {
   fi
   #
   local retco=0
-  local git_respf="$(mktemp --suffix='.myrepostravel-clone')"
+  local git_respf="$(mktemp --suffix='.ohmyrepos')"
 
   # 2021-08-16: I'm, like, 100% positive this script always called with
   # `set -e` in effect, but it's a little confusing because errexit is
