@@ -35,8 +35,6 @@ git_clone_github () {
   local target_dir=""
   local remote_name="origin"
 
-  local git_server="${OHMYREPOS_GIT_URL_GITHUB:-https://github.com/}"
-
   while [ "$1" != '' ]; do
     case $1 in
       -o | --origin)
@@ -67,6 +65,21 @@ git_clone_github () {
     && >&2 echo "ERROR: missing git_clone_github path or URL" \
     && return 1 || true
 
+  local git_url
+  git_url="$(_substitute_git_url_server "${github_url}")"
+
+  echo git clone -o "${remote_name}" "${git_url}" "${target_dir}"
+
+  git clone -o "${remote_name}" "${git_url}" "${target_dir}"
+}
+
+# ***
+
+_substitute_git_url_server () {
+  local github_url="$1"
+
+  local git_server="${OHMYREPOS_GIT_URL_GITHUB:-https://github.com/}"
+
   # Strip prefix (if included) and replace with one indicated by environ.
   local github_path="${github_url}"
   github_path="${github_path#http://github.com/}"
@@ -77,10 +90,6 @@ git_clone_github () {
 
   local git_url="${git_server}${github_path}"
 
-  # ***
-
-  echo git clone -o "${remote_name}" "${git_url}" "${target_dir}"
-
-  git clone -o "${remote_name}" "${git_url}" "${target_dir}"
+  printf "%s" "${git_url}"
 }
 
