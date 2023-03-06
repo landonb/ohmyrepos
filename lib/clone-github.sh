@@ -19,10 +19,10 @@
 #
 #   # Clones https://github.com/user/repo.git or git@github.com:user/repo.git
 #   # depending on OHMYREPOS_GIT_HOST_ORIGIN environ (defaults HTTPS):
-#   git_clone_github "user/repo.git"
+#   git_clone_giturl "user/repo.git"
 #
 #   # Similar, but also specifies the remote name, e.g., "upstream":
-#   git_clone_github -o "upstream" "user/repo.git"
+#   git_clone_giturl -o "upstream" "user/repo.git"
 #
 #   # Specify the SSH transport protocol.
 #   OHMYREPOS_GIT_HOST_ORIGIN="git@github.com:" mr -d . install
@@ -30,7 +30,7 @@
 # Probably for each host you'll simply `export OHMYREPOS_GIT_HOST_ORIGIN`
 # from some Bashrc or equivalent so you don't have to think about it.
 
-git_clone_github () {
+git_clone_giturl () {
   local remote_url_or_path=""
   local target_dir=""
   local remote_name="origin"
@@ -39,7 +39,7 @@ git_clone_github () {
     case $1 in
       -o | --origin)
         [ ${#@} -lt 2 ] \
-          && >&2 echo "ERROR: bad git_clone_github args" \
+          && >&2 echo "ERROR: bad git_clone_giturl args" \
           && return 1 || true
 
         remote_name="$2"
@@ -49,7 +49,7 @@ git_clone_github () {
 
       *)
         [ -n "${remote_url_or_path}" ] && [ -n "${target_dir}" ] \
-          && >&2 echo "ERROR: more than one git_clone_github path or URL" \
+          && >&2 echo "ERROR: more than one git_clone_giturl path or URL" \
           && return 1 || true
 
         [ -z "${remote_url_or_path}" ] \
@@ -62,7 +62,7 @@ git_clone_github () {
   done
 
   [ -z "${remote_url_or_path}" ] \
-    && >&2 echo "ERROR: missing git_clone_github path or URL" \
+    && >&2 echo "ERROR: missing git_clone_giturl path or URL" \
     && return 1 || true
 
   local git_url

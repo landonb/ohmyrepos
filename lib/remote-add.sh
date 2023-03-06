@@ -6,13 +6,13 @@
 
 remote_add () {
   local remote_name="$1"
-  local project_url="$2"
+  local remote_url_or_path="$2"
   local git_host_origin="$3"
   local git_host_user="$4"
 
   local git_url
   git_url="$( \
-    _git_url_according_to_user "${project_url}" "${git_host_origin}" "${git_host_user}" \
+    _git_url_according_to_user "${remote_url_or_path}" "${git_host_origin}" "${git_host_user}" \
   )"
 
   git remote remove "${remote_name}" 2> /dev/null || true
