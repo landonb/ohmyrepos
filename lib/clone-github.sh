@@ -66,7 +66,7 @@ git_clone_github () {
     && return 1 || true
 
   local git_url
-  git_url="$(_substitute_git_url_server "${github_url}")"
+  git_url="$(_git_url_according_to_user "${github_url}")"
 
   echo git clone -o "${remote_name}" "${git_url}" "${target_dir}"
 
@@ -75,7 +75,7 @@ git_clone_github () {
 
 # ***
 
-_substitute_git_url_server () {
+_git_url_according_to_user () {
   local github_url="$1"
 
   local git_server="${OHMYREPOS_GIT_URL_GITHUB:-https://github.com/}"
