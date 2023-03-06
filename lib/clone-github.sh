@@ -76,12 +76,12 @@ git_clone_github () {
 # ***
 
 _git_url_according_to_user () {
-  local github_url="$1"
+  local gh_proj_url="$1"
 
   local git_server="${OHMYREPOS_GIT_URL_GITHUB:-https://github.com/}"
 
   # Strip prefix (if included) and replace with one indicated by environ.
-  local github_path="${github_url}"
+  local github_path="${gh_proj_url}"
   github_path="${github_path#http://github.com/}"
   github_path="${github_path#https://github.com/}"
   github_path="${github_path#git@github.com:}"
