@@ -77,8 +77,8 @@ git_clone_github () {
 
 _git_url_according_to_user () {
   local gh_proj_url="$1"
-
-  local git_server="${OHMYREPOS_GIT_URL_GITHUB:-https://github.com/}"
+  local remote_user_url="${2:-${OHMYREPOS_GIT_URL_GITHUB:-https://github.com/}}"
+  local remote_user_name="$3"
 
   # Strip prefix (if included) and replace with one indicated by environ.
   local github_path="${gh_proj_url}"
@@ -86,9 +86,17 @@ _git_url_according_to_user () {
   github_path="${github_path#https://github.com/}"
   github_path="${github_path#git@github.com:}"
 
-  # ***
+  if [ "${github_path}" = "${gh_proj_url}" ]; then
+    >&2 echo "ERROR: Unrecognized GH URL: ${gh_proj_url}"
 
-  local git_url="${git_server}${github_path}"
+    return 1
+  fi
+
+  if [ -n "${remote_user_name}" ]; then
+    github_path="${remote_user_name}/$(basename -- "${github_path}")"
+  fi
+
+  local git_url="${remote_user_url}${github_path}"
 
   printf "%s" "${git_url}"
 }
