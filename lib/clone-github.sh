@@ -18,20 +18,20 @@
 # USAGE:
 #
 #   # Clones https://github.com/user/repo.git or git@github.com:user/repo.git
-#   # depending on OHMYREPOS_GIT_URL_GITHUB environ (defaults HTTPS):
+#   # depending on OHMYREPOS_GIT_HOST_ORIGIN environ (defaults HTTPS):
 #   git_clone_github "user/repo.git"
 #
 #   # Similar, but also specifies the remote name, e.g., "upstream":
 #   git_clone_github -o "upstream" "user/repo.git"
 #
 #   # Specify the SSH transport protocol.
-#   OHMYREPOS_GIT_URL_GITHUB="git@github.com:" mr -d . install
+#   OHMYREPOS_GIT_HOST_ORIGIN="git@github.com:" mr -d . install
 #
-# Probably for each host you'll simply `export OHMYREPOS_GIT_URL_GITHUB`
+# Probably for each host you'll simply `export OHMYREPOS_GIT_HOST_ORIGIN`
 # from some Bashrc or equivalent so you don't have to think about it.
 
 git_clone_github () {
-  local github_url=""
+  local remote_url_or_path=""
   local target_dir=""
   local remote_name="origin"
 
@@ -48,12 +48,12 @@ git_clone_github () {
         ;;
 
       *)
-        [ -n "${github_url}" ] && [ -n "${target_dir}" ] \
-          && >&2 echo "ERROR: more than one git_clone_github path" \
+        [ -n "${remote_url_or_path}" ] && [ -n "${target_dir}" ] \
+          && >&2 echo "ERROR: more than one git_clone_github path or URL" \
           && return 1 || true
 
-        [ -z "${github_url}" ] \
-          && github_url="$1" \
+        [ -z "${remote_url_or_path}" ] \
+          && remote_url_or_path="$1" \
           || target_dir="$1"
 
         shift
@@ -61,12 +61,12 @@ git_clone_github () {
     esac
   done
 
-  [ -z "${github_url}" ] \
+  [ -z "${remote_url_or_path}" ] \
     && >&2 echo "ERROR: missing git_clone_github path or URL" \
     && return 1 || true
 
   local git_url
-  git_url="$(_git_url_according_to_user "${github_url}")"
+  git_url="$(_git_url_according_to_user "${remote_url_or_path}")"
 
   echo git clone -o "${remote_name}" "${git_url}" "${target_dir}"
 
@@ -75,28 +75,28 @@ git_clone_github () {
 
 # ***
 
+# DEFIN: Protocol (or Scheme) plus Host (plus Port) is called the *Origin*
+#   https://www.rfc-editor.org/rfc/rfc6454#section-5
 _git_url_according_to_user () {
-  local gh_proj_url="$1"
-  local remote_user_url="${2:-${OHMYREPOS_GIT_URL_GITHUB:-https://github.com/}}"
-  local remote_user_name="$3"
+  local remote_url_or_path="$1"
+  local git_host_origin="${2:-${OHMYREPOS_GIT_HOST_ORIGIN:-https://github.com/}}"
+  local git_host_user="$3"
 
-  # Strip prefix (if included) and replace with one indicated by environ.
-  local github_path="${gh_proj_url}"
-  github_path="${github_path#http://github.com/}"
-  github_path="${github_path#https://github.com/}"
-  github_path="${github_path#git@github.com:}"
+  # Strip prefix (if included) from project URL.
+  local url_subdir
+  url_subdir="$( \
+    echo "${remote_url_or_path}" \
+    | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
+  )"
 
-  if [ "${github_path}" = "${gh_proj_url}" ]; then
-    >&2 echo "ERROR: Unrecognized GH URL: ${gh_proj_url}"
-
-    return 1
+  # Replace Git host user/org name if specified.
+  if [ -n "${git_host_user}" ]; then
+    url_subdir="${git_host_user}/$(basename -- "${url_subdir}")"
   fi
 
-  if [ -n "${remote_user_name}" ]; then
-    github_path="${remote_user_name}/$(basename -- "${github_path}")"
-  fi
-
-  local git_url="${remote_user_url}${github_path}"
+  # Reassemable URL using scheme/protocol (HTTPS/SSH) and domain (github.com)
+  # from arg or environ.
+  local git_url="${git_host_origin}${url_subdir}"
 
   printf "%s" "${git_url}"
 }
