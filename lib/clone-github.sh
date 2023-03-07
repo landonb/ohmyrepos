@@ -70,7 +70,14 @@ git_clone_giturl () {
 
   echo git clone -o "${remote_name}" "${git_url}" "${target_dir}"
 
-  git clone -o "${remote_name}" "${git_url}" "${target_dir}"
+  # Because ${target_dir} might be empty, either need to not quote it:
+  #   git clone -o "${remote_name}" "${git_url}" ${target_dir}
+  # Or we can if-around [and find out].
+  if [ -n "${target_dir}" ]; then
+    git clone -o "${remote_name}" "${git_url}" "${target_dir}"
+  else
+    git clone -o "${remote_name}" "${git_url}"
+  fi
 }
 
 # ***
