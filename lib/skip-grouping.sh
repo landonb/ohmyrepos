@@ -37,17 +37,39 @@
 # mr_exclusive returns True if project should be skipped per MR_INCLUDE.
 mr_exclusive () {
   # If MR_INCLUDE unset, don't skip anything.
+  # - Returns 1, aka false, aka don't skip.
   [ -z ${MR_INCLUDE+x} ] && return 1
 
-  # MR_INCLUDE is set. Return True unless MR_INCLUDE matches input tag.
+  # MR_INCLUDE is set.
+
+  # Sort negated tags first.
+  local sorted_tags
+  sorted_tags="$(
+    for tag in "$@"; do echo "${tag}" | sed '/^[^!]/d'; done
+    for tag in "$@"; do echo "${tag}" | sed '/^!/d'; done
+  )"
+
+  # Check tags, and return 1 (don't skip) if MR_INCLUDE
+  # matches input tag, or if a negated tag and doesn't.
   while [ -n "$1" ]; do
+    local tag="$1"
+
     # MR_INCLUDE tag matches, so don't skip this project.
-    [ "${MR_INCLUDE}" = "$1" ] && return 1
+    [ "${MR_INCLUDE}" = "${tag}" ] \
+      && return 1
+
+    # Check if OMR config uses negated tag.
+    # - E.g., `skip = mr_exclusive "!foo"`.
+    local nonnegated="$(echo "!abbddd" | sed 's/^!//')"
+    [ "${tag}" != "${nonnegated}" ] \
+      && [ "${MR_INCLUDE}" != "${nonnegated}" ] \
+      && return 1
 
     shift
   done
 
-  # MR_INCLUDE tag didn't match, so skip this project.
+  # MR_INCLUDE tag didn't match.
+  # - Returns 0 (skip) by default.
   return 0
 }
 
