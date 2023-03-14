@@ -147,8 +147,18 @@ font_highlight () {
   echo "$(fg_lightorange)${1}$(attr_reset)"
 }
 
-font_lesslight () {
-  echo "$(fg_tan)${1}$(attr_reset)"
+# ***
+
+font_info_checked () {
+  echo "$(fg_lightyellow)${1}$(attr_reset)"
+}
+
+font_info_created () {
+  echo "$(fg_lightcyan)${1}$(attr_reset)"
+}
+
+font_info_updated () {
+  echo "$(fg_lightmagenta)${1}$(attr_reset)"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -303,7 +313,7 @@ makelink_create_informative () {
   # Created new symlink.
   info_msg="$( \
     symlink_get_msg_informative \
-      "$(font_lesslight "Created")" "${srctype}" "${targetp}" "${symlink}" \
+      "$(font_info_created "Created")" "${srctype}" "${targetp}" "${symlink}" \
   )"
 
   info "${info_msg}"
@@ -321,7 +331,9 @@ makelink_update_informative () {
   local info_msg
   if [ -h "${targetp}" ]; then
     # (Will be) Overwriting existing symlink.
-    info_msg="$(symlink_get_msg_informative "Updated" "${srctype}" "${targetp}" "${symlink}")"
+    info_msg="$(symlink_get_msg_informative \
+      "$(font_info_updated "Updated")" "${srctype}" "${targetp}" "${symlink}" \
+    )"
   elif [ -f "${targetp}" ]; then
     if ! [ "${sourcep}" -ef "${targetp}" ]; then
       # For how this function is used, the code would already have checked
@@ -330,7 +342,9 @@ makelink_update_informative () {
       #   safely_backup_or_die_if_not_forced.
       info_msg=" Clobbered file with ${link_type} $(font_highlight $(realpath -s ${targetp}))"
     else
-      info_msg="$(symlink_get_msg_informative "Checked" "${srctype}" "${targetp}" "${symlink}")"
+      info_msg="$(symlink_get_msg_informative \
+        "$(font_info_checked "Checked")" "${srctype}" "${targetp}" "${symlink}" \
+      )"
       info "${info_msg}"
 
       return 0
