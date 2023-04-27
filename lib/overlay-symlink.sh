@@ -158,7 +158,7 @@ font_info_created () {
 }
 
 font_info_updated () {
-  echo "$(fg_lightmagenta)${1}$(attr_reset)"
+  echo "$(fg_lavender)${1}$(attr_reset)"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
