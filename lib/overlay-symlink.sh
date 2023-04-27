@@ -335,6 +335,7 @@ makelink_update_informative () {
       "$(font_info_updated "Updated")" "${srctype}" "${targetp}" "${symlink}" \
     )"
   elif [ -f "${targetp}" ]; then
+    # SAVVY: -ef true when checking symlink and its link path.
     if ! [ "${sourcep}" -ef "${targetp}" ]; then
       # For how this function is used, the code would already have checked
       # that the user specified -f/--force; or else the code didn't care to
