@@ -49,7 +49,9 @@ lib =
   # not mean it's the best value for when they run `mr`. So if the user wants
   # to change the log level for the `mr` command, they must use MR_LOG_LEVEL.
   . logger.sh
-  LOG_LEVEL=${MR_LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
+  LOG_LEVEL=0
+  [ "${MR_LOG_LEVEL}" != 0 ] &&
+    LOG_LEVEL=${MR_LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
 
 # - Wire the timing library dependency.
 #   https://github.com/landonb/sh-print-nanos-now#⏱️
