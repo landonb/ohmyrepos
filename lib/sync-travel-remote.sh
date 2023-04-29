@@ -91,7 +91,6 @@ _echo_en() (
 
 _git_echo_long_op_start () {
   local right_now="$(date "+%Y-%m-%d @ %T")"
-  LONG_OP_MSG=
   LONG_OP_MSG="$( _echo_e \
     "$(fg_lightorange)[WAIT]$(attr_reset) ${right_now} "\
     "$(fg_lightorange)⏳ ${1}$(attr_reset)" \
