@@ -727,8 +727,9 @@ git_merge_ff_only () {
   _git_echo_long_op_finis
 
   [ -n "${culled}" ] && warn "git merge wha?\n${culled}" || true
-  [ -n "${culled}" ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] && \
-    notice "git merge says:\n${git_resp}" || true
+  [ -n "${culled}" ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] \
+    && notice "git merge says:\n${git_resp}" \
+    || true
 
   # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
   # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
