@@ -459,7 +459,7 @@ git_set_remote_travel () {
   # trace "  git-url: ${extcd}"
 
   if [ ${extcd} -ne 0 ]; then
-    #trace "  Fresh remote wired for “${MR_REMOTE}”"
+    # Wire new remote for “${MR_REMOTE}”.
 
     git remote add ${MR_REMOTE} "${source_repo}"
 
@@ -470,6 +470,7 @@ git_set_remote_travel () {
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👈$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
   elif [ "${remote_url}" != "${source_repo}" ]; then
+    # Change URL for existing remote.
 
     git remote set-url ${MR_REMOTE} "${source_repo}"
 
@@ -482,7 +483,7 @@ git_set_remote_travel () {
     debug "  Reset remote wired for “${MR_REMOTE}”" \
       "(was: $(attr_italic)${remote_url}$(attr_reset))"
   else
-    #trace "  The “${MR_REMOTE}” remote url is already correct!"
+    # Verified “${MR_REMOTE}” URL correct.
 
     : # no-op
 
@@ -668,7 +669,7 @@ git_change_branches_if_necessary () {
       (git checkout ${source_branch} >/dev/null 2>&1) || extcd=$?
 
       if [ $extcd -ne 0 ]; then
-  # FIXME: On unpack, this might need/want to be origin/, not travel/ !
+        # FIXME/2019-10-24: On unpack, this might need/want to be origin/, not travel/
         git checkout --track ${MR_REMOTE}/${source_branch}
       fi
     fi
