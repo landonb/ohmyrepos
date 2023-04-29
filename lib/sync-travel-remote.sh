@@ -184,7 +184,6 @@ must_be_git_dirs () {
   local target_type="$4"
 
   _git_echo_long_op_start 'check-git'
-  #
 
   local a_problem=0
 
@@ -194,7 +193,6 @@ must_be_git_dirs () {
   git_dir_check "${target_repo}" "${target_type}"
   [ $? -ne 0 ] && a_problem=1
 
-  #
   _git_echo_long_op_finis
 
   return ${a_problem}
@@ -257,7 +255,6 @@ git_ensure_or_clone_target () {
   fi
 
   _git_echo_long_op_start 'clonin’  '
-  #
   # UNSURE/2019-10-30: Does subprocess mean Ctrl-C won't pass through?
   # I.e., does calling git-clone not in subprocess make mr command faster killable?
   if false; then
@@ -292,7 +289,6 @@ git_ensure_or_clone_target () {
 
   local git_resp="$(<"${git_respf}")"
   /bin/rm "${git_respf}"
-  #
   _git_echo_long_op_finis
 
   if [ ${retco} -ne 0 ]; then
@@ -428,14 +424,12 @@ git_set_remote_travel () {
     #trace "  Fresh remote wired for “${MR_REMOTE}”"
     git remote add ${MR_REMOTE} "${source_repo}"
     DID_SET_REMOTE=1
-    #
     _git_echo_long_op_finis
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👈$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
   elif [ "${remote_url}" != "${source_repo}" ]; then
     git remote set-url ${MR_REMOTE} "${source_repo}"
     DID_SET_REMOTE=1
-    #
     _git_echo_long_op_finis
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👆$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
@@ -609,7 +603,6 @@ git_change_branches_if_necessary () {
 
   if [ "${source_branch}" != "${target_branch}" ]; then
     _git_echo_long_op_start 'branchin’'
-    #
     if git_is_bare_repository; then
       git update-ref refs/heads/${source_branch} remotes/${MR_REMOTE}/${source_branch}
       git symbolic-ref HEAD refs/heads/${source_branch}
@@ -622,7 +615,6 @@ git_change_branches_if_necessary () {
       fi
     fi
     DID_BRANCH_CHANGE=1
-    #
     _git_echo_long_op_finis
 
     info "  $(fg_mintgreen)$(attr_emphasis)✓ checkout $(attr_reset)" \
@@ -748,14 +740,12 @@ git_merge_ff_only () {
     /usr/bin/env sed "s/\$/\\$(attr_reset)/g" |
     /usr/bin/env sed "s/^/\\$(bg_blue)/g"
   '
-  #
   local changes_txt="$( \
     printf %s "${git_resp}" | grep -P "${pattern_txt}" | eval "${grep_sed_sed}" \
   )"
   local changes_bin="$( \
     printf %s "${git_resp}" | grep -P "${pattern_bin}" | eval "${grep_sed_sed}" \
   )"
-  #
   if [ -n "${changes_txt}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
