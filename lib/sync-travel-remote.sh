@@ -315,10 +315,14 @@ git_ensure_or_clone_target () {
 
 git_checkedout_branch_name_direct () {
   local before_cd="$(pwd -L)"
+
   cd "$1"
+
   local branch_name
   branch_name=$(git rev-parse --abbrev-ref=loose HEAD)
+
   cd "${before_cd}"
+
   printf %s "${branch_name}"
 }
 
@@ -327,14 +331,18 @@ git_checkedout_branch_name_remote () {
   local remote_name="${2:-${MR_REMOTE}}"
 
   local before_cd="$(pwd -L)"
+
   cd "${target_repo}"
+
   local branch_name
   branch_name=$( \
     git remote show ${remote_name} |
     grep "HEAD branch:" |
     /usr/bin/env sed -e "s/^.*HEAD branch:\s*//" \
   )
+
   cd "${before_cd}"
+
   printf %s "${branch_name}"
 }
 
