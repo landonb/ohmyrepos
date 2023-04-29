@@ -1013,9 +1013,9 @@ git_update_device_fetch_from_local () {
 # The `mr unpack` action.
 git_update_local_fetch_from_device () {
   git_merge_check_env_remote
-  local dev_path
   git_update_ensure_ready
 
+  local dev_path
   dev_path=$(git_update_dev_path)
 
   git_fetch_n_cobr_n_merge "${dev_path}" "${MR_REPO}" 'travel' 'local'
