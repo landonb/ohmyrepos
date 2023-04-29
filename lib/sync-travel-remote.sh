@@ -79,11 +79,13 @@ reveal_biz_vars () {
 
 _echo_e() (
   local IFS=" "
+
   printf '%b\n' "$*"
 )
 
 _echo_en() (
   local IFS=" "
+
   printf %b "$*"
 )
 
@@ -91,11 +93,13 @@ _echo_en() (
 
 _git_echo_long_op_start () {
   local right_now="$(date "+%Y-%m-%d @ %T")"
+
   LONG_OP_MSG="$( _echo_e \
     "$(fg_lightorange)[WAIT]$(attr_reset) ${right_now} "\
     "$(fg_lightorange)⏳ ${1}$(attr_reset)" \
     "$(fg_lightorange)${MR_REPO}...$(attr_reset)" \
   )"
+
   _echo_en "${LONG_OP_MSG}"
 }
 
@@ -107,6 +111,7 @@ _git_echo_long_op_finis () {
   _echo_en "                                           "  # add one extra for Unicode, or something.
   _echo_en "$(printf "${MR_REPO}..." | /usr/bin/env sed -E "s/./ /g")"
   _echo_en "\r"
+
   LONG_OP_MSG=
 }
 
@@ -131,6 +136,7 @@ warn_repo_problem_9char () {
   status_adj="$1"
   opt_prefix="$2"
   opt_suffix="$3"
+
   warn "$(attr_reset) " \
     "${opt_prefix}$(fg_mintgreen)$(attr_emphasis)${status_adj}$(attr_reset)${opt_suffix}" \
     "   $(fg_mintgreen)${MR_REPO}$(attr_reset)"
@@ -139,12 +145,17 @@ warn_repo_problem_9char () {
 git_dir_check () {
   local repo_path="$1"
   local repo_type="$2"
+
   local dir_okay=0
+
   if is_ssh_path "${repo_path}"; then
+
     return ${dir_okay}
   elif [ ! -d "${repo_path}" ]; then
     dir_okay=1
+
     info "No repo found: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
+
     if [ "${repo_type}" = 'travel' ]; then
       touch ${MR_TMP_TRAVEL_HINT_FILE}
     else  # "${repo_type}" = 'local'
@@ -159,19 +170,26 @@ git_dir_check () {
     warn_repo_problem_9char 'notsynced'
   elif [ ! -e "${repo_path}/.git" ] && [ ! -f "${repo_path}/HEAD" ]; then
     dir_okay=1
+
     info "No .git/|HEAD: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
+
     warn_repo_problem_9char 'gitless' ' ' ' '
   else
     local before_cd="$(pwd -L)"
+
     cd "${repo_path}"
+
     (git rev-parse --git-dir --quiet >/dev/null 2>&1) && dir_okay=0 || dir_okay=1
+
     cd "${before_cd}"
+
     if [ ${dir_okay} -ne 0 ]; then
       info "Bad --git-dir: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
       info "  “$(git rev-parse --git-dir --quiet 2>&1)”"
       warn_repo_problem_9char 'rev-parse'
     fi
   fi
+
   return ${dir_okay}
 }
 
@@ -204,12 +222,15 @@ must_be_git_dirs () {
 
 git_travel_cache_setup () {
   ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
+
   /bin/rm -f "${MR_TMP_TRAVEL_HINT_FILE}"
 }
 
 git_travel_cache_teardown () {
   ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
+
   local ret_code=0
+
   if [ -e ${MR_TMP_TRAVEL_HINT_FILE} ]; then
     info
     warn "One or more errors suggest that you need to setup the travel device."
@@ -217,9 +238,12 @@ git_travel_cache_teardown () {
     info "You can setup the travel device easily by running:"
     info
     info "  $(fg_lightorange)MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel$(attr_reset)"
+
     ret_code=0
   fi
+
   /bin/rm -f ${MR_TMP_TRAVEL_HINT_FILE}
+
   return ${ret_code}
 }
 
@@ -250,11 +274,13 @@ git_ensure_or_clone_target () {
   if [ -d "${target_repo}" ]; then
     # Check whether the target directory is nonempty and return if so.
     if [ -n "$(/usr/bin/env ls -A ${target_repo} 2>/dev/null)" ]; then
+
       return 0
     fi
   fi
 
   _git_echo_long_op_start 'clonin’  '
+
   # UNSURE/2019-10-30: Does subprocess mean Ctrl-C won't pass through?
   # I.e., does calling git-clone not in subprocess make mr command faster killable?
   if false; then
@@ -265,7 +291,9 @@ git_ensure_or_clone_target () {
     ) || retco=$?
   fi
   #
+
   local retco=0
+
   local git_respf="$(mktemp --suffix='.ohmyrepos')"
 
   # 2021-08-16: I'm, like, 100% positive this script always called with
@@ -275,6 +303,7 @@ git_ensure_or_clone_target () {
   #           `echo $SHELLOPTS | grep -q "\berrexit\b"` is always false,
   #           because errexit is removed for the echo before the pipe.
   local shell_opts="${SHELLOPTS}"
+
   # Another Bashism? Variable set to empty string evaluate true:
   #   empty="" && $empty && echo "so true"
   # So being lazy: echoing false if false, else nothing (empty string).
@@ -289,6 +318,7 @@ git_ensure_or_clone_target () {
 
   local git_resp="$(<"${git_respf}")"
   /bin/rm "${git_respf}"
+
   _git_echo_long_op_finis
 
   if [ ${retco} -ne 0 ]; then
@@ -296,10 +326,12 @@ git_ensure_or_clone_target () {
     warn "  \$ git clone ${GIT_BARE_REPO} -- '${source_repo}' '${target_repo}'"
     warn "  ${git_resp}"
     warn_repo_problem_9char 'uncloned!'
+
     return 1
   fi
 
   DID_CLONE_REPO=1
+
   info "  $(fg_lightgreen)$(attr_emphasis)✓ cloned🖐$(attr_reset)  " \
     "$(fg_lightgreen)${MR_REPO}$(attr_reset)"
 }
@@ -390,9 +422,12 @@ git_is_bare_repository () {
 git_must_be_clean () {
   # If a bare repository, no working status... so inherently clean, er, negative.
   git_is_bare_repository && return 0 || true
+
   [ -z "$(git status --porcelain)" ] && return 0 || true
+
   info "   $(fg_lightorange)$(attr_underline)✗ dirty$(attr_reset)   " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+
   exit 1
 }
 
@@ -422,22 +457,32 @@ git_set_remote_travel () {
 
   if [ ${extcd} -ne 0 ]; then
     #trace "  Fresh remote wired for “${MR_REMOTE}”"
+
     git remote add ${MR_REMOTE} "${source_repo}"
+
     DID_SET_REMOTE=1
+
     _git_echo_long_op_finis
+
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👈$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
   elif [ "${remote_url}" != "${source_repo}" ]; then
+
     git remote set-url ${MR_REMOTE} "${source_repo}"
+
     DID_SET_REMOTE=1
+
     _git_echo_long_op_finis
+
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👆$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
     debug "  Reset remote wired for “${MR_REMOTE}”" \
       "(was: $(attr_italic)${remote_url}$(attr_reset))"
   else
     #trace "  The “${MR_REMOTE}” remote url is already correct!"
+
     : # no-op
+
     _git_echo_long_op_finis
   fi
 
@@ -466,6 +511,7 @@ git_fetch_remote_travel () {
   _git_echo_long_op_finis
 
   verbose "git fetch says:\n${git_resp}"
+
   # Ignore uninteresting git-fetch messages.
   # - Ignore basic messages, including the "From" line and all
   #   the "... some/branch -> remote/some/branch ..." lines.
@@ -504,6 +550,7 @@ git_fetch_remote_travel () {
   if [ -n "${git_resp}" ]; then
     DID_FETCH_CHANGES=1
   fi
+
   if [ "${target_type}" = 'travel' ]; then
     if [ -n "${git_resp}" ]; then
       info "  $(fg_green)$(attr_emphasis)✓ fetched🤙$(attr_reset)" \
@@ -524,6 +571,7 @@ git_fetch_remote_travel () {
 
 git_show_ref_branch_sha8 () {
   local target_branch="${1:-release}"
+
   git show-ref -s refs/heads/${target_branch} |
     /usr/bin/env sed 's/^\(.\{8\}\).*/\1/'
 }
@@ -588,6 +636,7 @@ git_change_branches_if_necessary () {
     info "  $(fg_mintgreen)$(attr_emphasis)✗ checkout $(attr_reset)" \
       "SKIP: $(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
+
     return
   fi
 
@@ -603,18 +652,21 @@ git_change_branches_if_necessary () {
 
   if [ "${source_branch}" != "${target_branch}" ]; then
     _git_echo_long_op_start 'branchin’'
+
     if git_is_bare_repository; then
       git update-ref refs/heads/${source_branch} remotes/${MR_REMOTE}/${source_branch}
       git symbolic-ref HEAD refs/heads/${source_branch}
     else
       local extcd=0
       (git checkout ${source_branch} >/dev/null 2>&1) || extcd=$?
+
       if [ $extcd -ne 0 ]; then
   # FIXME: On unpack, this might need/want to be origin/, not travel/ !
         git checkout --track ${MR_REMOTE}/${source_branch}
       fi
     fi
     DID_BRANCH_CHANGE=1
+
     _git_echo_long_op_finis
 
     info "  $(fg_mintgreen)$(attr_emphasis)✓ checkout $(attr_reset)" \
@@ -646,6 +698,7 @@ git_merge_ff_only () {
   if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
     debug "  $(fg_mediumgrey)skip-HEAD$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
+
     return
     # MEH/2019-11-21 03:12: We could get around detached HEAD by using SHA, e.g.,:
     #   # Remote is non-local (ssh) and detached head ((unknown)). Get HEAD's SHA.
@@ -740,12 +793,14 @@ git_merge_ff_only () {
     /usr/bin/env sed "s/\$/\\$(attr_reset)/g" |
     /usr/bin/env sed "s/^/\\$(bg_blue)/g"
   '
+
   local changes_txt="$( \
     printf %s "${git_resp}" | grep -P "${pattern_txt}" | eval "${grep_sed_sed}" \
   )"
   local changes_bin="$( \
     printf %s "${git_resp}" | grep -P "${pattern_bin}" | eval "${grep_sed_sed}" \
   )"
+
   if [ -n "${changes_txt}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
@@ -783,10 +838,12 @@ print_mergefail_msg () {
   local git_resp="$3"
 
   local local_head_sha="$(shorten_sha "$(git rev-parse HEAD)")"
+
   # CXPX/NOT-DRY: This info copied from git-my-merge-status, probably same as:
   #   git_status_check_report_9chars 'mergefail' '  '
   info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+
   # (lb): So weird: Dubs Vim syntax highlight broken on "... ${to_commit}\` ...".
   #       For some reason the bracket-slash, }\, causes the rest of file
   #       to appear quoted. E.g., $to_commit\` is okay but ${to_commit}\`
@@ -842,8 +899,10 @@ git_fetch_n_cobr () {
 
   local extcd=0
   (git_must_be_clean) || extcd=$?
+
   if [ ${extcd} -ne 0 ]; then
     cd "${before_cd}"
+
     exit ${extcd}
   fi
 
@@ -875,6 +934,7 @@ git_fetch_n_cobr_n_merge () {
   local target_repo="$2"
   local source_type="$3"
   local target_type="$4"
+
   travel_ops_reset_stats
   git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
   # Fast-forward merge, so no new commits, and complain if cannot.
@@ -884,6 +944,7 @@ git_fetch_n_cobr_n_merge () {
 git_pack_travel_device () {
   local source_repo="$1"
   local target_repo="$2"
+
   travel_ops_reset_stats
   git_ensure_or_clone_target "${source_repo}" "${target_repo}"
   git_fetch_n_cobr "${source_repo}" "${target_repo}" 'local' 'travel'
@@ -926,12 +987,14 @@ git_update_dev_path () {
   #   local dev_path=$(realpath -m -- "${MR_TRAVEL}/${MR_REPO}")
   local git_name='_0.git'
   local dev_path=$(realpath -m -- "${MR_TRAVEL}/${MR_REPO}/${git_name}")
+
   printf %s "${dev_path}"
 }
 
 # The `mr travel` action.
 git_update_device_fetch_from_local () {
   MR_REMOTE=${MR_REMOTE:-$(hostname)}
+
   local dev_path
   git_update_ensure_ready
   dev_path=$(git_update_dev_path)
@@ -943,7 +1006,9 @@ git_update_local_fetch_from_device () {
   git_merge_check_env_remote
   local dev_path
   git_update_ensure_ready
+
   dev_path=$(git_update_dev_path)
+
   git_fetch_n_cobr_n_merge "${dev_path}" "${MR_REPO}" 'travel' 'local'
 }
 
