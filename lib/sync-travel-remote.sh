@@ -332,6 +332,7 @@ git_checkedout_branch_name_remote () {
 
   local before_cd="$(pwd -L)"
 
+  # Likely $MR_REPO, and likely the cwd.
   cd "${target_repo}"
 
   local branch_name
@@ -351,6 +352,7 @@ git_source_branch_deduce () {
   local target_repo="$2"
 
   local source_branch
+  # Check if SSH remote, i.e., ssh://....
   if is_ssh_path "${source_repo}"; then
     # If detached HEAD (b/c git submodule, or other why), remote-show shows "(unknown)".
     source_branch=$(git_checkedout_branch_name_remote "${target_repo}" "${MR_REMOTE}")
@@ -671,6 +673,9 @@ git_merge_ff_only () {
   # Ha! 2019-01-24: Seeing:
   #   "fatal: update_ref failed for ref 'ORIG_HEAD': could not write to '.git/ORIG_HEAD'"
   # because my device is full. Guh.
+
+  # Previously, we've changed local branch to match remote HEAD,
+  # if necessary, and now we're ready to try local fast-forward.
 
   local extcd=0
   local git_resp
