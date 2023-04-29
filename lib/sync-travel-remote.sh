@@ -726,7 +726,11 @@ git_merge_ff_only () {
 
   _git_echo_long_op_finis
 
-  [ -n "${culled}" ] && warn "git merge wha?\n${culled}" || true
+  [ -n "${culled}" ] \
+    && warn "Unknown git-merge response\n${culled}" \
+    && warn "CHORE: Update source file grep chain if you see this message:" \
+    && warn "  ${OHMYREPOS_LIB}/sync-travel-remote.sh" \
+    || true
   [ -n "${culled}" ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] \
     && notice "git merge says:\n${git_resp}" \
     || true
