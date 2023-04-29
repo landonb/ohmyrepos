@@ -161,11 +161,14 @@ git_dir_check () {
     else  # "${repo_type}" = 'local'
       # (lb): This should be unreacheable, because $repo_path is $MR_REPO,
       # and `mr` will have failed before now.
-      fatal
-      fatal "UNEXPECTED: local repo missing?"
-      fatal "  Path to pull from is missing:"
-      fatal "    “${repo_path}”"
-      fatal
+
+      critical
+      critical "UNEXPECTED: local repo missing?"
+      critical "  Path to pull from is missing:"
+      critical "    “${repo_path}”"
+      critical
+
+      exit 1
     fi
     warn_repo_problem_9char 'notsynced'
   elif [ ! -e "${repo_path}/.git" ] && [ ! -f "${repo_path}/HEAD" ]; then
