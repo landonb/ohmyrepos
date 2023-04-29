@@ -232,8 +232,6 @@ git_travel_cache_setup () {
 git_travel_cache_teardown () {
   ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
 
-  local ret_code=0
-
   if [ -e ${MR_TMP_TRAVEL_HINT_FILE} ]; then
     info
     warn "One or more errors suggest that you need to setup the travel device."
@@ -242,12 +240,10 @@ git_travel_cache_teardown () {
     info
     info "  $(fg_lightorange)MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel$(attr_reset)"
 
-    ret_code=0
   fi
 
   /bin/rm -f ${MR_TMP_TRAVEL_HINT_FILE}
 
-  return ${ret_code}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
