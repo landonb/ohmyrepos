@@ -366,19 +366,23 @@ git_source_branch_deduce () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# I don't need this fcn. Reports the tracking branch, (generally 'upstream)
-#   I think, because @{u}. [Not quite sure what that is; *tracking* remote?]
-# WARNING/2020-03-14: (lb): This function not called.
-git_checkedout_remote_branch_name () {
-  # Include the name of the remote, e.g., not just feature/foo,
-  # but origin/feature/foo.
-  local before_cd="$(pwd -L)"
-  cd "$1"
-  local remote_branch
-  remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
-  cd "${before_cd}"
-  printf %s "${remote_branch}"
-}
+# # I don't need this fcn. Reports the tracking branch, (generally 'upstream)
+# #   I think, because @{u}. [Not quite sure what that is; *tracking* remote?]
+# # WARNING/2020-03-14: (lb): This function not called.
+# git_checkedout_remote_branch_name () {
+#   # Include the name of the remote, e.g., not just feature/foo,
+#   # but origin/feature/foo.
+#   local before_cd="$(pwd -L)"
+#
+#   cd "$1"
+#
+#   local remote_branch
+#   remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
+#
+#   cd "${before_cd}"
+#
+#   printf %s "${remote_branch}"
+# }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
