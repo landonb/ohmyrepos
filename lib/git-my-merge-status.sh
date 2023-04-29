@@ -101,7 +101,7 @@ git_status_cache_teardown () {
   local ret_code=0
 
   if [ -s "${OMR_MYSTATUS_TMP_CHORES_FILE}" ]; then
-    git_status_notify_chores "${untidy_count}"
+    git_status_notify_chores
     echo
     cat "${OMR_MYSTATUS_TMP_CHORES_FILE}"
     echo
