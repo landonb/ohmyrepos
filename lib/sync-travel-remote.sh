@@ -771,38 +771,7 @@ git_merge_ff_only () {
   # We verified `git status --porcelain` indicated nothing before trying to merge,
   # so this could mean the branch diverged from remote, or something. Inform user.
   if [ ${merge_success} -ne 0 ]; then
-    local local_head_sha="$(shorten_sha "$(git rev-parse HEAD)")"
-    # CXPX/NOT-DRY: This info copied from git-my-merge-status, probably same as:
-    #   git_status_check_report_9chars 'mergefail' '  '
-    info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
-      "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
-    # (lb): So weird: Dubs Vim syntax highlight broken on "... ${to_commit}\` ...".
-    #       For some reason the bracket-slash, }\, causes the rest of file
-    #       to appear quoted. E.g., $to_commit\` is okay but ${to_commit}\`
-    #       breaks my syntax highlighter. - Sorry for the comment non sequitur!
-    #       This remark really has nothing to do with this code. I should take
-    #       my problems offline, I know.
-    # KLUGE: Author's Vim syntax highlighter gets confused on escaped backticks,
-    #        e.g., warn "foo \`bar\`", so using single quotes.
-    warn 'Merge failed! `merge --ff-only '${to_commit}'` says:'
-    warn " ${git_resp}"
-    # Print CPYST to help user clobber, if that's what they really want.
-    warn "$(attr_reset)$(bg_maroon)┌─ HINT ─┐\n┌────────────────────────────┘        └────────┐\n└─── You must resolve the conflicts manually ──┘\n" \
-      "First, use git-diff to audit changes between the repos.\n" \
-      "Then, decide whether to rebase or to accept the remote.\n" \
-      "- If both repos have changes, try rebase:$(bg_forest)\n" \
-      "    cd ${target_repo}\n" \
-      "    git diff ${local_head_sha}..${to_commit}\n" \
-      "    git rebase ${to_commit}$(bg_maroon)\n" \
-      "- Otherwise, if the remote is canon, try:$(bg_forest)\n" \
-      "    cd ${target_repo}\n" \
-      "    git diff ${local_head_sha}..${to_commit}\n" \
-      "    git reset --hard ${to_commit}$(bg_maroon)\n" \
-      "- If you need to dig any deeper, use tig:\n" \
-      "    cd ${target_repo}\n" \
-      "    tig ${to_commit}\n" \
-      "    tig ${local_head_sha}  # Local HEAD" \
-      "$(attr_reset)"
+    print_mergefail_msg "${target_repo}" "${to_commit}" "${git_resp}"
   elif (printf %s "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
@@ -818,6 +787,45 @@ git_merge_ff_only () {
 
   return ${merge_success}
 }
+
+print_mergefail_msg () {
+  local target_repo="$1"
+  local to_commit="$2"
+  local git_resp="$3"
+
+  local local_head_sha="$(shorten_sha "$(git rev-parse HEAD)")"
+  # CXPX/NOT-DRY: This info copied from git-my-merge-status, probably same as:
+  #   git_status_check_report_9chars 'mergefail' '  '
+  info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
+    "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+  # (lb): So weird: Dubs Vim syntax highlight broken on "... ${to_commit}\` ...".
+  #       For some reason the bracket-slash, }\, causes the rest of file
+  #       to appear quoted. E.g., $to_commit\` is okay but ${to_commit}\`
+  #       breaks my syntax highlighter. - Sorry for the comment non sequitur!
+  #       This remark really has nothing to do with this code. I should take
+  #       my problems offline, I know.
+  # KLUGE: Author's Vim syntax highlighter gets confused on escaped backticks,
+  #        e.g., warn "foo \`bar\`", so using single quotes.
+  warn 'Merge failed! `merge --ff-only '${to_commit}'` says:'
+  warn " ${git_resp}"
+  # Print CPYST to help user clobber, if that's what they really want.
+  warn "$(attr_reset)$(bg_maroon)┌─ HINT ─┐\n┌────────────────────────────┘        └────────┐\n└─── You must resolve the conflicts manually ──┘\n" \
+    "First, use git-diff to audit changes between the repos.\n" \
+    "Then, decide whether to rebase or to accept the remote.\n" \
+    "- If both repos have changes, try rebase:$(bg_forest)\n" \
+    "    cd ${target_repo}\n" \
+    "    git diff ${local_head_sha}..${to_commit}\n" \
+    "    git rebase ${to_commit}$(bg_maroon)\n" \
+    "- Otherwise, if the remote is canon, try:$(bg_forest)\n" \
+    "    cd ${target_repo}\n" \
+    "    git diff ${local_head_sha}..${to_commit}\n" \
+    "    git reset --hard ${to_commit}$(bg_maroon)\n" \
+    "- If you need to dig any deeper, use tig:\n" \
+    "    cd ${target_repo}\n" \
+    "    tig ${to_commit}\n" \
+    "    tig ${local_head_sha}  # Local HEAD" \
+    "$(attr_reset)"
+  }
 
 shorten_sha () {
   PW_SHA1SUM_LENGTH=7
