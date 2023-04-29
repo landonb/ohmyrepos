@@ -16,14 +16,14 @@ lib =
 # has a remote called '<host>' with the url, ssh://<host>/${MR_REPO}
 # It'll fetch that remote, change to its active branch, and then
 # attempt a --ff-only merge to its HEAD.
-git_ffssh = ( set -e ; git_merge_ffonly_ssh_mirror "$@" )
+git_ffssh = git_merge_ffonly_ssh_mirror "$@"
 
 # If you'd like to sync machines using a local directory instead, such
 # as one from an encrypted filesystem mounted off a pluggable USB drive,
 # or if you'd like to create a directory of all your mr-managed repos,
 # call `MR_DEVICE=<> mr travel`. The action will create bare repos under
 # the path provided, mirroring the path that exists on your local system.
-git_travel = ( set -e ; git_update_device_fetch_from_local "$@" )
+git_travel = git_update_device_fetch_from_local "$@"
 
 # (lb): The builtin `mr update` calls git-pull, but here we use `update`
 # to fetch and --ff-only merge instead, and not from the 'origin'
@@ -31,5 +31,5 @@ git_travel = ( set -e ; git_update_device_fetch_from_local "$@" )
 # a --bare remote maintained locally (typically mounted as necessary,
 # say, using an encrypted filesystem). Call, i.e., `MR_DEVICE=<> mr update`.
 # ... 2019-10-23 22:59: Or maybe I want to call it `mr unpack`...
-git_unpack = ( set -e ; git_update_local_fetch_from_device "$@" )
+git_unpack = git_update_local_fetch_from_device "$@"
 

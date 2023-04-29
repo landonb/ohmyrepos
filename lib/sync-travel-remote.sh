@@ -973,6 +973,8 @@ git_merge_check_env_travel () {
 
 # The `mr ffssh` action.
 git_merge_ffonly_ssh_mirror () {
+  set -e
+
   git_merge_check_env_remote
   git_merge_check_env_repo
   MR_FETCH_HOST=${MR_FETCH_HOST:-${MR_REMOTE}}
@@ -1000,6 +1002,8 @@ git_update_dev_path () {
 
 # The `mr travel` action.
 git_update_device_fetch_from_local () {
+  set -e
+
   MR_REMOTE=${MR_REMOTE:-$(hostname)}
 
   local dev_path
@@ -1010,6 +1014,8 @@ git_update_device_fetch_from_local () {
 
 # The `mr unpack` action.
 git_update_local_fetch_from_device () {
+  set -e
+
   git_merge_check_env_remote
   git_update_ensure_ready
 
