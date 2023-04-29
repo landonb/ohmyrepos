@@ -31,6 +31,11 @@ reveal_biz_vars () {
   # - Default: 0 secs., i.e., always show the action runtime (which is just
   #   a short value in paranetheses before the normal `mr` status report).
   OMR_RUNTIME_MIN_SECS=${OMR_RUNTIME_MIN_SECS:-0}
+
+  # YOU: Set this to the command to use in the copy-paste lines,
+  #      e.g., maybe you'd prefer 'pushd' instead.
+  # - 2023-04-29: Back. compat.: OMR_MYSTATUS_SNIP_CD is previous name.
+  OMR_CPYST_CD="${OMR_CPYST_CD:-${OMR_MYSTATUS_SNIP_CD:-cd}}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

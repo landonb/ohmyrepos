@@ -35,10 +35,6 @@ reveal_biz_vars () {
   #   - At least you can override on CLI, so could alias around it...
   OMR_MYSTATUS_FANCY=${OMR_MYSTATUS_FANCY:-true}
 
-  # YOU: Set this to the command to use in the copy-paste lines,
-  #      e.g., maybe you'd prefer 'pushd' instead.
-  OMR_MYSTATUS_SNIP_CD="${OMR_MYSTATUS_SNIP_CD:-cd}"
-
   OMR_MYSTATUS_SHOW_PROG="${OMR_MYSTATUS_SHOW_PROG:-}"
 }
 
@@ -242,7 +238,7 @@ git_report_untidy_repo () {
   # like Bash (and in fact `echo -e "some string" echoes "-e some string).
   if [ -n "${OMR_MYSTATUS_TMP_CHORES_FILE}" ]; then
     echo \
-      "  ${OMR_MYSTATUS_SNIP_CD} $(fg_lightorange)${MR_REPO}$(attr_reset) && git my-merge-status" \
+      "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset) && git my-merge-status" \
       >> "${OMR_MYSTATUS_TMP_CHORES_FILE}"
   fi
 }
