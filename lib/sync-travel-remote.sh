@@ -785,7 +785,17 @@ git_merge_ff_only () {
     #        e.g., warn "foo \`bar\`", so using single quotes.
     warn 'Merge failed! `merge --ff-only '${to_commit}'` says:'
     warn " ${git_resp}"
-    # warn " target_repo: ${target_repo}"
+    # Print CPYST to help user clobber, if that's what they really want.
+    warn "$(attr_reset)$(bg_maroon)HINT: You might want to manually move the local branch:\n" \
+      " First, use git-diff to audit the changes.\n" \
+      " Then, if satisfied, move the branch pointer.\n" \
+      " - E.g.,$(bg_forest)\n" \
+      "     cd ${target_repo}\n" \
+      "     git diff HEAD..${to_commit}\n" \
+      "     git reset --hard ${to_commit}$(attr_reset)$(bg_maroon)\n" \
+      " - If you need to dig deeper, try tig:\n" \
+      "     tig ${to_commit}" \
+      "$(attr_reset)"
   elif (printf %s "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
