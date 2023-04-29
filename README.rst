@@ -619,7 +619,7 @@ The command simply requires the name of the remote host.
 But we'll also throw in the ``-j`` option and run it on two CPUs.
 Here's how we'd pull changes from ``@fry`` into projects on ``@leela``::
 
-  @leele $ MR_REMOTE=fry mr -d / -j 2 ffssh
+  @leela $ MR_REMOTE=fry mr -d / -j 2 ffssh
 
 To make this even easier, you could wire a unique alias for each
 machine, and then you never have to specify the ``MR_REMOTE``.
