@@ -542,9 +542,13 @@ git_fetch_remote_travel () {
     | grep -v '^See "git help gc" for manual housekeeping.$' \
   )"
 
-  [ -n "${culled}" ] && warn "git fetch wha?\n${culled}" || true
-  [ -n "${culled}" ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] && \
-    notice "git fetch says:\n${git_resp}" || true
+  if [ -n "${culled}" ]; then
+    warn "git fetch wha?\n${culled}"
+
+    if [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]; then
+      notice "git fetch says:\n${git_resp}"
+    fi
+  fi
 
   if [ ${fetch_success} -ne 0 ]; then
     error "Unexpected fetch failure! ${git_resp}"
@@ -773,14 +777,15 @@ git_merge_ff_only () {
 
   _git_echo_long_op_finis
 
-  [ -n "${culled}" ] \
-    && warn "Unknown git-merge response\n${culled}" \
-    && warn "CHORE: Update source file grep chain if you see this message:" \
-    && warn "  ${OHMYREPOS_LIB}/sync-travel-remote.sh" \
-    || true
-  [ -n "${culled}" ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] \
-    && notice "git merge says:\n${git_resp}" \
-    || true
+  if [ -n "${culled}" ]; then
+    warn "Unknown git-merge response\n${culled}"
+    warn "CHORE: Update source file grep chain if you see this message:"
+    warn "  ${OHMYREPOS_LIB}/sync-travel-remote.sh"
+
+    if [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]; then
+      notice "git merge says:\n${git_resp}"
+    fi
+  fi
 
   # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
   # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
