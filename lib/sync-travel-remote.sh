@@ -721,6 +721,7 @@ git_merge_ff_only () {
     | grep -P -v "^ \d+ deletions?\(-\)$" \
     | grep -P -v "${pattern_txt}" \
     | grep -P -v "${pattern_bin}" \
+    | grep -v "^fatal: Not possible to fast-forward, aborting.$" \
   )"
 
   _git_echo_long_op_finis
