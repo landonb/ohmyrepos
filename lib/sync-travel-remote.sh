@@ -232,18 +232,20 @@ git_travel_cache_setup () {
 git_travel_cache_teardown () {
   ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
 
-  if [ -e ${MR_TMP_TRAVEL_HINT_FILE} ]; then
-    info
-    warn "One or more errors suggest that you need to setup the travel device."
-    info
-    info "You can setup the travel device easily by running:"
-    info
-    info "  $(fg_lightorange)MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel$(attr_reset)"
+  git_travel_process_hint_file
+}
 
-  fi
+git_travel_process_hint_file () {
+  [ -e ${MR_TMP_TRAVEL_HINT_FILE} ] || return 0
 
-  /bin/rm -f ${MR_TMP_TRAVEL_HINT_FILE}
+  info
+  warn "One or more errors suggest that you need to setup the travel device."
+  info
+  info "You can setup the travel device easily by running:"
+  info
+  info "  $(fg_lightorange)MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel$(attr_reset)"
 
+  /bin/rm ${MR_TMP_TRAVEL_HINT_FILE}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
