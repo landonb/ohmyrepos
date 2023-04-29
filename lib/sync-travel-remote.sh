@@ -781,7 +781,9 @@ git_merge_ff_only () {
     #       breaks my syntax highlighter. - Sorry for the comment non sequitur!
     #       This remark really has nothing to do with this code. I should take
     #       my problems offline, I know.
-    warn "Merge failed! \`merge --ff-only $to_commit\` says:"
+    # KLUGE: Author's Vim syntax highlighter gets confused on escaped backticks,
+    #        e.g., warn "foo \`bar\`", so using single quotes.
+    warn 'Merge failed! `merge --ff-only '${to_commit}'` says:'
     warn " ${git_resp}"
     # warn " target_repo: ${target_repo}"
   elif (printf %s "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
