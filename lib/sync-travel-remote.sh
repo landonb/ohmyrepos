@@ -286,14 +286,14 @@ git_ensure_or_clone_target () {
 
   # UNSURE/2019-10-30: Does subprocess mean Ctrl-C won't pass through?
   # I.e., does calling git-clone not in subprocess make mr command faster killable?
-  if false; then
-    local retco=0
-    local git_resp
-    git_resp=$( \
-      git clone ${GIT_BARE_REPO} -- "${source_repo}" "${target_repo}" 2>&1 \
-    ) || retco=$?
-  fi
   #
+  # if false; then
+  #   local retco=0
+  #   local git_resp
+  #   git_resp=$( \
+  #     git clone ${GIT_BARE_REPO} -- "${source_repo}" "${target_repo}" 2>&1 \
+  #   ) || retco=$?
+  # fi
 
   local retco=0
 
