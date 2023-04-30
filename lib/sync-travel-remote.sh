@@ -361,7 +361,7 @@ git_travel_cache_teardown () {
 }
 
 git_travel_process_hint_file () {
-  [ -e ${MR_TMP_TRAVEL_HINT_FILE} ] || return 0
+  [ -e "${MR_TMP_TRAVEL_HINT_FILE}" ] || return 0
 
   info
   warn "One or more errors suggest that you need to setup the travel device."
@@ -370,7 +370,7 @@ git_travel_process_hint_file () {
   info
   info "  $(fg_lightorange)MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel$(attr_reset)"
 
-  /bin/rm ${MR_TMP_TRAVEL_HINT_FILE}
+  /bin/rm "${MR_TMP_TRAVEL_HINT_FILE}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
