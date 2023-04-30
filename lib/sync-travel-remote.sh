@@ -420,13 +420,13 @@ git_is_bare_repository () {
   [ $(git rev-parse --is-bare-repository) = 'true' ] && return 0 || return 1
 }
 
-git_must_be_clean () {
+git_must_be_tidy () {
   # If a bare repository, no working status... so inherently clean, er, negative.
   git_is_bare_repository && return 0 || true
 
   [ -z "$(git status --porcelain)" ] && return 0 || true
 
-  info "   $(fg_lightorange)$(attr_underline)✗ dirty$(attr_reset)   " \
+  info "   $(fg_lightorange)$(attr_underline)✗ messy$(attr_reset)   " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
 
   exit 1
@@ -900,7 +900,7 @@ git_fetch_n_cobr () {
   cd "${target_repo}"  # (lb): Probably $MR_REPO, which is already cwd.
 
   local extcd=0
-  (git_must_be_clean) || extcd=$?
+  (git_must_be_tidy) || extcd=$?
 
   if [ ${extcd} -ne 0 ]; then
     cd "${before_cd}"
