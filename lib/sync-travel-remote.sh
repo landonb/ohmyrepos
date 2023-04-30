@@ -451,11 +451,6 @@ git_set_remote_travel () {
   local remote_url
   remote_url=$(git remote get-url ${MR_REMOTE} 2>/dev/null) || extcd=$?
 
-  # trace "  git_set_remote_travel:"
-  # trace "   target: ${target_repo}"
-  # trace "   remote: ${remote_url}"
-  # trace "  git-url: ${extcd}"
-
   if [ ${extcd} -ne 0 ]; then
     # Wire new remote for “${MR_REMOTE}”.
 
@@ -894,12 +889,12 @@ git_fetch_n_cobr () {
   local source_type="$3"
   local target_type="$4"
 
-  # ...
+  # ***
 
   must_be_git_dirs "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
   [ $? -ne 0 ] && return $? || true  # Obviously unreacheable if caller used `set -e`.
 
-  # ...
+  # ***
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"  # (lb): Probably $MR_REPO, which is already cwd.
@@ -918,7 +913,7 @@ git_fetch_n_cobr () {
   git_set_remote_travel "${source_repo}"
   git_fetch_remote_travel "${target_repo}" "${target_type}"
 
-  # ...
+  # ***
 
   local source_branch
   source_branch=$(git_source_branch_deduce "${source_repo}" "${target_repo}")
