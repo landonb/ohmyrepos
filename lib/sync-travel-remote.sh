@@ -43,6 +43,10 @@ reveal_biz_vars () {
   # lazy path to profit) to collect data from all repos is with temporaries.
   # Add the parent process ID so this command may be run in parallel.
   MR_TMP_TRAVEL_HINT_FILE="/tmp/gitsmart-ohmyrepos-travel-hint-$(mr_process_id)"
+  # 2023-04-29: Stash mergefail copy-paste and print final list of chores.
+  # - git-my-merge-status has had a similar feature for a few years.
+  MR_TMP_TRAVEL_CHORES_FILE="/tmp/gitsmart-ohmyrepos-travel-chores-$(mr_process_id)"
+
   # The actions use a mkdir mutex to gait access to the terminal and
   # to the tmp files. (The author was unable to cause interleaving
   # terminal output (even across multiple echoes). But it was easy (~50%
@@ -322,6 +326,8 @@ git_travel_cache_setup () {
 
   /bin/rm -f "${MR_TMP_TRAVEL_HINT_FILE}"
 
+  /bin/rm -f "${MR_TMP_TRAVEL_CHORES_FILE}"
+
   # Just in case something failed without releasing lock.
   [ ! -d "${MR_TMP_TRAVEL_LOCK_DIR}" ] || /bin/rmdir "${MR_TMP_TRAVEL_LOCK_DIR}"
 }
@@ -358,6 +364,8 @@ git_travel_cache_teardown () {
   sync_travel_remote_setup
 
   git_travel_process_hint_file
+
+  git_travel_process_chores_file
 }
 
 git_travel_process_hint_file () {
@@ -371,6 +379,34 @@ git_travel_process_hint_file () {
   info "  $(fg_lightorange)MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel$(attr_reset)"
 
   /bin/rm "${MR_TMP_TRAVEL_HINT_FILE}"
+}
+
+git_travel_process_chores_file () {
+  [ -e "${MR_TMP_TRAVEL_CHORES_FILE}" ] || return 0
+
+  git_travel_process_chores_notify
+  echo
+  cat "${MR_TMP_TRAVEL_CHORES_FILE}"
+  echo
+
+  /bin/rm "${MR_TMP_TRAVEL_CHORES_FILE}"
+}
+
+# COPYD/2023-04-29: MAYBE: DRY this: Copied from git-my-merge-status.sh.
+git_travel_process_chores_notify () {
+  # Note that some hints are multiple lines, but all hints' first line
+  # starts with the cd command, e.g., "  cd /path/to/repo && ...".
+  local untidy_count=$(cat "${MR_TMP_TRAVEL_CHORES_FILE}" | grep -e "^  ${OMR_CPYST_CD}" | wc -l)
+
+  local infl=''
+  local refl=''
+
+  [ ${untidy_count} -ne 1 ] && infl='s'
+  [ ${untidy_count} -eq 1 ] && refl='s'
+
+  warn "GRIZZLY! We found ${untidy_count} repo${infl} which need${refl} attention."
+  notice
+  notice "Here's some copy-pasta if you wanna fix it:"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -563,6 +599,10 @@ git_must_be_tidy () {
 
   info "   $(fg_lightorange)$(attr_underline)✗ messy$(attr_reset)   " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+
+  echo \
+      "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset) && git my-merge-status" \
+      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 
   travel_process_chores_file_lock_release
 
@@ -1047,7 +1087,18 @@ print_mergefail_msg () {
     "    tig ${to_commit}\n" \
     "    tig ${local_head_sha}  # Local HEAD" \
     "$(attr_reset)"
-  }
+
+  echo \
+    "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
+    "&& $(bg_maroon)git diff ${local_head_sha}..${to_commit}$(attr_reset)" \
+      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  echo \
+    "  └─▶ THEN" \
+      "$(bg_forest)git rebase ${to_commit}$(attr_reset) OR" \
+      "$(bg_forest)git reset --hard ${to_commit}$(attr_reset) OR"\
+      "$(bg_forest)< Your choice >$(attr_reset)" \
+      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+}
 
 shorten_sha () {
   PW_SHA1SUM_LENGTH=7
