@@ -1074,7 +1074,7 @@ git_fetch_n_cobr () {
   cd "${target_repo}"  # (lb): Probably $MR_REPO, which is already cwd.
 
   local extcd=0
-  (git_must_be_tidy) || extcd=$?
+  git_must_be_tidy || extcd=$?
 
   if [ ${extcd} -ne 0 ]; then
     cd "${before_cd}"
