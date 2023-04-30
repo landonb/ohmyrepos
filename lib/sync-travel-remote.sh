@@ -30,7 +30,7 @@ GIT_BARE_REPO='--bare'
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
+_travel_source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
   . logger.sh
@@ -42,7 +42,52 @@ reveal_biz_vars () {
   # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet (read:
   # lazy path to profit) to collect data from all repos is with temporaries.
   # Add the parent process ID so this command may be run in parallel.
-  MR_TMP_TRAVEL_HINT_FILE="/tmp/gitsmart-ohmyrepos-travel-${PPID}"
+  MR_TMP_TRAVEL_HINT_FILE="/tmp/gitsmart-ohmyrepos-travel-hint-$(mr_process_id)"
+  # The actions use a mkdir mutex to gait access to the terminal and
+  # to the tmp files. (The author was unable to cause interleaving
+  # terminal output (even across multiple echoes). But it was easy (~50%
+  # of the time) to cause tmp file to be clobbered when not locking).
+
+  # Gait access to terminal and chores file output, to support multi-process (mr -j).
+  MR_TMP_TRAVEL_LOCK_DIR="/tmp/gitsmart-ohmyrepos-travel-lock-$(mr_process_id)"
+
+  # The mutex mechanism only runs if multi-processing, a cached JIT variable.
+  IS_MULTIPROCESSING=
+}
+
+mr_process_id () {
+  local ancestor_pid
+
+  if [ -z "${MR_REPO}" ]; then
+    # MR_REPO is not set — the main process is calling this fcn on startup.
+    ancestor_pid="${PPID}"
+  # else, MR_REPO is set — the action fcn was called to process a specific repo.
+  elif is_multiprocessing; then
+    # This is a multi-process call, e.g., `mr --job 4`.
+    # - Use the parent process ID of the parent process, aka grandparent PID (GPPID).
+    # - Note that `ps` includes a leading whitespace for 4-digit PIDs.
+    ancestor_pid="$(ps -o ppid= ${PPID} | tr -d ' ')"
+  else
+    # This is a normal, single-process repo task, e.g., `mr -j 1`.
+    ancestor_pid="${PPID}"
+  fi
+
+  printf "${ancestor_pid}"
+}
+
+is_multiprocessing () {
+  if [ -z "${IS_MULTIPROCESSING}" ]; then
+    local match_int_over_2="([0-9]{2,}|[2-9]{1})"
+
+    echo "${MR_SWITCHES}" | \
+      grep -q -E \
+        -e "-j[ =]?${match_int_over_2}" \
+        -e "--jobs[ =]?${match_int_over_2}" \
+      && IS_MULTIPROCESSING=true \
+      || IS_MULTIPROCESSING=false
+  fi
+
+  ${IS_MULTIPROCESSING}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -92,6 +137,8 @@ _echo_en() (
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _git_echo_long_op_start () {
+  ! is_multiprocessing || return 0
+
   local right_now="$(date "+%Y-%m-%d @ %T")"
 
   LONG_OP_MSG="$( _echo_e \
@@ -104,6 +151,8 @@ _git_echo_long_op_start () {
 }
 
 _git_echo_long_op_finis () {
+  ! is_multiprocessing || return 0
+
   _echo_en "\r"
   # Clear out the previous message (lest ellipses remain in terminal) e.g., clear:
   #      "[WAIT] 2019-10-30 @ 19:34:04 ⏳ fetchin’  /..." → 43 chars
@@ -115,6 +164,45 @@ _git_echo_long_op_finis () {
   LONG_OP_MSG=
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Avoid overlapping output issues when multi-processing (e.g., `mr -j 2`).
+# - Use a mutex, aka binary semaphore, to gait output.
+# - This avoids two issues:
+#   - Interleaving terminal output (a hypothetical problem, at least;
+#     author was unable to cause this behavior).
+#   - Clobbering/corrupting a tmp file by append to it simultaneously
+#     (by more than one process calling `echo ... >> tmp-file`).
+#     - If you disable this mutex, it's easy to observe this behavior.
+# - We use `mkdir` to implement the mutex, because it's just so easy.
+travel_process_chores_file_lock_acquire () {
+  is_multiprocessing || return 0
+
+  local tries=0
+
+  while true; do
+    # mkdir is atomic, how convenient.
+    if $(/bin/mkdir "${MR_TMP_TRAVEL_LOCK_DIR}" 2> /dev/null); then
+
+      return
+    fi
+
+    # BASHism: let 'tries += 1'
+    tries=$(($tries + 1))
+    if [ $(($tries % 100)) -eq 100 ]; then
+      # 2023-04-29: Author has never seen this message.
+      >&2 echo "BWARE: Still waiting on travel lock! [$$]"
+    fi
+
+    sleep 0.01
+  done
+}
+
+travel_process_chores_file_lock_release () {
+  is_multiprocessing || return 0
+
+  /bin/rmdir "${MR_TMP_TRAVEL_LOCK_DIR}"
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
@@ -151,7 +239,11 @@ git_dir_check () {
   if is_ssh_path "${repo_path}"; then
 
     return ${dir_okay}
-  elif [ ! -d "${repo_path}" ]; then
+  fi
+
+  travel_process_chores_file_lock_acquire
+
+  if [ ! -d "${repo_path}" ]; then
     dir_okay=1
 
     info "No repo found: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
@@ -193,6 +285,8 @@ git_dir_check () {
     fi
   fi
 
+  travel_process_chores_file_lock_release
+
   return ${dir_okay}
 }
 
@@ -227,10 +321,41 @@ git_travel_cache_setup () {
   ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
 
   /bin/rm -f "${MR_TMP_TRAVEL_HINT_FILE}"
+
+  # Just in case something failed without releasing lock.
+  [ ! -d "${MR_TMP_TRAVEL_LOCK_DIR}" ] || /bin/rmdir "${MR_TMP_TRAVEL_LOCK_DIR}"
 }
 
 git_travel_cache_teardown () {
   ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
+
+  # KLUGE: When not multiprocessing (`mr -j 1`), `mr` uses the final
+  # MR_REPO process to call this teardown function, but `mr` doesn't
+  # clear MR_REPO.
+  # - Vs. when multiprocessing, MR_REPO is not set when this function is called.
+  #
+  # - FIXME/2023-04-29: Check `mr` GitHub if known issue, and/or fix it yourself.
+  # - SPIKE/2023-04-29: Nor does multiprocessing reuse the final MR_REPO process
+  #     to call teardown — Investigate this: Why doesn't `mr` use the main process?
+  #     Or why doesn't it create a new process, because even when not multiprocessing,
+  #     `mr` still runs each MR_REPO action in a separate process.
+  #     - Which is why this smells like a bigger problem than simpling
+  #       having `mr` clear MR_REPO before calling teardown.
+  #       - Perhaps `mr` should call this fcn. in a new subprocess, like it
+  #         does when multiprocessing.
+  #
+  # In any case, ensure MR_REPO is unset, because it affects how the parent
+  # (or grandparent) process ID is determined (see mr_process_id).
+  MR_REPO=
+
+  # See comment above `main`, at the bottom of this file:
+  # - `main` skips the setup call when MR_REPO is set, because the action
+  #   function has already run (the short-circuit return is merely pedantics,
+  #   because it's harmless to call the setup function from `main` for each
+  #   MR_REPO process; but we do so to make note of program flow, to avoid
+  #   accidental issues in the future, and to verify our understanding of
+  #   how this all works).
+  sync_travel_remote_setup
 
   git_travel_process_hint_file
 }
@@ -323,18 +448,26 @@ git_ensure_or_clone_target () {
   _git_echo_long_op_finis
 
   if [ ${retco} -ne 0 ]; then
+    travel_process_chores_file_lock_acquire
+
     warn "Clone failed!"
     warn "  \$ git clone ${GIT_BARE_REPO} -- '${source_repo}' '${target_repo}'"
     warn "  ${git_resp}"
     warn_repo_problem_9char 'uncloned!'
+
+    travel_process_chores_file_lock_release
 
     return 1
   fi
 
   DID_CLONE_REPO=1
 
+  travel_process_chores_file_lock_acquire
+
   info "  $(fg_lightgreen)$(attr_emphasis)✓ cloned🖐$(attr_reset)  " \
     "$(fg_lightgreen)${MR_REPO}$(attr_reset)"
+
+  travel_process_chores_file_lock_release
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -426,8 +559,12 @@ git_must_be_tidy () {
 
   [ -z "$(git status --porcelain)" ] && return 0 || true
 
+  travel_process_chores_file_lock_acquire
+
   info "   $(fg_lightorange)$(attr_underline)✗ messy$(attr_reset)   " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+
+  travel_process_chores_file_lock_release
 
   exit 1
 }
@@ -460,8 +597,12 @@ git_set_remote_travel () {
 
     _git_echo_long_op_finis
 
+    travel_process_chores_file_lock_acquire
+
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👈$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
+
+    travel_process_chores_file_lock_release
   elif [ "${remote_url}" != "${source_repo}" ]; then
     # Change URL for existing remote.
 
@@ -471,10 +612,14 @@ git_set_remote_travel () {
 
     _git_echo_long_op_finis
 
+    travel_process_chores_file_lock_acquire
+
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👆$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
     debug "  Reset remote wired for “${MR_REMOTE}”" \
       "(was: $(attr_italic)${remote_url}$(attr_reset))"
+
+    travel_process_chores_file_lock_release
   else
     # Verified “${MR_REMOTE}” URL correct.
 
@@ -506,6 +651,8 @@ git_fetch_remote_travel () {
   local fetch_success=${extcd}
 
   _git_echo_long_op_finis
+
+  travel_process_chores_file_lock_acquire
 
   verbose "git fetch says:\n${git_resp}"
 
@@ -562,6 +709,8 @@ git_fetch_remote_travel () {
     fi
   # else, "$target_type" = 'local'.
   fi
+
+  travel_process_chores_file_lock_release
 
   cd "${before_cd}"
 }
@@ -670,15 +819,23 @@ git_change_branches_if_necessary () {
 
     _git_echo_long_op_finis
 
+    travel_process_chores_file_lock_acquire
+
     info "  $(fg_mintgreen)$(attr_emphasis)✓ checkout $(attr_reset)" \
       "$(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
+
+    travel_process_chores_file_lock_release
   elif [ "${wasref}" != "${newref}" ]; then
+    travel_process_chores_file_lock_acquire
+
     # FIXME/2020-03-21: Added this elif and info, not sure I want to keep.
     info "  $(fg_mintgreen)$(attr_emphasis)✓ updt-ref $(attr_reset)" \
       "${target_branch}: " \
       "$(fg_lightorange)$(attr_underline)${wasref}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${newref}$(attr_reset)"
+
+    travel_process_chores_file_lock_release
   fi
 
   cd "${before_cd}"
@@ -741,7 +898,16 @@ git_merge_ff_only () {
   #local pattern_bin='^ \S*( => \S*)? *\| +Bin( \d+ -> \d+ bytes)?$'
   local pattern_bin='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
 
+  # ***
+
+  travel_process_chores_file_lock_acquire
+
   verbose "git merge says:\n${git_resp}"
+
+  travel_process_chores_file_lock_release
+
+  # ***
+
   # NOTE: The checking-out-files line looks like this would work:
   #         | grep -P -v "^Checking out files: 100% \(\d+/\d+\), done.$" \
   #       but it doesn't, I think because the "100%" was updated live,
@@ -772,6 +938,8 @@ git_merge_ff_only () {
   _git_echo_long_op_finis
 
   if [ -n "${culled}" ]; then
+    travel_process_chores_file_lock_acquire
+
     warn "Unknown git-merge response\n${culled}"
     warn "CHORE: Update source file grep chain if you see this message:"
     warn "  ${OHMYREPOS_LIB}/sync-travel-remote.sh"
@@ -779,6 +947,8 @@ git_merge_ff_only () {
     if [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]; then
       notice "git merge says:\n${git_resp}"
     fi
+
+    travel_process_chores_file_lock_release
   fi
 
   # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
@@ -802,6 +972,8 @@ git_merge_ff_only () {
   local changes_bin="$( \
     printf %s "${git_resp}" | grep -P "${pattern_bin}" | eval "${grep_sed_sed}" \
   )"
+
+  travel_process_chores_file_lock_acquire
 
   if [ -n "${changes_txt}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
@@ -828,6 +1000,8 @@ git_merge_ff_only () {
   # else, ${merge_success} true, and either/or changes_txt/_bin,
   # so we've already printed multiple info statements.
   fi
+
+  travel_process_chores_file_lock_release
 
   cd "${before_cd}"
 
@@ -970,6 +1144,8 @@ git_merge_check_env_travel () {
 git_merge_ffonly_ssh_mirror () {
   set -e
 
+  reveal_biz_vars
+
   git_merge_check_env_remote
   git_merge_check_env_repo
   MR_FETCH_HOST=${MR_FETCH_HOST:-${MR_REMOTE}}
@@ -999,6 +1175,8 @@ git_update_dev_path () {
 git_update_device_fetch_from_local () {
   set -e
 
+  reveal_biz_vars
+
   MR_REMOTE=${MR_REMOTE:-$(hostname)}
 
   local dev_path
@@ -1011,6 +1189,8 @@ git_update_device_fetch_from_local () {
 git_update_local_fetch_from_device () {
   set -e
 
+  reveal_biz_vars
+
   git_merge_check_env_remote
   git_update_ensure_ready
 
@@ -1022,12 +1202,73 @@ git_update_local_fetch_from_device () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
-  source_deps
+# When `mr` starts, the `lib = . sync-travel-remote.sh` statement
+# (from `lib/sync-travel-remote`) is run by the main `mr` process.
+# - The main process sources this file (because `lib`), and then
+#   it calls the setup function (`git_travel_cache_setup`).
+# - Then a new process is started for each MR_REPO (whether multi-
+#   processing or not, it's always a new subprocess). Each of these
+#   MR_REPO processes calls the action fcn.
+#   (e.g., git_merge_ffonly_ssh_mirror).
+# - Next, two other processes run, and they each source this file
+#   (unrelated to the action fcn; the author has not investigated
+#   `mr` to know what the two additional processes are doing).
+#   - After these two processes run, the next MR_REPO process is
+#     created, and the sequence repeats.
+#
+# Observations of previous behavior:
+# - When multiprocessing (e.g., `mr -j 2`):
+#   - The startup process calls `main` and then `git_travel_cache_setup`.
+#   - Then the startup process forks a new process for each MR_REPO.
+#     - The new process calls the action function (e.g.,
+#       git_merge_ffonly_ssh_mirror).
+#     - Then another new process runs, which sources this file as a
+#       side-effect (because of the `lib = . sync-travel-remote.sh`)
+#       [that the author did not investigate further; i.e., I don't
+#       know what this process is doing].
+#     - Finally, the first MR_REPO process (that called the action
+#       function) sources this file (because the `lib = .` source
+#       command doesn't run until after the action function? Dunno).
+#       - So obviously the MR_REPO process inherits the original
+#         process's environment, because it calls the action function
+#         before sourcing this file.
+#       - However, when not multiprocessing (e.g., `mr -j 1`), the author
+#         sees 3 distinct PIDs for each MR_REPO process. So either `mr`
+#         is doing something different, or maybe when multiprocessing,
+#         the same PID is being reused, and it only looks like the same
+#         process is making the first and third call to this file...
+#         (so the action function runs in one process without sourcing
+#         this file, and then two other distinct processes run which
+#         incidentally source this file).
+#   - After processing all MR_REPO repos, a final process calls
+#     git_travel_cache_teardown.
+# - When not multiprocessing (e.g., `mr -j 1`), something odd occurs:
+#   - MR_REPO *is* set when the teardown function is called.
+#     - It appears that the child process that runs the last action
+#       command is the same process that calls the teardown function.
+#     - This smells, as captured in comment in git_travel_cache_teardown.
+#   - Kludge: As a work-around, the teardown function also calls this
+#     setup function (see: sync_travel_remote_setup).
+
+# Shared setup function: source dependencies, and set file VARS.
+
+sync_travel_remote_setup () {
+  _travel_source_deps
+
   reveal_biz_vars
 }
 
+main () {
+  # Bail if MR_REPO set, because its action has already run.
+  # - See previous long comment about how `mr` forks processes.
+  # - It actually doesn't matter if the setup function runs, but
+  #   bailing here illustrates our understanding (as outlined in
+  #   the long comment above) of how `mr` processes work (or this
+  #   will fail and prove us wrong).
+  [ -z "${MR_REPO}" ] || return 0
+
+  sync_travel_remote_setup
+}
+
 main "$@"
-unset -f main
-unset -f source_deps
 
