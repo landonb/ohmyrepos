@@ -1211,6 +1211,24 @@ git_merge_check_env_travel () {
   [ -z "${MR_TRAVEL}" ] && error 'You must set MR_TRAVEL!' && exit 1 || true
 }
 
+# 2023-04-30: Let user specify different /user/home on remote,
+# i.e., sync two hosts with different usernames.
+# - Alternatively: Symlink /home/host1_user -> /home/host2_user on @host2,
+#                      and /home/host2_user -> /home/host1_user on @host1.
+#               Or perhaps /Users/macos_user -> /home/linux_user on @linux,
+#                      and /home/linux_user -> /Users/macos_user on @macOS,
+#   - But adding symlink requires root privileges, among other concerns,
+#     so prefer MR_REMOTE_HOME.
+repo_path_for_remote_user () {
+  local local_repo="$1"
+
+  if [ -z "${MR_REMOTE_HOME}" ]; then
+    printf "%s" "${local_repo}"
+  else
+    printf "%s" "${local_repo}" | sed -E "s#^${HOME}(/|$)#${MR_REMOTE_HOME}\1#"
+  fi
+}
+
 # The `mr ffssh` action.
 git_merge_ffonly_ssh_mirror () {
   set -e
@@ -1220,7 +1238,8 @@ git_merge_ffonly_ssh_mirror () {
   git_merge_check_env_remote
   git_merge_check_env_repo
   MR_FETCH_HOST=${MR_FETCH_HOST:-${MR_REMOTE}}
-  local rel_repo=$(lchop_sep "${MR_REPO}")
+  local rem_repo="$(repo_path_for_remote_user "${MR_REPO}")"
+  local rel_repo="$(lchop_sep "${rem_repo}")"
   local ssh_path="ssh://${MR_FETCH_HOST}/${rel_repo}"
   git_fetch_n_cobr_n_merge "${ssh_path}" "${MR_REPO}" 'ssh' 'local'
 }
