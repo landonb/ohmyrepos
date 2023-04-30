@@ -39,13 +39,32 @@ _travel_source_deps () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 reveal_biz_vars () {
+  local mrpid="$(mr_process_id)"
+
+  # When called via multi-process `mr -j [n>1]`, colors.sh omits ANSI
+  # color sequence (it checks if the process is connected to a terminal
+  # ([ -t 0 ] && [ -t 1 ]), which is false, because subprocess pipes
+  # output to the parent process, so technically not connected to stdout).
+  # - Here we can assume terminaled unless explictly told to not use color,
+  #   and if the main `mr` process is connected to stdout.
+  # - To check if connected to stdout, we use the `mr` process ID
+  #   and check the fdinfo/1 file.
+  #   - CXREF: https://unix.stackexchange.com/questions/484789/
+  #              testing-if-a-file-descriptor-is-valid-for-input
+  local file_descriptor_stdout=1
+  if [ ! -d "/proc/${mrpid}/fd/${file_descriptor_stdout}" ] \
+    && grep -sq '^flags.*[02]$' "/proc/${mrpid}/fdinfo/${file_descriptor_stdout}" \
+  ; then
+    SHCOLORS_OFF=false
+  fi
+
   # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet (read:
   # lazy path to profit) to collect data from all repos is with temporaries.
   # Add the parent process ID so this command may be run in parallel.
-  MR_TMP_TRAVEL_HINT_FILE="/tmp/gitsmart-ohmyrepos-travel-hint-$(mr_process_id)"
+  MR_TMP_TRAVEL_HINT_FILE="/tmp/gitsmart-ohmyrepos-travel-hint-${mrpid}"
   # 2023-04-29: Stash mergefail copy-paste and print final list of chores.
   # - git-my-merge-status has had a similar feature for a few years.
-  MR_TMP_TRAVEL_CHORES_FILE="/tmp/gitsmart-ohmyrepos-travel-chores-$(mr_process_id)"
+  MR_TMP_TRAVEL_CHORES_FILE="/tmp/gitsmart-ohmyrepos-travel-chores-${mrpid}"
 
   # The actions use a mkdir mutex to gait access to the terminal and
   # to the tmp files. (The author was unable to cause interleaving
@@ -53,7 +72,7 @@ reveal_biz_vars () {
   # of the time) to cause tmp file to be clobbered when not locking).
 
   # Gait access to terminal and chores file output, to support multi-process (mr -j).
-  MR_TMP_TRAVEL_LOCK_DIR="/tmp/gitsmart-ohmyrepos-travel-lock-$(mr_process_id)"
+  MR_TMP_TRAVEL_LOCK_DIR="/tmp/gitsmart-ohmyrepos-travel-lock-${mrpid}"
 
   # The mutex mechanism only runs if multi-processing, a cached JIT variable.
   IS_MULTIPROCESSING=
