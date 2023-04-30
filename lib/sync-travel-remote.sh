@@ -620,8 +620,9 @@ git_must_be_tidy () {
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
 
   echo \
-      "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset) && git my-merge-status" \
-      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+      "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
+      "&& $(fg_lightorange)git my-merge-status$(attr_reset)" \
+        >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 
   travel_process_chores_file_lock_release
 
@@ -1109,13 +1110,13 @@ print_mergefail_msg () {
 
   echo \
     "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
-    "&& $(bg_maroon)git diff ${local_head_sha}..${to_commit}$(attr_reset)" \
+    "&& $(fg_lightorange)git diff ${local_head_sha}..${to_commit}$(attr_reset)" \
       >> "${MR_TMP_TRAVEL_CHORES_FILE}"
   echo \
     "  └─▶ THEN" \
-      "$(bg_forest)git rebase ${to_commit}$(attr_reset) OR" \
-      "$(bg_forest)git reset --hard ${to_commit}$(attr_reset) OR"\
-      "$(bg_forest)< Your choice >$(attr_reset)" \
+      "$(fg_mintgreen)git rebase ${to_commit}$(attr_reset) OR" \
+      "$(fg_mintgreen)git reset --hard ${to_commit}$(attr_reset) OR"\
+      "$(fg_mintgreen)< Your choice >$(attr_reset)" \
       >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 }
 
