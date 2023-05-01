@@ -20,8 +20,10 @@ reveal_biz_vars () {
   # inter-process communication, so we use temp files with specific
   # filenames to cache data for the final report. The $PPID ensures
   # that the user can run my-merge-status separately simultanesouly.
-  OMR_MYSTATUS_TMP_CHORES_FILE="/tmp/gitsmart-ohmyrepos-mystatus-chores-${PPID}"
-  OMR_MYSTATUS_TMP_TIMEIT_FILE="/tmp/gitsmart-ohmyrepos-mystatus-timeit-${PPID}"
+  OMR_MYSTATUS_TMP_CHORES_FILE_BASE="/tmp/gitsmart-ohmyrepos-mystatus-chores"
+  OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE="/tmp/gitsmart-ohmyrepos-mystatus-timeit"
+  OMR_MYSTATUS_TMP_CHORES_FILE="${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-${PPID}"
+  OMR_MYSTATUS_TMP_TIMEIT_FILE="${OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE}-${PPID}"
   # MAYBE/2020-02-26: Could adjust width based on terminal width.
   OMR_MYSTATUS_ECHO_PATH_WIDTH=${OMR_MYSTATUS_ECHO_PATH_WIDTH:-60}
 
@@ -89,9 +91,11 @@ git_status_cache_setup () {
   #       with any another setup or teardown function.
   [ -z "${MR_ACTION}" ] || [ "${MR_ACTION}" = 'mystatus' ] || return 0
 
-  truncate -s 0 "${OMR_MYSTATUS_TMP_CHORES_FILE}"
+  /bin/rm -f "${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-"*
 
   # Set the start time for the elapsed time display.
+  /bin/rm -f "${OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE}-"*
+
   if [ "${OMR_MYSTATUS_SHOW_PROG}" = 'elapsed' ]; then
     print_nanos_now > ${OMR_MYSTATUS_TMP_TIMEIT_FILE}
   fi
@@ -116,7 +120,7 @@ git_status_cache_teardown () {
 
   local ret_code=0
 
-  if [ -s "${OMR_MYSTATUS_TMP_CHORES_FILE}" ]; then
+  if [ -e "${OMR_MYSTATUS_TMP_CHORES_FILE}" ]; then
     git_status_notify_chores
     echo
     cat "${OMR_MYSTATUS_TMP_CHORES_FILE}"
@@ -127,12 +131,9 @@ git_status_cache_teardown () {
     # want to return 0 here so that the stats line is printed.
     # NOPE: ret_code=1
   fi
-  /bin/rm "${OMR_MYSTATUS_TMP_CHORES_FILE}"
 
-  # Cleanup the elapsed time mechanism, too.
-  if [ "${OMR_MYSTATUS_SHOW_PROG}" = 'elapsed' ]; then
-    /bin/rm -f ${OMR_MYSTATUS_TMP_TIMEIT_FILE}
-  fi
+  /bin/rm -f "${OMR_MYSTATUS_TMP_CHORES_FILE}"
+  /bin/rm -f "${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
 
   return ${ret_code}
 }
