@@ -267,8 +267,6 @@ git_dir_check () {
     return ${dir_okay}
   fi
 
-  travel_process_chores_file_lock_acquire
-
   if [ ! -d "${repo_path}" ]; then
     dir_okay=1
 
@@ -311,8 +309,6 @@ git_dir_check () {
       warn_repo_problem_9char 'rev-parse'
     fi
   fi
-
-  travel_process_chores_file_lock_release
 
   return ${dir_okay}
 }
@@ -526,27 +522,19 @@ git_ensure_or_clone_target () {
   _git_echo_long_op_finis
 
   if [ ${retco} -ne 0 ]; then
-    travel_process_chores_file_lock_acquire
-
     warn "Clone failed!"
     warn "  \$ git clone ${GIT_BARE_REPO} -- '${source_repo}' '${target_repo}'"
     warn "  ${git_resp}"
 
     warn_repo_problem_9char 'uncloned!'
 
-    travel_process_chores_file_lock_release
-
     return 1
   fi
 
   DID_CLONE_REPO=1
 
-  travel_process_chores_file_lock_acquire
-
   info "  $(fg_lightgreen)$(attr_emphasis)✓ cloned🖐$(attr_reset)  " \
     "$(fg_lightgreen)${MR_REPO}$(attr_reset)"
-
-  travel_process_chores_file_lock_release
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -637,10 +625,12 @@ git_must_be_tidy () {
 
   [ -z "$(git status --porcelain)" ] && return 0 || true
 
-  travel_process_chores_file_lock_acquire
-
   info "   $(fg_lightorange)$(attr_underline)✗ messy$(attr_reset)   " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+
+  # ***
+
+  travel_process_chores_file_lock_acquire
 
   echo \
       "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
@@ -649,6 +639,8 @@ git_must_be_tidy () {
   echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 
   travel_process_chores_file_lock_release
+
+  # ***
 
   # Exit using errexit.
   false
@@ -682,12 +674,8 @@ git_set_remote_travel () {
 
     _git_echo_long_op_finis
 
-    travel_process_chores_file_lock_acquire
-
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👈$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
-
-    travel_process_chores_file_lock_release
   elif [ "${remote_url}" != "${source_repo}" ]; then
     # Change URL for existing remote.
 
@@ -697,14 +685,10 @@ git_set_remote_travel () {
 
     _git_echo_long_op_finis
 
-    travel_process_chores_file_lock_acquire
-
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👆$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
     debug "  Reset remote wired for “${MR_REMOTE}”" \
       "(was: $(attr_italic)${remote_url}$(attr_reset))"
-
-    travel_process_chores_file_lock_release
   else
     # Verified “${MR_REMOTE}” URL correct.
 
@@ -737,11 +721,7 @@ git_fetch_remote_travel () {
 
   _git_echo_long_op_finis
 
-  travel_process_chores_file_lock_acquire
-
   verbose "git fetch says:\n${git_resp}"
-
-  travel_process_chores_file_lock_release
 
   # Ignore uninteresting git-fetch messages.
   # - Ignore basic messages, including the "From" line and all
@@ -771,8 +751,6 @@ git_fetch_remote_travel () {
   )"
 
   if [ -n "${culled}" ]; then
-    travel_process_chores_file_lock_acquire
-
     warn "Unrecognized git-fetch text spotted:\n${culled}"
     warn "CHORE: Update source file grep chain if you see this message."
     warn "- Edit:"
@@ -781,11 +759,7 @@ git_fetch_remote_travel () {
     if [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]; then
       notice "- Full git fetch output:\n${git_resp}"
     fi
-
-    travel_process_chores_file_lock_release
   fi
-
-  travel_process_chores_file_lock_acquire
 
   if [ ${fetch_success} -ne 0 ]; then
     # Trigger errexit with `fatal`'s `return 1`.
@@ -808,8 +782,6 @@ git_fetch_remote_travel () {
     fi
   # else, "$target_type" = 'local'.
   fi
-
-  travel_process_chores_file_lock_release
 
   cd "${before_cd}"
 }
@@ -918,23 +890,15 @@ git_change_branches_if_necessary () {
 
     _git_echo_long_op_finis
 
-    travel_process_chores_file_lock_acquire
-
     info "  $(fg_mintgreen)$(attr_emphasis)✓ checkout $(attr_reset)" \
       "$(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
-
-    travel_process_chores_file_lock_release
   elif [ "${wasref}" != "${newref}" ]; then
-    travel_process_chores_file_lock_acquire
-
     # FIXME/2020-03-21: Added this elif and info, not sure I want to keep.
     info "  $(fg_mintgreen)$(attr_emphasis)✓ updt-ref $(attr_reset)" \
       "${target_branch}: " \
       "$(fg_lightorange)$(attr_underline)${wasref}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${newref}$(attr_reset)"
-
-    travel_process_chores_file_lock_release
   fi
 
   cd "${before_cd}"
@@ -1022,11 +986,7 @@ _synctrem_git_merge_ff_only_safe () {
 
   # ***
 
-  travel_process_chores_file_lock_acquire
-
   verbose "git merge says:\n${git_resp}"
-
-  travel_process_chores_file_lock_release
 
   # ***
 
@@ -1067,8 +1027,6 @@ _synctrem_git_merge_ff_only_safe () {
   _git_echo_long_op_finis
 
   if [ -n "${culled}" ]; then
-    travel_process_chores_file_lock_acquire
-
     warn "Unrecognized git-merge text spotted:\n${culled}"
     warn "CHORE: Update source file grep chain if you see this message."
     warn "- Edit:"
@@ -1077,8 +1035,6 @@ _synctrem_git_merge_ff_only_safe () {
     if [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]; then
       notice "- Full git merge output:\n${git_resp}"
     fi
-
-    travel_process_chores_file_lock_release
   fi
 
   # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
@@ -1102,8 +1058,6 @@ _synctrem_git_merge_ff_only_safe () {
   local changes_bin="$( \
     printf %s "${git_resp}" | grep -P "${pattern_bin}" | eval "${grep_sed_sed}" \
   )"
-
-  travel_process_chores_file_lock_acquire
 
   if [ -n "${changes_txt}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
@@ -1131,8 +1085,6 @@ _synctrem_git_merge_ff_only_safe () {
   # and we've already printed multiple info statements, nothing more
   # to say.
   fi
-
-  travel_process_chores_file_lock_release
 
   cd "${before_cd}"
 
@@ -1181,6 +1133,10 @@ print_mergefail_msg () {
     "    tig ${local_head_sha}  # Local HEAD" \
     "$(attr_reset)"
 
+  # ***
+
+  travel_process_chores_file_lock_acquire
+
   echo \
     "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
     "&& $(fg_lightorange)git diff ${local_head_sha}..${to_commit}$(attr_reset)" \
@@ -1192,6 +1148,8 @@ print_mergefail_msg () {
       "$(fg_mintgreen)< Your choice >$(attr_reset)" \
       >> "${MR_TMP_TRAVEL_CHORES_FILE}"
   echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+
+  travel_process_chores_file_lock_release
 }
 
 shorten_sha () {
