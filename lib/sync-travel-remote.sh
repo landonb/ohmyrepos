@@ -1229,7 +1229,7 @@ git_fetch_n_cobr () {
 
   local source_branch
   source_branch=$(git_source_branch_deduce "${source_repo}" "${target_repo}")
-  # A global for later.
+  # Set caller's variable.
   MR_ACTIVE_BRANCH="${source_branch}"
 
   local target_branch
@@ -1250,6 +1250,8 @@ git_fetch_n_cobr_n_merge () {
   local target_type="$4"
 
   travel_ops_reset_stats
+
+  local MR_ACTIVE_BRANCH
   # Insist local repo tidy; set remote; fetch remote; change local branch.
   git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
   # Fast-forward merge, so no new commits, and complain if cannot.
