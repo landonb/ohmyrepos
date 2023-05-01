@@ -716,6 +716,8 @@ git_fetch_remote_travel () {
 
   verbose "git fetch says:\n${git_resp}"
 
+  travel_process_chores_file_lock_release
+
   # Ignore uninteresting git-fetch messages.
   # - Ignore basic messages, including the "From" line and all
   #   the "... some/branch -> remote/some/branch ..." lines.
@@ -744,12 +746,21 @@ git_fetch_remote_travel () {
   )"
 
   if [ -n "${culled}" ]; then
-    warn "git fetch wha?\n${culled}"
+    travel_process_chores_file_lock_acquire
+
+    warn "Unrecognized git-fetch text spotted:\n${culled}"
+    warn "CHORE: Update source file grep chain if you see this message."
+    warn "- Edit:"
+    warn "  ${OHMYREPOS_LIB}/sync-travel-remote.sh"
 
     if [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]; then
-      notice "git fetch says:\n${git_resp}"
+      notice "- Full git fetch output:\n${git_resp}"
     fi
+
+    travel_process_chores_file_lock_release
   fi
+
+  travel_process_chores_file_lock_acquire
 
   if [ ${fetch_success} -ne 0 ]; then
     error "Unexpected fetch failure! ${git_resp}"
@@ -1000,12 +1011,13 @@ git_merge_ff_only () {
   if [ -n "${culled}" ]; then
     travel_process_chores_file_lock_acquire
 
-    warn "Unknown git-merge response\n${culled}"
-    warn "CHORE: Update source file grep chain if you see this message:"
+    warn "Unrecognized git-merge text spotted:\n${culled}"
+    warn "CHORE: Update source file grep chain if you see this message."
+    warn "- Edit:"
     warn "  ${OHMYREPOS_LIB}/sync-travel-remote.sh"
 
     if [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]; then
-      notice "git merge says:\n${git_resp}"
+      notice "- Full git merge output:\n${git_resp}"
     fi
 
     travel_process_chores_file_lock_release
