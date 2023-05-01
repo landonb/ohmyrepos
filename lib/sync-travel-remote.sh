@@ -350,6 +350,11 @@ git_travel_verify_mr_action () {
 }
 
 git_travel_cache_setup () {
+  # BWARE/2023-05-01: `mr` leaves MR_ACTION unset on setup and teardown.
+  # - Author will try to merge this upstream, we'll see.
+  # - In the meantime, just know that every setup and every teardown runs
+  #   for every action (so play nice).
+  # - CXREF: See longer comment in `git_status_cache_setup`.
   git_travel_verify_mr_action || return 0
 
   /bin/rm -f "${MR_TMP_TRAVEL_HINT_FILE}"

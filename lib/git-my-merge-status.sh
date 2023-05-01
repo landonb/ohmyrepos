@@ -79,6 +79,14 @@ print_status () {
 }
 
 git_status_cache_setup () {
+  # The action name is the variable name from lib/git-my-merge-status.
+  # - BWARE/2023-05-01: `mr` does not set MR_ACTION for setup and teardown,
+  #   regardless of multiprocessing (`mr -j 1` vs. `mr -j [>1]`).
+  #   - The author will try to merge this upstream, but no guarantees.
+  #   - So for now, know that every setup function runs for any action,
+  #     because MR_ACTION here might be unset.
+  #     - Just be sure not to do any setup or teardown that conflicts
+  #       with any another setup or teardown function.
   [ "${MR_ACTION}" = 'mystatus' ] || return 0
 
   truncate -s 0 "${OMR_MYSTATUS_TMP_CHORES_FILE}"
