@@ -426,6 +426,9 @@ git_travel_process_chores_file () {
   git_travel_process_chores_notify
   echo
   cat "${MR_TMP_TRAVEL_CHORES_FILE}"
+  if [ -n "$(tail -1 "${MR_TMP_TRAVEL_CHORES_FILE}")" ]; then
+    echo
+  fi
 
   /bin/rm "${MR_TMP_TRAVEL_CHORES_FILE}"
 }
@@ -434,7 +437,13 @@ git_travel_process_chores_file () {
 git_travel_process_chores_notify () {
   # Note that some hints are multiple lines, but all hints' first line
   # starts with the cd command, e.g., "  cd /path/to/repo && ...".
-  local untidy_count=$(cat "${MR_TMP_TRAVEL_CHORES_FILE}" | grep -e "^  ${OMR_CPYST_CD}" | wc -l)
+  local untidy_count=$( \
+    cat "${MR_TMP_TRAVEL_CHORES_FILE}" \
+      | grep \
+        -e "^  ${OMR_CPYST_CD}" \
+        -e "MR_REMOTE=<fixme>" \
+      | wc -l \
+  )
 
   local infl=''
   local refl=''
@@ -636,7 +645,6 @@ git_must_be_tidy () {
       "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
       "&& $(fg_lightorange)git my-merge-status$(attr_reset)" \
         >> "${MR_TMP_TRAVEL_CHORES_FILE}"
-  echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 
   travel_process_chores_file_lock_release
 
@@ -707,6 +715,8 @@ git_fetch_remote_travel () {
   # Instead of $(pwd), could use environ:
   #   local target_repo="${1:-${MR_REPO}}"
   local target_type="$2"
+  local source_repo="$3"
+  local rel_repo="$4"
 
   _git_echo_long_op_start 'fetchin’ '
 
@@ -722,6 +732,25 @@ git_fetch_remote_travel () {
   _git_echo_long_op_finis
 
   verbose "git fetch says:\n${git_resp}"
+
+  # Check that the remote URL is reachable.
+  # - We could call `git ls-remote "${MR_REMOTE}/${source_repo}"`
+  #   to check remote, but we want to call git-fetch anyway, so we
+  #   parse latter's output to see if URL was valid of not.
+  local remote_name_invalid=false
+  local remote_path_invalid=false
+
+  if printf %s "${git_resp}" \
+    | grep -q -e "^ssh: Could not resolve hostname ${MR_REMOTE}: Name or service not known\s*$" \
+  ; then
+    # Invalid remote.
+    remote_name_invalid=true
+  elif printf %s "${git_resp}" \
+    | grep -q -e "^fatal: '\([^']*\)' does not appear to be a git repository$" \
+  ; then
+    # Valid remote, invalid path.
+    remote_path_invalid=true
+  fi
 
   # Ignore uninteresting git-fetch messages.
   # - Ignore basic messages, including the "From" line and all
@@ -748,6 +777,16 @@ git_fetch_remote_travel () {
     | grep -v "^ \?- \[deleted\] \+(none) \+-> .*" \
     | grep -v "^Auto packing the repository in background for optimum performance.$" \
     | grep -v '^See "git help gc" for manual housekeeping.$' \
+    \
+    | grep -v "^fatal: '\([^']*\)' does not appear to be a git repository$" \
+    | grep -v '^fatal: Could not read from remote repository.$' \
+    | grep -v '^Please make sure you have the correct access rights$' \
+    | grep -v '^and the repository exists.$' \
+    \
+    | grep -v "^ssh: Could not resolve hostname ${MR_REMOTE}: Name or service not known\s*$" \
+    | grep -v '^fatal: Could not read from remote repository.$' \
+    | grep -v '^Please make sure you have the correct access rights$' \
+    | grep -v '^and the repository exists.$' \
   )"
 
   if [ -n "${culled}" ]; then
@@ -761,9 +800,25 @@ git_fetch_remote_travel () {
     fi
   fi
 
-  if [ ${fetch_success} -ne 0 ]; then
+  if ${remote_name_invalid} || ${remote_path_invalid}; then
+    print_fatchfail_msg "${target_repo}" "${source_repo}" "${rel_repo}" \
+      ${remote_name_invalid} ${remote_path_invalid}
+
+    if ${remote_name_invalid}; then
+      git remote remove "${MR_REMOTE}"
+    fi
+
+    false  # errexit's
+  elif [ ${fetch_success} -ne 0 ]; then
     # Trigger errexit with `fatal`'s `return 1`.
     # - Note this might be the 3rd time we print the git-fetch response.
+
+    travel_process_chores_file_lock_acquire
+    echo \
+      "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
+      "&& $(fg_lightorange)git fetch ${MR_REMOTE}$(attr_reset)" \
+        >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+    travel_process_chores_file_lock_release
 
     fatal "Unexpected fetch failure!\n${git_resp}"
   fi
@@ -784,6 +839,74 @@ git_fetch_remote_travel () {
   fi
 
   cd "${before_cd}"
+}
+
+print_fatchfail_msg () {
+  local target_repo="$1"
+  local source_repo="$2"
+  local rel_repo="$3"
+  local remote_name_invalid="$4"
+  local remote_path_invalid="$5"
+
+  local hintful_msg=""
+  if ${remote_name_invalid}; then
+    hintful_msg="$(echo \
+      "The remote host is unreachable: “${MR_REMOTE}”\n" \
+      "- The full URL is: $(git remote get-url ${MR_REMOTE})\n" \
+      "- Use $(bg_orange)MR_REMOTE$(bg_maroon) to specify a different remote name, e.g.,$(bg_forest)\n" \
+      "    MR_REMOTE=<remote> mr ...$(bg_maroon)\n" \
+      "- If you need to remove the errant remotes, try:$(bg_forest)\n" \
+      "    mr -d / run git remote remove ${MR_REMOTE}$(attr_reset)" \
+    )"
+  elif ${remote_path_invalid}; then
+    hintful_msg="$(echo \
+      "It's likely the path is incorrect: “/${rel_repo}”\n" \
+      "- The full URL is: $(git remote get-url ${MR_REMOTE})\n" \
+      "- Use $(bg_orange)MR_REMOTE_HOME$(bg_maroon) to specify a custom home path substitution, e.g.,$(bg_forest)\n" \
+      "    MR_REMOTE=${MR_REMOTE} MR_REMOTE_HOME=/home/<remote-user> mr ...$(bg_maroon)\n" \
+      "- If that's not the solution, your remotes might not be mirrored (don't share a common path)$(attr_reset)" \
+    )"
+  else
+    # Unreachable.
+    hintful_msg="$(echo \
+      "There's a bug in the code — this message should be unreachable.\n" \
+      "- Inspect and fix the source:\n" \
+      "  ${OHMYREPOS_LIB}/sync-travel-remote.sh$(attr_reset)" \
+    )"
+  fi
+
+  info "  $(fg_lightorange)$(attr_underline)fetchfail$(attr_reset)  " \
+    "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+
+  # Print CPYST to help user fix the issue.
+  warn "$(attr_reset)$(bg_maroon)┌─ HINT ─┐\n┌────────────────────────────┘        └─────┐\n└─── You must resolve this issue manually ──┘\n${hintful_msg}"
+
+  # ***
+
+  travel_process_chores_file_lock_acquire
+
+  # If MR_REMOTE is unreachable, then all subprocesses will fail on the
+  # same concern.
+  # - Ideally, we'd bail now, but there's no mechanism.
+  #   - We could `kill -s 9 $(mr_process_id)`, but `mr` captures this
+  #     action's output before displaying it, so killing `mr` means
+  #     nothing this action output will be printed.
+  if ${remote_name_invalid}; then
+    echo \
+      "  $(fg_lightorange)MR_REMOTE=<fixme>$(attr_reset) mr -d $(fg_lightorange)${MR_REPO}$(attr_reset) -n ffssh" \
+        >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  elif ${remote_path_invalid}; then
+    # On the other hand, if it's the path that is incorrect, then it's
+    # likely an MR_REMOTE_HOME issue, and it's likely to affect all
+    # repos under user's home. But we don't know that all repos are
+    # stored under user's home, so some repo tasks might succeed.
+    echo \
+      "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
+      "&& $(fg_lightorange)git remote get-url ${MR_REMOTE}$(attr_reset)" \
+        >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  fi
+
+  travel_process_chores_file_lock_release
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1137,6 +1260,13 @@ print_mergefail_msg () {
 
   travel_process_chores_file_lock_acquire
 
+  # Add empties before and after multiple chore lines for the same repo,
+  # to make easier for user to track which chore they're on.
+  if [ -e "${MR_TMP_TRAVEL_CHORES_FILE}" ] \
+    && [ -n "$(tail -1 "${MR_TMP_TRAVEL_CHORES_FILE}")" ] \
+  ; then
+    echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  fi
   echo \
     "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
     "&& $(fg_lightorange)git diff ${local_head_sha}..${to_commit}$(attr_reset)" \
@@ -1165,6 +1295,7 @@ git_fetch_n_cobr () {
   local target_repo="$2"
   local source_type="$3"
   local target_type="$4"
+  local rel_repo="$5"
 
   # ***
 
@@ -1183,7 +1314,7 @@ git_fetch_n_cobr () {
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
   # apparently. I think this'll work well.
   git_set_remote_travel "${source_repo}"
-  git_fetch_remote_travel "${target_repo}" "${target_type}"
+  git_fetch_remote_travel "${target_repo}" "${target_type}" "${source_repo}" "${rel_repo}"
 
   # ***
 
@@ -1210,12 +1341,14 @@ git_fetch_n_cobr_n_merge () {
   local target_repo="$2"
   local source_type="$3"
   local target_type="$4"
+  local rel_repo="$5"
 
   travel_ops_reset_stats
 
   local MR_ACTIVE_BRANCH
   # Insist local repo tidy; set remote; fetch remote; change local branch.
-  git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
+  git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_type}" "${target_type}" "${rel_repo}"
+
   # Fast-forward merge, so no new commits, and complain if cannot.
   git_merge_ff_only "${MR_ACTIVE_BRANCH}" "${target_repo}"
 }
@@ -1273,7 +1406,7 @@ git_merge_ffonly_ssh_mirror () {
   local rem_repo="$(repo_path_for_remote_user "${MR_REPO}")"
   local rel_repo="$(lchop_sep "${rem_repo}")"
   local ssh_path="ssh://${MR_FETCH_HOST}/${rel_repo}"
-  git_fetch_n_cobr_n_merge "${ssh_path}" "${MR_REPO}" 'ssh' 'local'
+  git_fetch_n_cobr_n_merge "${ssh_path}" "${MR_REPO}" 'ssh' 'local' "${rel_repo}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
