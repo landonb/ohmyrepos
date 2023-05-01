@@ -1220,6 +1220,8 @@ git_fetch_n_cobr () {
 
   git_must_be_tidy
 
+  # ***
+
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
   # apparently. I think this'll work well.
   git_set_remote_travel "${source_repo}"
@@ -1231,6 +1233,8 @@ git_fetch_n_cobr () {
   source_branch=$(git_source_branch_deduce "${source_repo}" "${target_repo}")
   # Set caller's variable.
   MR_ACTIVE_BRANCH="${source_branch}"
+
+  # ***
 
   local target_branch
   target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
