@@ -68,7 +68,7 @@ git_any_command_stopped () {
 
   if [ -z "${setup_time_0}" ]; then
     # Unreachable.
-    error "ERROR: Missing start time! Be sure to call \`git_any_cache_setup\`."
+    error "ERROR: Missing start time: Is \`git_any_cache_setup\` working?"
   fi
 
   local setup_time_n="$(print_nanos_now)"
