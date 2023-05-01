@@ -569,7 +569,6 @@ git_checkedout_branch_name_direct () {
 
 git_checkedout_branch_name_remote () {
   local target_repo="$1"
-  local remote_name="${2:-${MR_REMOTE}}"
 
   local before_cd="$(pwd -L)"
 
@@ -578,7 +577,7 @@ git_checkedout_branch_name_remote () {
 
   local branch_name
   branch_name=$( \
-    git remote show ${remote_name} |
+    git remote show ${MR_REMOTE} |
     grep "HEAD branch:" |
     /usr/bin/env sed -e "s/^.*HEAD branch:\s*//" \
   )
@@ -596,7 +595,7 @@ git_source_branch_deduce () {
   # Check if SSH remote, i.e., ssh://....
   if is_ssh_path "${source_repo}"; then
     # If detached HEAD (b/c git submodule, or other why), remote-show shows "(unknown)".
-    source_branch=$(git_checkedout_branch_name_remote "${target_repo}" "${MR_REMOTE}")
+    source_branch=$(git_checkedout_branch_name_remote "${target_repo}")
   else
     # If detached HEAD (b/c git submodule, or other), rev-parse--abbrev-ref says "HEAD".
     source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
