@@ -944,10 +944,31 @@ git_merge_ff_only () {
     to_commit="${MR_REMOTE}/${source_branch}"
   fi
 
-  _git_echo_long_op_start 'mergerin’'
+  # ***
+
+  # Cannot fast-forward merge if HEAD not at or behind remote.
+  # - If that's the case, the local repo could be ahead of the
+  #   remote repo (a happy state), or the repos have diverged
+  #   (and the user will want to resolve the conflict).
+  if ! git merge-base --is-ancestor "HEAD" "${to_commit}" \
+    && ! git merge-base --is-ancestor "${to_commit}" "HEAD" \
+  ; then
+    print_mergefail_msg "${target_repo}" "${to_commit}" ""
+
+    false
+  else
+    _synctrem_git_merge_ff_only_safe "${target_repo}" "${to_commit}"
+  fi
+}
+
+_synctrem_git_merge_ff_only_safe () {
+  local target_repo="$1"
+  local to_commit="$2"
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
+
+  _git_echo_long_op_start 'mergerin’'
 
   # For a nice fast-forward vs. --no-ff article, see:
   #   https://ariya.io/2013/09/fast-forward-git-merge
@@ -990,6 +1011,11 @@ git_merge_ff_only () {
   #       so there are other digits and then backspaces, I'd guess.
   #       Though this doesn't work:
   #         | grep -P -v "^Checking out files: [\d\b]+" \
+  # OMITD: If you git-merge an unknown host URL, e.g., @host exists,
+  #        but ssh://host/this/path/does/not/exist does not,
+  #        git-merge says:
+  #          merge: host/ - not something we can merge
+  #        but don't make a rule for that text: git-fetch fails first.
   local culled="$(printf %s "${git_resp}" \
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
@@ -1009,6 +1035,8 @@ git_merge_ff_only () {
     | grep -P -v "${pattern_txt}" \
     | grep -P -v "${pattern_bin}" \
     | grep -v "^fatal: Not possible to fast-forward, aborting.$" \
+    # OMITD: See note above:
+    #  | grep -v "^merge: [-a-z0-9]+/ - not something we can merge$"
   )"
 
   _git_echo_long_op_finis
@@ -1106,8 +1134,10 @@ print_mergefail_msg () {
   #       my problems offline, I know.
   # KLUGE: Author's Vim syntax highlighter gets confused on escaped backticks,
   #        e.g., warn "foo \`bar\`", so using single quotes.
-  warn 'Merge failed! `merge --ff-only '${to_commit}'` says:'
-  warn " ${git_resp}"
+  if [ -n "${git_resp}" ]; then
+    warn 'Merge failed! `merge --ff-only '${to_commit}'` says:'
+    warn " ${git_resp}"
+  fi
   # Print CPYST to help user clobber, if that's what they really want.
   warn "$(attr_reset)$(bg_maroon)┌─ HINT ─┐\n┌────────────────────────────┘        └────────┐\n└─── You must resolve the conflicts manually ──┘\n" \
     "First, use git-diff to audit changes between the repos.\n" \
