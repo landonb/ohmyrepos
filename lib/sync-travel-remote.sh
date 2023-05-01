@@ -61,10 +61,12 @@ reveal_biz_vars () {
   # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet (read:
   # lazy path to profit) to collect data from all repos is with temporaries.
   # Add the parent process ID so this command may be run in parallel.
-  MR_TMP_TRAVEL_HINT_FILE="/tmp/gitsmart-ohmyrepos-travel-hint-${mrpid}"
+  MR_TMP_TRAVEL_HINT_FILE_BASE="/tmp/gitsmart-ohmyrepos-travel-hint"
+  MR_TMP_TRAVEL_HINT_FILE="${MR_TMP_TRAVEL_HINT_FILE_BASE}-${mrpid}"
   # 2023-04-29: Stash mergefail copy-paste and print final list of chores.
   # - git-my-merge-status has had a similar feature for a few years.
-  MR_TMP_TRAVEL_CHORES_FILE="/tmp/gitsmart-ohmyrepos-travel-chores-${mrpid}"
+  MR_TMP_TRAVEL_CHORES_FILE_BASE="/tmp/gitsmart-ohmyrepos-travel-chores"
+  MR_TMP_TRAVEL_CHORES_FILE="${MR_TMP_TRAVEL_CHORES_FILE_BASE}-${mrpid}"
 
   # The actions use a mkdir mutex to gait access to the terminal and
   # to the tmp files. (The author was unable to cause interleaving
@@ -72,7 +74,8 @@ reveal_biz_vars () {
   # of the time) to cause tmp file to be clobbered when not locking).
 
   # Gait access to terminal and chores file output, to support multi-process (mr -j).
-  MR_TMP_TRAVEL_LOCK_DIR="/tmp/gitsmart-ohmyrepos-travel-lock-${mrpid}"
+  MR_TMP_TRAVEL_LOCK_DIR_BASE="/tmp/gitsmart-ohmyrepos-travel-lock"
+  MR_TMP_TRAVEL_LOCK_DIR="${MR_TMP_TRAVEL_LOCK_DIR_BASE}-${mrpid}"
 
   # The mutex mechanism only runs if multi-processing, a cached JIT variable.
   IS_MULTIPROCESSING=
@@ -360,12 +363,16 @@ git_travel_cache_setup () {
   # - CXREF: See longer comment in `git_status_cache_setup`.
   git_travel_verify_mr_action || return 0
 
-  /bin/rm -f "${MR_TMP_TRAVEL_HINT_FILE}"
+  # Cleanup old temp files, possibly orphaned if user Ctrl-c's an action.
+  # (Mostly being tidy — OS clears temp files every reboot — but there's
+  #  also the (slim) possibility a PID gets reused that clashes with an
+  #  old PID, and then the user sees old hints or chores. Or more importantly,
+  #  the action cannot obtain the lock because an old lock dir was orphaned).
 
-  /bin/rm -f "${MR_TMP_TRAVEL_CHORES_FILE}"
+  /bin/rm -f "${MR_TMP_TRAVEL_HINT_FILE_BASE}-"*
+  /bin/rm -f "${MR_TMP_TRAVEL_CHORES_FILE_BASE}-"*
 
-  # Just in case something failed without releasing lock.
-  [ ! -d "${MR_TMP_TRAVEL_LOCK_DIR}" ] || /bin/rmdir "${MR_TMP_TRAVEL_LOCK_DIR}"
+  /bin/rmdir "${MR_TMP_TRAVEL_LOCK_DIR_BASE}-"* 2> /dev/null || true
 }
 
 git_travel_cache_teardown () {
