@@ -430,7 +430,6 @@ git_travel_process_chores_file () {
   git_travel_process_chores_notify
   echo
   cat "${MR_TMP_TRAVEL_CHORES_FILE}"
-  echo
 
   /bin/rm "${MR_TMP_TRAVEL_CHORES_FILE}"
 }
@@ -449,7 +448,7 @@ git_travel_process_chores_notify () {
 
   warn "GRIZZLY! We found ${untidy_count} repo${infl} which need${refl} attention."
   notice
-  notice "Here's some copy-pasta if you wanna fix it:"
+  notice "Here's some copy-pasta to help you get started:"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -647,6 +646,7 @@ git_must_be_tidy () {
       "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
       "&& $(fg_lightorange)git my-merge-status$(attr_reset)" \
         >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 
   travel_process_chores_file_lock_release
 
@@ -1191,6 +1191,7 @@ print_mergefail_msg () {
       "$(fg_mintgreen)git reset --hard ${to_commit}$(attr_reset) OR"\
       "$(fg_mintgreen)< Your choice >$(attr_reset)" \
       >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 }
 
 shorten_sha () {
