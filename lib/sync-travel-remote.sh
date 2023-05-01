@@ -626,7 +626,8 @@ git_must_be_tidy () {
 
   travel_process_chores_file_lock_release
 
-  exit 1
+  # Exit using errexit.
+  false
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1192,14 +1193,7 @@ git_fetch_n_cobr () {
   local before_cd="$(pwd -L)"
   cd "${target_repo}"  # (lb): Probably $MR_REPO, which is already cwd.
 
-  local extcd=0
-  git_must_be_tidy || extcd=$?
-
-  if [ ${extcd} -ne 0 ]; then
-    cd "${before_cd}"
-
-    exit ${extcd}
-  fi
+  git_must_be_tidy
 
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
   # apparently. I think this'll work well.
