@@ -359,6 +359,9 @@ git_travel_cache_setup () {
   # - CXREF: See longer comment in `git_status_cache_setup`.
   git_travel_verify_mr_action || return 0
 
+  # Crap out if MR_REMOTE unreachable.
+  test_ssh_or_kill_ssh
+
   # Cleanup old temp files, possibly orphaned if user Ctrl-c's an action.
   # (Mostly being tidy — OS clears temp files every reboot — but there's
   #  also the (slim) possibility a PID gets reused that clashes with an
@@ -406,6 +409,60 @@ git_travel_cache_teardown () {
 
   git_travel_process_chores_file
 }
+
+# ***
+
+test_ssh_or_kill_ssh () {
+  [ "${MR_ACTION}" = 'ffssh' ] || return
+
+  # BWARE/2023-05-01: Currently, `mr` doesn't set MR_ACTION on setup or teardown.
+  # - The author's own repo fixes this, but if you are running stock `mr`,
+  #   the following check never runs.
+  #   - Instead, all the MR_REPO subprocesses will run, and their git-fetch
+  #     checks will see the error.
+  #     - Meaning, you'll see the same error for every repo.
+  #   - This function, on the other hand, does the check on startup instead,
+  #     and if MR_REMOTE is unreachable, it'll kill `mr`, so you'll only see
+  #     the error once, and none of the MR_REPO subprocesses will run.
+
+  if [ -n "${MR_REMOTE}" ]; then
+    if ! test_ssh; then
+      >&2 echo "ERROR: SSH test failed on MR_REMOTE: “${MR_REMOTE}”"
+      >&2 echo "- Unable to connect to remote host."
+      >&2 echo "- Is the remote host online? Is MR_REMOTE correct?"
+
+      kill_mr
+    fi
+  else
+    >&2 echo "ERROR: Missing MR_REMOTE"
+    >&2 echo "- Please try again, e.g.:"
+    >&2 echo "    MR_REMOTE=<some-host> mr -d / ffssh"
+
+    kill_mr
+  fi
+}
+
+test_ssh () {
+  ssh -q -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=1 "${MR_REMOTE}" 'exit 0'
+}
+
+kill_mr () {
+  >&2 echo
+  >&2 echo "Killing \`mr\` because you got work to do"
+  >&2 echo "  🥩 🥩 chop chop"
+  >&2 echo
+
+  # Cannot redirect stderr to suppress "Killed" message,
+  # which is redundant to what we just said, or perhaps
+  # we just said it so the user knows what was "Killed".
+  # (I checked StackOverflow and there doesn't seem to
+  #  be a way, not even `exec 2>/dev/null`, deal w/ it).
+  kill -s 9 $(mr_process_id)
+
+  # Note that this process continues to run.
+}
+
+# ***
 
 git_travel_process_hint_file () {
   [ -e "${MR_TMP_TRAVEL_HINT_FILE}" ] || return 0
