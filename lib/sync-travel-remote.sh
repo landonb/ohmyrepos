@@ -960,7 +960,7 @@ git_merge_ff_only () {
   local extcd=0
   local git_resp
   git_resp=$(git merge --ff-only ${to_commit} 2>&1) || extcd=$?
-  local merge_success=${extcd}
+  local merge_retcode=${extcd}
 
   # 2018-03-26 16:41: Weird: was this directory moved, hence the => ?
   #    src/js/{ => solutions}/settings/constants.js       |  85 ++-
@@ -1063,7 +1063,7 @@ git_merge_ff_only () {
 
   # We verified `git status --porcelain` indicated nothing before trying to merge,
   # so this could mean the branch diverged from remote, or something. Inform user.
-  if [ ${merge_success} -ne 0 ]; then
+  if [ ${merge_retcode} -ne 0 ]; then
     print_mergefail_msg "${target_repo}" "${to_commit}" "${git_resp}"
   elif (printf %s "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
@@ -1072,15 +1072,16 @@ git_merge_ff_only () {
     # A warning, so you can update the grep above and recognize this output.
     warn "  $(fg_mintgreen)$(attr_emphasis)!familiar$(attr_reset)  " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
-  # else, ${merge_success} true, and either/or changes_txt/_bin,
-  # so we've already printed multiple info statements.
+  # else, ${merge_retcode} is 0/true, and either/or changes_txt/_bin,
+  # and we've already printed multiple info statements, nothing more
+  # to say.
   fi
 
   travel_process_chores_file_lock_release
 
   cd "${before_cd}"
 
-  return ${merge_success}
+  return ${merge_retcode}
 }
 
 print_mergefail_msg () {
