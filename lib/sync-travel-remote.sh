@@ -763,7 +763,10 @@ git_fetch_remote_travel () {
   travel_process_chores_file_lock_acquire
 
   if [ ${fetch_success} -ne 0 ]; then
-    error "Unexpected fetch failure! ${git_resp}"
+    # Trigger errexit with `fatal`'s `return 1`.
+    # - Note this might be the 3rd time we print the git-fetch response.
+
+    fatal "Unexpected fetch failure!\n${git_resp}"
   fi
 
   if [ -n "${git_resp}" ]; then
