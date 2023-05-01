@@ -22,8 +22,11 @@ reveal_biz_vars () {
   # that the user can run my-merge-status separately simultanesouly.
   OMR_MYSTATUS_TMP_CHORES_FILE_BASE="/tmp/gitsmart-ohmyrepos-mystatus-chores"
   OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE="/tmp/gitsmart-ohmyrepos-mystatus-timeit"
+  OMR_MYSTATUS_TMP_FLPFLP_FILE_BASE="/tmp/gitsmart-ohmyrepos-mystatus-flpflp"
   OMR_MYSTATUS_TMP_CHORES_FILE="${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-${PPID}"
   OMR_MYSTATUS_TMP_TIMEIT_FILE="${OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE}-${PPID}"
+  OMR_MYSTATUS_TMP_FLPFLP_FILE="${OMR_MYSTATUS_TMP_FLPFLP_FILE_BASE}-${PPID}"
+
   # MAYBE/2020-02-26: Could adjust width based on terminal width.
   OMR_MYSTATUS_ECHO_PATH_WIDTH=${OMR_MYSTATUS_ECHO_PATH_WIDTH:-60}
 
@@ -77,7 +80,15 @@ print_status () {
     fi
   fi
 
-  echo "${prefix}${@}"
+  if ! ${MR_STRIPING}; then
+    echo "${prefix}${@}"
+  else
+    # Alternate line backgrounds: Use sed to replace "$(attr_reset)" with 
+    # "$(attr_reset)$(bg_other_color)" (insert the next line's background
+    # color immediately after the attr_reset).
+    printf '%s' "${prefix}${@}" | sed -E "s/\x1b\[0m/\x1b[0m$(bg_ff)/g"
+    printf '%s\n' "$(attr_reset)"
+  fi
 }
 
 git_status_cache_setup () {
@@ -91,7 +102,21 @@ git_status_cache_setup () {
   #       with any another setup or teardown function.
   [ -z "${MR_ACTION}" ] || [ "${MR_ACTION}" = 'mystatus' ] || return 0
 
+  # FIXME/2023-05-01: Document MR_STRIPING. Among other vars, like MR_REMOTE_HOME.
+  # DUNNO/2023-05-01: Should striping be opt-in, or opt-out?
+  # - I do find matching icons on right to paths on left somewhat difficult
+  #   or inaccurate without the striping, so leaning opt-in.
+  #   - Users more likely to ask to change striping if it's enabled, than
+  #     there are likely to know it's an option if they have to read docs
+  #     (or code!) to find it.
+  # FTREQ/2023-05-01: User chooses their striping color.
+  #
+  #  MR_STRIPING=${MR_STRIPING:-false}
+  MR_STRIPING=${MR_STRIPING:-true}
+
   /bin/rm -f "${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-"*
+
+  /bin/rm -f "${OMR_MYSTATUS_TMP_FLPFLP_FILE_BASE}-"*
 
   # Set the start time for the elapsed time display.
   /bin/rm -f "${OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE}-"*
@@ -134,6 +159,7 @@ git_status_cache_teardown () {
 
   /bin/rm -f "${OMR_MYSTATUS_TMP_CHORES_FILE}"
   /bin/rm -f "${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
+  /bin/rm -f "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
 
   return ${ret_code}
 }
@@ -183,13 +209,65 @@ git_mrrepo_at_git_root () {
 git_status_format_alert () {
   local text="$1"
 
-  echo "$(fg_lightorange)${text}$(attr_reset)"
+  echo "$(bg_ff)$(fg_lightorange)${text}$(attr_reset)"
 }
 
 git_status_format_minty () {
   local text="$1"
 
-  echo "$(fg_mintgreen)${text}$(attr_reset)"
+  echo "$(bg_ff)$(fg_mintgreen)${text}$(attr_reset)"
+}
+
+# https://coolors.co/dec5e3-a9f8fb-81f7e5-b0f2b4-a5c4d4
+
+bg_a5c4d4 () {
+  printf "\033[48;2;165;196;212m"
+}
+
+bg_b0f2b4 () {
+  printf "\033[48;2;176;242;180m"
+}
+
+bg_2e2532 () {
+  printf "\033[48;2;46;37;50m"
+}
+
+bg_2c2730 () {
+  # Raisin black
+  printf "\033[48;2;44;39;48m"
+}
+
+bg_2a2a69 () {
+  # St. Patrick's blue
+  printf "\033[48;2;42;42;105m"
+}
+
+bg_flipflop () {
+  touch "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
+
+  local flipflopflag="$(cat "${OMR_MYSTATUS_TMP_FLPFLP_FILE}")"
+
+  if [ "${flipflopflag}" = "1" ]; then
+    flipflopflag="0"
+    bg_2e2532
+  else
+    flipflopflag="1"
+    bg_2a2a69
+  fi
+
+  printf %s "${flipflopflag}" > "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
+}
+
+bg_ff () {
+  ${MR_STRIPING} || return
+
+  local flipflopflag="$(cat "${OMR_MYSTATUS_TMP_FLPFLP_FILE}")"
+
+  if [ "${flipflopflag}" = "1" ]; then
+    bg_2e2532
+  else
+    bg_2a2a69
+  fi
 }
 
 # ***
@@ -367,6 +445,7 @@ git_report_short_unchanged () {
 git_my_merge_status () {
   insist_installed
 
+  ${MR_STRIPING} && bg_flipflop
   git_status_check_reset
   git_mrrepo_at_git_root || return 0
   git_status_check_unstaged
