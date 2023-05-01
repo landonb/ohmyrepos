@@ -104,7 +104,7 @@ git_status_notify_chores () {
 }
 
 git_status_cache_teardown () {
-  ([ "${MR_ACTION}" != 'status' ] && return 0) || true
+  [ "${MR_ACTION}" = 'status' ] || return 0
   local ret_code=0
 
   if [ -s "${OMR_MYSTATUS_TMP_CHORES_FILE}" ]; then
@@ -133,7 +133,8 @@ git_status_cache_teardown () {
 insist_installed () {
   # See:
   #   https://github.com/landonb/git-my-merge-status
-  command -v "git-my-merge-status" > /dev/null && return
+  command -v "git-my-merge-status" > /dev/null \
+    && return
 
   >&2 echo "MISSING: https://github.com/landonb/git-my-merge-status"
 
@@ -201,15 +202,15 @@ git_status_check_report_9chars () {
 
 # ***
 
+# In this function, and in others below, we use a subprocess and return
+# true, otherwise we'd need to wrap the call with set +e and set -e,
+# otherwise the function would fail if no unstaged changes found.
 git_status_check_unstaged () {
-  # In this function, and in others below, we use a subprocess and return
-  # true, otherwise we'd need to wrap the call with set +e and set -e,
-  # otherwise the function would fail if no unstaged changes found.
-  #
   local extcd
 
   # ' M' is modified but not added.
-  (git status --porcelain | grep "^ M " >/dev/null 2>&1) || extcd=$?
+  (git status --porcelain | grep "^ M " >/dev/null 2>&1) \
+    || extcd=$?
 
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
@@ -222,7 +223,8 @@ git_status_check_uncommitted () {
   local extcd
 
   # 'M ' is added but not committed.
-  (git status --porcelain | grep "^M  " >/dev/null 2>&1) || extcd=$?
+  (git status --porcelain | grep "^M  " >/dev/null 2>&1) \
+    || extcd=$?
 
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
@@ -235,7 +237,8 @@ git_status_check_untracked () {
   local extcd
 
   # '^?? ' is untracked.
-  (git status --porcelain | grep "^?? " >/dev/null 2>&1) || extcd=$?
+  (git status --porcelain | grep "^?? " >/dev/null 2>&1) \
+    || extcd=$?
 
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true

@@ -66,8 +66,10 @@ git_any_command_started () {
 git_any_command_stopped () {
   local setup_time_0=$(cat "${OMR_RUNTIME_TEMPFILE}")
 
-  [ -z "${setup_time_0}" ] && error "ERROR:" \
-    "Missing start time! Be sure to call \`git_any_cache_setup\`."
+  if [ -z "${setup_time_0}" ]; then
+    # Unreachable.
+    error "ERROR: Missing start time! Be sure to call \`git_any_cache_setup\`."
+  fi
 
   local setup_time_n="$(print_nanos_now)"
 
@@ -76,7 +78,8 @@ git_any_command_stopped () {
   if [ $(echo "${seconds} >= ${OMR_RUNTIME_MIN_SECS}" | bc -l) -ne 0 ]; then
     local time_elapsed="$(python_prettify_elapsed "${seconds}")"
 
-    [ -z "${time_elapsed}" ] && time_elapsed="$(simple_bc_elapsed "${seconds}")"
+    [ -z "${time_elapsed}" ] \
+      && time_elapsed="$(simple_bc_elapsed "${seconds}")"
 
     printf %s "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
   fi
