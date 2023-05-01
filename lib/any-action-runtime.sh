@@ -25,7 +25,8 @@ reveal_biz_vars () {
   # (lb): Because myrepos uses subprocesses, we cannot share values
   # using environment variables. So we use a temporary file instead.
   # And we use the parent process ID so `mr` can run in parallel.
-  OMR_RUNTIME_TEMPFILE="/tmp/gitsmart-ohmyrepos-all-cmds-timing-${PPID}"
+  OMR_RUNTIME_TEMPFILE_BASE="/tmp/gitsmart-ohmyrepos-all-cmds-timing-"
+  OMR_RUNTIME_TEMPFILE="${OMR_RUNTIME_TEMPFILE_BASE}-${PPID}"
 
   # YOU: Set this to minimum threshold for elapsed time to be displayed.
   # - Default: 0 secs., i.e., always show the action runtime (which is just
@@ -84,7 +85,7 @@ git_any_command_stopped () {
     printf %s "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
   fi
 
-  /bin/rm -f "${OMR_RUNTIME_TEMPFILE}"
+  /bin/rm -f "${OMR_RUNTIME_TEMPFILE_BASE}-*"
 }
 
 git_any_cache_setup () {
