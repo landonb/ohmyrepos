@@ -520,7 +520,6 @@ git_travel_process_chores_notify () {
 travel_ops_reset_stats () {
   DID_CLONE_REPO=0
   DID_SET_REMOTE=0
-  DID_FETCH_CHANGES=0
   DID_BRANCH_CHANGE=0
   DID_MERGE_FFWD=0
 }
@@ -878,10 +877,6 @@ git_fetch_remote_travel () {
     travel_process_chores_file_lock_release
 
     fatal "Unexpected fetch failure!\n${git_resp}"
-  fi
-
-  if [ -n "${git_resp}" ]; then
-    DID_FETCH_CHANGES=1
   fi
 
   if [ "${target_type}" = 'travel' ]; then
