@@ -79,7 +79,7 @@ print_status () {
 }
 
 git_status_cache_setup () {
-  ([ "${MR_ACTION}" != 'status' ] && return 0) || true
+  [ "${MR_ACTION}" = 'mystatus' ] || return 0
 
   truncate -s 0 "${OMR_MYSTATUS_TMP_CHORES_FILE}"
 
@@ -104,7 +104,7 @@ git_status_notify_chores () {
 }
 
 git_status_cache_teardown () {
-  [ "${MR_ACTION}" = 'status' ] || return 0
+  [ "${MR_ACTION}" = 'mystatus' ] || return 0
   local ret_code=0
 
   if [ -s "${OMR_MYSTATUS_TMP_CHORES_FILE}" ]; then

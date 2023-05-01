@@ -341,8 +341,16 @@ must_be_git_dirs () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+git_travel_verify_mr_action () {
+  # The action name is the variable name from lib/sync-travel-remote.
+  false \
+    || [ "${MR_ACTION}" = 'ffmirror' ] \
+    || [ "${MR_ACTION}" = 'ffssh' ] \
+    || [ "${MR_ACTION}" = 'ffdefault' ]
+}
+
 git_travel_cache_setup () {
-  ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
+  git_travel_verify_mr_action || return 0
 
   /bin/rm -f "${MR_TMP_TRAVEL_HINT_FILE}"
 
@@ -353,7 +361,7 @@ git_travel_cache_setup () {
 }
 
 git_travel_cache_teardown () {
-  ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
+  git_travel_verify_mr_action || return 0
 
   # KLUGE: When not multiprocessing (`mr -j 1`), `mr` uses the final
   # MR_REPO process to call this teardown function, but `mr` doesn't
