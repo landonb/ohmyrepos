@@ -60,11 +60,11 @@ simple_bc_elapsed () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_any_command_started () {
+git_any_action_started () {
   print_nanos_now > "${OMR_RUNTIME_TEMPFILE}"
 }
 
-git_any_command_stopped () {
+git_any_action_stopped () {
   local setup_time_0=$(cat "${OMR_RUNTIME_TEMPFILE}")
 
   if [ -z "${setup_time_0}" ]; then
@@ -89,11 +89,11 @@ git_any_command_stopped () {
 }
 
 git_any_cache_setup () {
-  git_any_command_started
+  git_any_action_started
 }
 
 git_any_cache_teardown () {
-  git_any_command_stopped
+  git_any_action_stopped
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
