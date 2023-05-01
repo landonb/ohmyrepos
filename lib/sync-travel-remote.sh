@@ -925,6 +925,8 @@ git_merge_ff_only () {
   # Instead of $(pwd), could use environ:
   #   local target_repo="${2:-${MR_REPO}}"
 
+  # ***
+
   local to_commit
   # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
   if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
@@ -1199,6 +1201,7 @@ git_fetch_n_cobr_n_merge () {
   local target_type="$4"
 
   travel_ops_reset_stats
+  # Insist local repo tidy; set remote; fetch remote; change local branch.
   git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
   # Fast-forward merge, so no new commits, and complain if cannot.
   git_merge_ff_only "${MR_ACTIVE_BRANCH}" "${target_repo}"
