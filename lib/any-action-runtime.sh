@@ -42,6 +42,7 @@ reveal_biz_vars () {
 
 python_prettify_elapsed () {
   local seconds="${1:-0}"
+
   # This spits to stderr if user does not have package installed.
   /usr/bin/env python -c \
     "from pedantic_timedelta import PedanticTimedelta; \
@@ -52,6 +53,7 @@ python_prettify_elapsed () {
 
 simple_bc_elapsed () {
   local seconds="${1:-0}"
+
   echo "$(echo "scale=1; ${seconds} * 100 / 100" | bc -l) secs."
 }
 
@@ -63,15 +65,22 @@ git_any_command_started () {
 
 git_any_command_stopped () {
   local setup_time_0=$(cat "${OMR_RUNTIME_TEMPFILE}")
+
   [ -z "${setup_time_0}" ] && error "ERROR:" \
     "Missing start time! Be sure to call \`git_any_cache_setup\`."
+
   local setup_time_n="$(print_nanos_now)"
+
   local seconds=$(echo "${setup_time_n} - ${setup_time_0}" | bc -l)
+
   if [ $(echo "${seconds} >= ${OMR_RUNTIME_MIN_SECS}" | bc -l) -ne 0 ]; then
     local time_elapsed="$(python_prettify_elapsed "${seconds}")"
+
     [ -z "${time_elapsed}" ] && time_elapsed="$(simple_bc_elapsed "${seconds}")"
+
     printf %s "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
   fi
+
   /bin/rm -f "${OMR_RUNTIME_TEMPFILE}"
 }
 

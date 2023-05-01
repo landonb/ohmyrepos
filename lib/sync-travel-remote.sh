@@ -304,6 +304,7 @@ git_dir_check () {
     if [ ${dir_okay} -ne 0 ]; then
       info "Bad --git-dir: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
       info "  “$(git rev-parse --git-dir --quiet 2>&1)”"
+
       warn_repo_problem_9char 'rev-parse'
     fi
   fi
@@ -508,6 +509,7 @@ git_ensure_or_clone_target () {
     warn "Clone failed!"
     warn "  \$ git clone ${GIT_BARE_REPO} -- '${source_repo}' '${target_repo}'"
     warn "  ${git_resp}"
+
     warn_repo_problem_9char 'uncloned!'
 
     travel_process_chores_file_lock_release

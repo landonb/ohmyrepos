@@ -51,13 +51,16 @@ print_status () {
   _print_status_show_elapsed_time () {
     local time_n=$(print_nanos_now)
     local file_time_0="${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
+    
     local elapsed_frac="$(echo "(${time_n} - $(cat ${file_time_0}))" | bc -l)"
     local elapsed_secs=$(printf "${elapsed_frac}" | xargs printf "%04.1f")
+
     printf %s "(${elapsed_secs}s) "
   }
 
   _print_status_show_clock_time () {
     local clock=$(date "+%T")
+
     printf %s "${clock}: "
   }
 
@@ -77,6 +80,7 @@ print_status () {
 
 git_status_cache_setup () {
   ([ "${MR_ACTION}" != 'status' ] && return 0) || true
+
   truncate -s 0 "${OMR_MYSTATUS_TMP_CHORES_FILE}"
 
   # Set the start time for the elapsed time display.
@@ -87,10 +91,13 @@ git_status_cache_setup () {
 
 git_status_notify_chores () {
   local untidy_count=$(cat "${OMR_MYSTATUS_TMP_CHORES_FILE}" | wc -l)
+
   local infl=''
   local refl=''
+
   [ ${untidy_count} -ne 1 ] && infl='s'
   [ ${untidy_count} -eq 1 ] && refl='s'
+
   warn "GRIZZLY! We found ${untidy_count} repo${infl} which need${refl} attention."
   notice
   notice "Here's some copy-pasta if you wanna fix it:"
@@ -127,7 +134,9 @@ insist_installed () {
   # See:
   #   https://github.com/landonb/git-my-merge-status
   command -v "git-my-merge-status" > /dev/null && return
+
   >&2 echo "MISSING: https://github.com/landonb/git-my-merge-status"
+
   return 1
 }
 
@@ -151,8 +160,10 @@ git_mrrepo_at_git_root () {
   if [ "$(git rev-parse --show-toplevel)" = "$(pwd)" ] ||
      [ "$(git rev-parse --show-toplevel)" = "$(pwd -P)" ]; \
    then
+
     return 0
   fi
+
   return 1
 }
 
@@ -160,11 +171,13 @@ git_mrrepo_at_git_root () {
 
 git_status_format_alert () {
   local text="$1"
+
   echo "$(fg_lightorange)${text}$(attr_reset)"
 }
 
 git_status_format_minty () {
   local text="$1"
+
   echo "$(fg_mintgreen)${text}$(attr_reset)"
 }
 
@@ -172,6 +185,7 @@ git_status_format_minty () {
 
 git_status_check_report_9chars_maybe () {
   ${OMR_MYSTATUS_FANCY} && return
+
   git_status_check_report_9chars "${@}"
 }
 
@@ -179,6 +193,7 @@ git_status_check_report_9chars () {
   status_adj="$1"
   opt_prefix="$2"
   opt_suffix="$3"
+
   print_status " "\
     "${opt_prefix}$(attr_underline)$(git_status_format_alert "${status_adj}")${opt_suffix}" \
     "  $(attr_underline)$(git_status_format_alert "${MR_REPO}")  $(fg_hotpink)✗$(attr_reset)"
@@ -192,46 +207,60 @@ git_status_check_unstaged () {
   # otherwise the function would fail if no unstaged changes found.
   #
   local extcd
+
   # ' M' is modified but not added.
   (git status --porcelain | grep "^ M " >/dev/null 2>&1) || extcd=$?
+
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
+
     git_status_check_report_9chars_maybe 'unstaged' ' '
   fi
 }
 
 git_status_check_uncommitted () {
   local extcd
+
   # 'M ' is added but not committed.
   (git status --porcelain | grep "^M  " >/dev/null 2>&1) || extcd=$?
+
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
+
     git_status_check_report_9chars_maybe 'uncommitd'
   fi
 }
 
 git_status_check_untracked () {
   local extcd
+
   # '^?? ' is untracked.
   (git status --porcelain | grep "^?? " >/dev/null 2>&1) || extcd=$?
+
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
+
     git_status_check_report_9chars_maybe 'untracked'
   fi
 }
 
 git_status_check_any_porcelain_output () {
   ${UNTIDY_REPO} && return
+
   local n_bytes=$(git status --porcelain | wc -c)
+
   if [ ${n_bytes} -gt 0 ]; then
     UNTIDY_REPO=true
+
     warn "UNEXPECTED: \`git status --porcelain\` nonempty output in repo at: “${MR_REPO}”"
+
     git_status_check_report_9chars_maybe 'confusing'
   fi
 }
 
 git_report_untidy_repo () {
   ! ${UNTIDY_REPO} && return
+
   # This function runs in a subshell, so it's not feasible to maintain the list
   # of untidy repos in memory. So we need to use a pipe or a file.
   # Note that sh (e.g., dash; or a POSIX shell) does not define `echo -e`
@@ -257,6 +286,7 @@ git_report_fancy () {
   local pthw=${OMR_MYSTATUS_ECHO_PATH_WIDTH}
   local padw=$((pthw - 3))
   local xwid=${pthw}
+
   if ${UNTIDY_REPO}; then
     # 3 chars for '  ✗'
     pthw=$((pthw - 3))
@@ -273,10 +303,12 @@ git_report_fancy () {
     #   - Remove 4 more because anecdotally I had to.
     xwid=$((pthw + 41 - 3 - 4))
   fi
+
   # Correct for Unicode: printf works in bytes, not chars, so add two spaces for
   # each Unicode character (which applies to some but not all Unicode characters).
   local path_bytes=$(printf "${MR_REPO}" | wc --bytes)
   local path_chars=$(printf "${MR_REPO}" | wc --chars)
+
   if [ ${path_bytes} -ne ${path_chars} ]; then
     # Has Unicode characters. (lb): I don't know the ratio, but most Unicode
     # characters I've seen (but not all) are reported as 3 characters. Because
