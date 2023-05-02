@@ -22,6 +22,19 @@
 #   attempted, but only in the local repository is tidy (nothing
 #   unstaged, uncommitted, nor untracked).
 
+# SAVVY/2023-05-01: If `ffssh` processes appear stuck and spike the CPU,
+# likely the locking mechanism coded incorrectly.
+#
+# - Kill all `mr` processes:
+#
+#       pkill -9 -f "mr config"
+#
+# - Then look for proper
+#     travel_process_chores_file_lock_acquire
+#   and
+#     travel_process_chores_file_lock_release
+#   usage.
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 MR_APP_NAME='mr'
