@@ -343,7 +343,10 @@ must_be_git_dirs () {
 
 git_travel_verify_mr_action () {
   # The action name is the variable name from lib/sync-travel-remote.
+  # - Older `mr` doesn't specify MR_ACTION, in which case must always
+  #   run on any command (hence the empty string check).
   false \
+    || [ "${MR_ACTION}" = '' ] \
     || [ "${MR_ACTION}" = 'ffmirror' ] \
     || [ "${MR_ACTION}" = 'ffssh' ] \
     || [ "${MR_ACTION}" = 'ffdefault' ]

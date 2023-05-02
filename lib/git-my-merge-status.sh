@@ -87,7 +87,7 @@ git_status_cache_setup () {
   #     because MR_ACTION here might be unset.
   #     - Just be sure not to do any setup or teardown that conflicts
   #       with any another setup or teardown function.
-  [ "${MR_ACTION}" = 'mystatus' ] || return 0
+  [ -z "${MR_ACTION}" ] || [ "${MR_ACTION}" = 'mystatus' ] || return 0
 
   truncate -s 0 "${OMR_MYSTATUS_TMP_CHORES_FILE}"
 
@@ -112,7 +112,8 @@ git_status_notify_chores () {
 }
 
 git_status_cache_teardown () {
-  [ "${MR_ACTION}" = 'mystatus' ] || return 0
+  [ -z "${MR_ACTION}" ] || [ "${MR_ACTION}" = 'mystatus' ] || return 0
+
   local ret_code=0
 
   if [ -s "${OMR_MYSTATUS_TMP_CHORES_FILE}" ]; then
