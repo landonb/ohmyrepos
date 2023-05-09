@@ -1286,6 +1286,8 @@ print_mergefail_msg () {
 
   local local_head_sha="$(shorten_sha "$(git rev-parse HEAD)")"
 
+  local common_ancestor_sha="$(shorten_sha "$(git merge-base HEAD ${to_commit})")"
+
   # CXPX/NOT-DRY: This info copied from git-my-merge-status, probably same as:
   #   git_status_check_report_9chars 'mergefail' '  '
   info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
@@ -1318,7 +1320,8 @@ print_mergefail_msg () {
     "- If you need to dig any deeper, use tig:\n" \
     "    cd ${target_repo}\n" \
     "    tig ${to_commit}\n" \
-    "    tig ${local_head_sha}  # Local HEAD" \
+    "    tig ${local_head_sha}  # Local HEAD\n" \
+    "- The common ancestor is: ${common_ancestor_sha}" \
     "$(attr_reset)"
 
   # ***
