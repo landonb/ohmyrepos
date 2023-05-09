@@ -1127,14 +1127,15 @@ git_merge_ff_only () {
   # - If that's the case, the local repo could be ahead of the
   #   remote repo (a happy state), or the repos have diverged
   #   (and the user will want to resolve the conflict).
-  if ! git merge-base --is-ancestor "HEAD" "${to_commit}" \
-    && ! git merge-base --is-ancestor "${to_commit}" "HEAD" \
-  ; then
+  if git merge-base --is-ancestor "HEAD" "${to_commit}"; then
+    _synctrem_git_merge_ff_only_safe "${target_repo}" "${to_commit}"
+  elif git merge-base --is-ancestor "${to_commit}" "HEAD"; then
+    info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
+      "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)"
+  else
     print_mergefail_msg "${target_repo}" "${to_commit}" ""
 
     false
-  else
-    _synctrem_git_merge_ff_only_safe "${target_repo}" "${to_commit}"
   fi
 }
 
