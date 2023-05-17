@@ -33,6 +33,10 @@
 #   $ MR_INCLUDE=group1 mr -d / ls  # chooses `mr_exclusive "group1"` projects
 #   $ MR_INCLUDE=group2 mr -d / ls
 #   $ mr -d / ls
+#
+# To ignore skip settings altogether, --force, e.g.,
+#   $ cd <path>
+#   $ mr -n --force <action>
 
 # mr_exclusive returns True if project should be skipped per MR_INCLUDE.
 mr_exclusive () {
