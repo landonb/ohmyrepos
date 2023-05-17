@@ -345,7 +345,7 @@ all the time. So let's automate it!
 In this example, I also show how I setup a private repository that's
 not hosted online anywhere.
 
-- I use an environment variable, ``OMR_TRAVEL``, to pass a local path
+- I use an environment variable, ``MR_TRAVEL``, to pass a local path
   to another copy of the repo -- this could be a path to an encrypted
   filesystem on a USB thumb drive, or it could be an ``ssh://`` URL to
   one of my other development machines.
@@ -354,8 +354,8 @@ This example shows how I might wire my notes repo to automate add and
 commit my notes file when it changes::
 
   [/path/to/notes]
-  checkout = [ -z ${OMR_TRAVEL} ] && fatal 'You must set OMR_TRAVEL' ||
-    git clone "${OMR_TRAVEL}/path/to/notes" 'notes'
+  checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
+    git clone "${MR_TRAVEL}/path/to/notes" 'notes'
   autocommit =
     git_auto_commit_parse_args "${@}"
     # Auto-commit private Ohmyrepos notes.
@@ -385,8 +385,8 @@ Suppose I have two notes file (or however many), e.g.,::
 Then I could have them all committed automatically thuslyy::
 
   [/path/to/notes]
-  checkout = [ -z ${OMR_TRAVEL} ] && fatal 'You must set OMR_TRAVEL' ||
-    git clone "${OMR_TRAVEL}/path/to/notes" 'notes'
+  checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
+    git clone "${MR_TRAVEL}/path/to/notes" 'notes'
   autocommit = git_auto_commit_all "${@}"
 
 ``autocommit``: ``git_auto_commit_new``
@@ -400,8 +400,8 @@ to auto-commit changes to existing files, so oftentimes the two options
 are combined, e.g.,::
 
   [/path/to/notes]
-  checkout = [ -z ${OMR_TRAVEL} ] && fatal 'You must set OMR_TRAVEL' ||
-    git clone "${OMR_TRAVEL}/path/to/notes" 'notes'
+  checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
+    git clone "${MR_TRAVEL}/path/to/notes" 'notes'
   autocommit = git_auto_commit_all "${@}" && git_auto_commit_new "${@}"
 
 ``autocommit``: Ignore Most Projects
@@ -430,8 +430,8 @@ Suppose that the spell file is under ``~/.dotfiles/home/.vim/spell``.
 Here's how the ``.mrconfig`` might look::
 
   [${HOME}/.dotfiles]
-  checkout = [ -z ${OMR_TRAVEL} ] && fatal 'You must set OMR_TRAVEL' ||
-    git clone "${OMR_TRAVEL}/${MR_HOME:-${HOME}}/.dotfiles" '.dotfiles'
+  checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
+    git clone "${MR_TRAVEL}/${MR_HOME:-${HOME}}/.dotfiles" '.dotfiles'
     autocommit =
       # Sort the spell file, for easy diff'ing, or merging/meld'ing.
       # - The .vimrc startup file will remake the .spl file when you restart Vim.
