@@ -1476,6 +1476,7 @@ repo_path_for_remote_user () {
     printf "%s" "${local_repo}"
   else
     printf "%s" "${local_repo}" | sed -E "s#^${HOME}(/|$)#${MR_REMOTE_HOME}\1#"
+    # KLUGE/2023-05-17: Another Shell filetype highlight bug: The backslash↑  "
   fi
 }
 
