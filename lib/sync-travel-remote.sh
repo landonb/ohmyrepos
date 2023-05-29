@@ -742,21 +742,22 @@ git_set_remote_travel () {
   local remote_url
   remote_url=$(git remote get-url ${MR_REMOTE} 2>/dev/null) || extcd=$?
 
+  local git_remote_cmd=""
   if [ ${extcd} -ne 0 ]; then
     # Wire new remote for “${MR_REMOTE}”.
-
-    git remote add ${MR_REMOTE} "${source_repo}"
-
-    DID_SET_REMOTE=1
-
-    _git_echo_long_op_finis
-
-    info "  $(fg_green)$(attr_emphasis)✓ r-wired👈$(attr_reset)" \
-      "$(fg_green)${MR_REPO}$(attr_reset)"
+    git_remote_cmd="add"
   elif [ "${remote_url}" != "${source_repo}" ]; then
     # Change URL for existing remote.
+    git_remote_cmd="set-url"
+  else
+    # Verified “${MR_REMOTE}” URL correct.
+    : # no-op
 
-    git remote set-url ${MR_REMOTE} "${source_repo}"
+    _git_echo_long_op_finis
+  fi
+
+  if [ -n "${git_remote_cmd}" ]; then
+    git remote ${git_remote_cmd} ${MR_REMOTE} "${source_repo}"
 
     DID_SET_REMOTE=1
 
@@ -764,14 +765,10 @@ git_set_remote_travel () {
 
     info "  $(fg_green)$(attr_emphasis)✓ r-wired👆$(attr_reset)" \
       "$(fg_green)${MR_REPO}$(attr_reset)"
-    debug "  Reset remote wired for “${MR_REMOTE}”" \
-      "(was: $(attr_italic)${remote_url}$(attr_reset))"
-  else
-    # Verified “${MR_REMOTE}” URL correct.
-
-    : # no-op
-
-    _git_echo_long_op_finis
+    if [ "${git_remote_cmd}" = "set-url" ]; then
+      debug "  Reset remote wired for “${MR_REMOTE}”" \
+        "(was: $(attr_italic)${remote_url}$(attr_reset))"
+    fi
   fi
 
   cd "${before_cd}"
