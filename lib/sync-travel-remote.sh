@@ -1105,7 +1105,7 @@ git_merge_ff_only () {
   # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
   if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
     debug "  $(fg_mediumgrey)skip-HEAD$(attr_reset)  " \
-      "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
+      "$(fg_mediumgrey)${target_repo}$(attr_reset)"
 
     return
     # MEH/2019-11-21 03:12: We could get around detached HEAD by using SHA, e.g.,:
