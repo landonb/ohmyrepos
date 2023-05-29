@@ -1127,10 +1127,13 @@ git_merge_ff_only () {
   if git merge-base --is-ancestor "HEAD" "${to_commit}"; then
     _synctrem_git_merge_ff_only_safe "${target_repo}" "${to_commit}"
   elif git merge-base --is-ancestor "${to_commit}" "HEAD"; then
-    info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
-      "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)"
+    # Local ahead of remote.
+    print_mergefail_msg_localahead "${target_repo}"
+
+    false
   else
-    print_mergefail_msg "${target_repo}" "${to_commit}" ""
+    # Diverged.
+    print_mergefail_msg_diverged "${target_repo}" "${to_commit}" ""
 
     false
   fi
@@ -1259,7 +1262,7 @@ _synctrem_git_merge_ff_only_safe () {
   # We verified `git status --porcelain` indicated nothing before trying to merge,
   # so this could mean the branch diverged from remote, or something. Inform user.
   if [ ${merge_retcode} -ne 0 ]; then
-    print_mergefail_msg "${target_repo}" "${to_commit}" "${git_resp}"
+    print_mergefail_msg_diverged "${target_repo}" "${to_commit}" "${git_resp}"
   elif (printf %s "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
@@ -1277,7 +1280,7 @@ _synctrem_git_merge_ff_only_safe () {
   return ${merge_retcode}
 }
 
-print_mergefail_msg () {
+print_mergefail_msg_diverged () {
   local target_repo="$1"
   local to_commit="$2"
   local git_resp="$3"
@@ -1352,6 +1355,22 @@ shorten_sha () {
   PW_SHA1SUM_LENGTH=7
 
   printf "$1" | sed -E 's/^(.{'${PW_SHA1SUM_LENGTH}'}).*/\1/g'
+}
+
+# Local ahead of remote, which seems like something user might care to know,
+# so using 'warn', not 'info', and caller fails the action for this repo.
+# - Because normally users run `ff` to pull changes to a host they expect
+#   to be behind. So this alert means user may want to run `ff` on the
+#   remote host they were pulling from.
+print_mergefail_msg_localahead () {
+  local target_repo="$1"
+
+  warn "  $(fg_lightorange)$(attr_underline)✗ local-ahead❗$(attr_reset)  " \
+    "$(fg_lightorange)$(attr_underline)${target_repo}$(attr_reset)"
+
+  echo \
+    "  $(fg_lightorange)ssh ${MR_REMOTE} 'cd ${MR_REPO} && mr -d . -n ffssh'$(attr_reset)" \
+      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
