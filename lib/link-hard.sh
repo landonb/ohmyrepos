@@ -49,11 +49,15 @@ link_hard () {
     printf '%s' "${file_inode}"
   }
 
+  local msg_action="Placed new"
+
   if [ -e "${local_file}" ]; then
     local local_inode
     local canon_inode
     local_inode=$(file_index_number_or_warn "${local_file}") || return 1
     canon_inode=$(file_index_number_or_warn "${canon_file}") || return 1
+
+    msg_action=" Recreated"
 
     # Compare inode values.
     if [ "${local_inode}" = "${canon_inode}" ]; then
@@ -63,25 +67,33 @@ link_hard () {
 
       return 0
     elif ! diff -q "${local_file}" "${canon_file}" > /dev/null; then
-      # Different inode, and different file contents. Cannot proceed.
-      warn "Refuses to hard link disparate files."
-      warn "- Depending on your workflow, this might help:"
-      warn "    cd '$(pwd -L)'"
-      warn "    meld '${local_file}' '${canon_file}' &"
-      warn "    git add '${local_file}'"
-      warn "    git commit -m 'Deps: Update dependency.'"
-      warn "    mr -d . -n infuse"
+      # Different inode, and different file contents.
+      # - If local file has no changes, then it's safe to assume its
+      #   last commit was a normal "Update dependency" commit, and we
+      #   can re-link it.
+      # - Otherwise, if local file has changes, defer to user to resolve.
+      if [ -n "$(git status --porcelain=v1 -- "${local_file}")" ]; then
+        # Cannot proceed.
+        warn "Refuses to hard link disparate files."
+        warn "- Depending on your workflow, this might help:"
+        warn "    cd '$(pwd -L)'"
+        warn "    meld '${local_file}' '${canon_file}' &"
+        warn "    git add '${local_file}'"
+        warn "    git commit -m 'Deps: Update dependency.'"
+        warn "    mr -d . -n infuse"
 
-      return 1
+        return 1
+      fi
     fi
   fi
 
   mkdir -p "$(dirname "${local_file}")"
 
-  # Different inode but nothing diff means we're cleared to clobber.
+  # Different inode but either nothing different from canon,
+  # or nothing changed locally, so we're cleared to clobber.
   ln -f "${canon_file}" "${local_file}"
-  # info "File hard link created: $(basename ${local_file})"
-  info " Placed new $(font_emphasize "hard link")" \
+
+  info " ${msg_action} $(font_emphasize "hard link")" \
     "$(font_highlight "$(realpath -s ${local_file})")"
 }
 
