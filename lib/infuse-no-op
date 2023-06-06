@@ -27,3 +27,11 @@
 
 infuse = true
 
+# CXREF: The DepoXy orchestrator uses git-smart, which defines a
+# post-rebase hook, GIT_POST_REBASE_EXEC. DepoXy's hook, used to
+# repair hard links broken by git-rebase, uses infusePostRebase,
+# so it runs faster than a full 'infuse'.
+#   https://github.com/DepoXy/depoxy#🍯
+#   https://github.com/landonb/git-smart#💡
+infusePostRebase = true
+
