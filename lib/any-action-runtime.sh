@@ -88,12 +88,26 @@ git_any_action_stopped () {
   /bin/rm -f "${OMR_RUNTIME_TEMPFILE_BASE}-*"
 }
 
+mr_is_quieted () {
+  for switch in ${MR_SWITCHES}; do
+    if [ "${switch}" = "-q" ] || [ "${switch}" = "--quiet" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 git_any_cache_setup () {
-  git_any_action_started
+  if ! mr_is_quieted; then
+    git_any_action_started
+  fi
 }
 
 git_any_cache_teardown () {
-  git_any_action_stopped
+  if ! mr_is_quieted; then
+    git_any_action_stopped
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
