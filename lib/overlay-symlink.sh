@@ -250,7 +250,9 @@ fail_target_exists_not_link () {
   error "mrt: Failed to create ${link_type}!"
   error "  Target exists and is not recognized by ohmyrepos."
   error "  Please examine the file:"
-  error "    $(pwd)/${targetp}"
+  error "    ${targetp}"
+  error "  Relative to:"
+  error "    $(pwd)"
   error "Use -f/--force, or -s/--safe, or remove the file," \
     "and try again, or stop trying."
 
