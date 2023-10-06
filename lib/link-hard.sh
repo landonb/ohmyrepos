@@ -79,7 +79,7 @@ link_hard () {
         warn "    cd '$(pwd -L)'"
         warn "    meld '${local_file}' '${canon_file}' &"
         warn "    git add '${local_file}'"
-        warn "    git commit -m 'Deps: Update dependency.'"
+        warn "    git commit -m 'Deps: Update dependency ($(basename "${local_file}"))'"
         # This assumes user uses link_hard from 'infuse' tasks.
         warn "    mr -d . -n infuse"
 
