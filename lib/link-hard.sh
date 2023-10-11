@@ -14,8 +14,8 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Pass in a full path to the canon file ($1)
-# and a partial path to local deps/ file to hard link.
+# Pass in a the full path to the source file being hard linked ($1),
+# and a partial path to the local deps/ file to create/maintain ($2).
 # WHY: If you package shell or Git dependencies in source code of
 # other projects and don't want to accidentally have different
 # copies of the source diverge; and you only want search results
