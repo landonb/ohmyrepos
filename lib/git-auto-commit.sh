@@ -21,7 +21,7 @@ git_auto_commit_parse_args () {
   # Note that both `shift` and `set -- $@` are scoped to this function,
   # so we'll process all args in one go (rather than splitting into two
   # functions, because myrepostravel_opts_parse complains on unknown args).
-  myrepostravel_opts_parse "${@}"
+  myrepostravel_opts_parse "$@"
   [ ${MRT_AUTO_YES} -eq 0 ] && MR_AUTO_COMMIT=true || true
 
   # These two variables are use by git_auto_commit_many.
@@ -39,8 +39,8 @@ git_auto_commit_parse_args () {
 git_auto_commit_cd_mrrepo () {
   # Only print the "examining" message once, e.g., affects calls such as:
   #     autocommit =
-  #       git_auto_commit_one 'some/file' "${@}"
-  #       git_auto_commit_one 'ano/ther' "${@}"
+  #       git_auto_commit_one 'some/file' "$@"
+  #       git_auto_commit_one 'ano/ther' "$@"
   if ! ${MR_GIT_AUTO_COMMIT_SAID_HELLO}; then
     MR_GIT_AUTO_COMMIT_BEFORE_CD="$(pwd -L)"
     cd "${MR_REPO}"
@@ -62,8 +62,8 @@ git_auto_commit_noop () {
 git_auto_commit_one () {
   git_auto_commit_cd_mrrepo
 
-  git_auto_commit_parse_args "${@}"
-  if ! git_auto_commit_process_rest "git_auto_commit_path_one" "${@}"; then
+  git_auto_commit_parse_args "$@"
+  if ! git_auto_commit_process_rest "git_auto_commit_path_one" "$@"; then
     fatal "ERROR: Expecting a path to git_auto_commit_one."
 
     exit 1
@@ -168,8 +168,8 @@ git_auto_commit_path_one_or_many () {
 git_auto_commit_many () {
   git_auto_commit_cd_mrrepo
 
-  git_auto_commit_parse_args "${@}"
-  if ! git_auto_commit_process_rest "git_auto_commit_path_many" "${@}"; then
+  git_auto_commit_parse_args "$@"
+  if ! git_auto_commit_process_rest "git_auto_commit_path_many" "$@"; then
     fatal "ERROR: Expecting a path(s) to git_auto_commit_many."
 
     exit 1
@@ -204,8 +204,8 @@ git_auto_commit_path_many () {
 git_auto_commit_all () {
   git_auto_commit_cd_mrrepo
 
-  git_auto_commit_parse_args "${@}"
-  if git_auto_commit_process_rest "git_auto_commit_path_all" "${@}"; then
+  git_auto_commit_parse_args "$@"
+  if git_auto_commit_process_rest "git_auto_commit_path_all" "$@"; then
     fatal "ERROR: Not expecting a path to git_auto_commit_path_all."
 
     exit 1
@@ -271,8 +271,8 @@ git_auto_commit_path_all () {
 git_auto_commit_new () {
   git_auto_commit_cd_mrrepo
 
-  git_auto_commit_parse_args "${@}"
-  if ! git_auto_commit_process_rest "git_auto_commit_path_new" "${@}"; then
+  git_auto_commit_parse_args "$@"
+  if ! git_auto_commit_process_rest "git_auto_commit_path_new" "$@"; then
     # If not path/files/globs specified, run on repo root.
     git_auto_commit_path_new "."
   fi
