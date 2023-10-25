@@ -122,7 +122,11 @@ git_auto_commit_path_one () {
     elif [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       echo 'Skipped!'
     fi
-  # else, the file has no changes/not changed.
+  elif ! git_nothing_staged "${repo_file}"; then
+    # File has staged changes ('M ' or 'MM').
+    warn "$(attr_emphasis)skipped staged$(attr_reset)" \
+      "$(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
+  # else the file has no changes/is not changed.
   fi
 }
 
@@ -145,6 +149,12 @@ git_status_unstaged_or_untracked () {
   # filename grep.
   git -c core.quotepath=off status --porcelain -- "${repo_file}" |
     grep -q -E -e "^(${inclT} M|\?\?) \"?${repo_file}\"?$"
+}
+
+git_nothing_staged () {
+  local repo_file="$1"
+
+  git diff --cached --quiet -- "${repo_file}"
 }
 
 git_auto_commit_path_one_or_many () {
