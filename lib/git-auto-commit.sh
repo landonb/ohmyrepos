@@ -143,7 +143,7 @@ git_status_unstaged_or_untracked () {
   # SAVVY: Set quotepath off, so unicode path characters are not converted
   # to octal UTF8 (e.g., "🪤" !→ "\360\237\252\244"), which would break our
   # filename grep.
-  git -c core.quotepath=off status --porcelain "${repo_file}" |
+  git -c core.quotepath=off status --porcelain -- "${repo_file}" |
     grep -q -E -e "^(${inclT} M|\?\?) \"?${repo_file}\"?$"
 }
 
