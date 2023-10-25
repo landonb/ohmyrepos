@@ -98,23 +98,9 @@ git_auto_commit_path_one () {
   local msg_prefix="myrepos: autoci: Add Favorite: [@$(hostname)]"
   local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename "${repo_file}")”}"
 
-  # - Check for ' M unstaged/files'
-  #         and ' T typechanged/files' (but only if MRT_LINK_FORCE=0, b/c obscure case,
-  #                                     and user probably wants to know if typechanged),
-  #         and '?? untracked/files',
-  #         at least.
-  #   We could also check 'M  staged/files'
-  #   and for combination 'MM staged/and/unstaged/changes'
-  #   but I'd rather start strict and see if the latter is
-  #   something for which I eventually yearn.
-  # - Note that a path with spaces or special characters will be quoted.
   local inclT=""
   [ ${MRT_LINK_FORCE} -ne 0 ] || inclT=" T|"
-  # SAVVY: Set quotepath off, so unicode path characters are not converted
-  # to octal UTF8 (e.g., "🪤" !→ "\360\237\252\244"), which would break our
-  # filename grep.
-  git -c core.quotepath=off status --porcelain "${repo_file}" |
-    grep -q -E -e "^(${inclT} M|\?\?) \"?${repo_file}\"?$"
+  git_status_unstaged_or_untracked "${repo_file}" "${inclT}"
 
   if [ $? -eq 0 ]; then
     local yorn
@@ -138,6 +124,27 @@ git_auto_commit_path_one () {
     fi
   # else, the file has no changes/not changed.
   fi
+}
+
+# - Check for ' M unstaged/files'
+#         and ' T typechanged/files' (but only if MRT_LINK_FORCE=0, b/c obscure case,
+#                                     and user probably wants to know if typechanged),
+#         and '?? untracked/files',
+#         at least.
+#   We could also check 'M  staged/files'
+#   and for combination 'MM staged/and/unstaged/changes'
+#   but I'd rather start strict and see if the latter is
+#   something for which I eventually yearn.
+# - Note that a path with spaces or special characters will be quoted.
+git_status_unstaged_or_untracked () {
+  local repo_file="$1"
+  local inclT="$2"
+
+  # SAVVY: Set quotepath off, so unicode path characters are not converted
+  # to octal UTF8 (e.g., "🪤" !→ "\360\237\252\244"), which would break our
+  # filename grep.
+  git -c core.quotepath=off status --porcelain "${repo_file}" |
+    grep -q -E -e "^(${inclT} M|\?\?) \"?${repo_file}\"?$"
 }
 
 git_auto_commit_path_one_or_many () {
