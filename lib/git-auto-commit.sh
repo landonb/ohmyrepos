@@ -17,6 +17,17 @@ reveal_biz_vars () {
   MR_GIT_AUTO_COMMIT_SAID_HELLO=false
 }
 
+must_git_nothing_staged () {
+  if git_nothing_staged; then
+    return
+  fi
+
+  error "ERROR: Cannot auto-commit alongside staged changes"
+  error "└→ Please tidy up: ${MR_REPO}"
+
+  exit 1
+}
+
 git_auto_commit_parse_args () {
   # Note that both `shift` and `set -- $@` are scoped to this function,
   # so we'll process all args in one go (rather than splitting into two
@@ -60,6 +71,7 @@ git_auto_commit_noop () {
 }
 
 git_auto_commit_one () {
+  must_git_nothing_staged
   git_auto_commit_cd_mrrepo
 
   git_auto_commit_parse_args "$@"
@@ -122,10 +134,6 @@ git_auto_commit_path_one () {
     elif [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       echo 'Skipped!'
     fi
-  elif ! git_nothing_staged "${repo_file}"; then
-    # File has staged changes ('M ' or 'MM').
-    warn "$(attr_emphasis)skipped staged$(attr_reset)" \
-      "$(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
   # else the file has no changes/is not changed.
   fi
 }
@@ -152,9 +160,7 @@ git_status_unstaged_or_untracked () {
 }
 
 git_nothing_staged () {
-  local repo_file="$1"
-
-  git diff --cached --quiet -- "${repo_file}"
+  git diff --cached --quiet
 }
 
 git_auto_commit_path_one_or_many () {
@@ -183,6 +189,7 @@ git_auto_commit_path_one_or_many () {
 }
 
 git_auto_commit_many () {
+  must_git_nothing_staged
   git_auto_commit_cd_mrrepo
 
   git_auto_commit_parse_args "$@"
@@ -219,6 +226,7 @@ git_auto_commit_path_many () {
 }
 
 git_auto_commit_all () {
+  must_git_nothing_staged
   git_auto_commit_cd_mrrepo
 
   git_auto_commit_parse_args "$@"
@@ -286,6 +294,7 @@ git_auto_commit_path_all () {
 }
 
 git_auto_commit_new () {
+  must_git_nothing_staged
   git_auto_commit_cd_mrrepo
 
   git_auto_commit_parse_args "$@"
