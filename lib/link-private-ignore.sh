@@ -14,7 +14,6 @@ source_deps () {
 
 link_private_ignore () {
   local lnkpath='.ignore'
-  local targetp='.ignore'
 
   # Assume first param an alternative filename unless an -o/--option.
   if [ -n "$1" ] && [ "${1#-}" = "$1" ]; then
@@ -22,6 +21,8 @@ link_private_ignore () {
 
     shift
   fi
+
+  local targetp="$(dirname "${lnkpath}")/.ignore"
 
   local was_link_force="${MRT_LINK_FORCE}"
   local was_link_safe="${MRT_LINK_SAFE}"
