@@ -118,6 +118,15 @@ teardown_dispatch_append = git_any_cache_teardown "${@}"
 # ========================================================================
 # ------------------------------------------------------------------------
 
+# Default some actions to 'true' so that, for projects that do not
+# define these actions, `mr -d / <action>` will not report 'failed'.
+
+[DEFAULT]
+autocommit = true
+slatherInstall = true
+
+# ***
+
 [DEFAULT]
 # For all actions (any action), do not print blank line between repos.
 no_print_sep = true
@@ -155,15 +164,6 @@ no_print_failed_autocommit = true
 # am not committed (yet) to keeping these, so far, I like.
 no_print_dir_run = true
 no_print_failed_run = true
-
-[DEFAULT]
-# Default the `autocommit` action true so that, for projects
-# that do not define this action, `mr -d / autocommit` will
-# not report 'failed'.
-autocommit = true
-
-[DEFAULT]
-slatherInstall = true
 
 # ========================================================================
 # ------------------------------------------------------------------------
