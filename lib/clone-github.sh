@@ -34,15 +34,26 @@ git_clone_giturl () {
   local remote_url_or_path=""
   local target_dir=""
   local remote_name="origin"
+  local config_name_vals=""
 
   while [ "$1" != '' ]; do
     case $1 in
       -o | --origin)
         [ ${#@} -lt 2 ] \
-          && >&2 echo "ERROR: bad git_clone_giturl args" \
+          && >&2 echo "ERROR: git_clone_giturl -o/--origin missing <name>" \
           && return 1 || true
 
         remote_name="$2"
+
+        shift 2
+        ;;
+
+      -c | --config)
+        [ ${#@} -lt 2 ] \
+          && >&2 echo "ERROR: git_clone_giturl -c/--config missing <name>=<value>" \
+          && return 1 || true
+
+        config_name_vals="${config_name_vals}$1 $2 "
 
         shift 2
         ;;
@@ -68,15 +79,15 @@ git_clone_giturl () {
   local git_url
   git_url="$(_git_url_according_to_user "${remote_url_or_path}")"
 
-  echo git clone -o "${remote_name}" "${git_url}" "${target_dir}"
+  echo "git clone -o \"${remote_name}\" \"${git_url}\" ${config_name_vals}\"${target_dir}\""
 
   # Because ${target_dir} might be empty, either need to not quote it:
   #   git clone -o "${remote_name}" "${git_url}" ${target_dir}
   # Or we can if-around [and find out].
   if [ -n "${target_dir}" ]; then
-    git clone -o "${remote_name}" "${git_url}" "${target_dir}"
+    git clone -o "${remote_name}" ${config_name_vals}"${git_url}" "${target_dir}"
   else
-    git clone -o "${remote_name}" "${git_url}"
+    git clone -o "${remote_name}" ${config_name_vals}"${git_url}"
   fi
 }
 
