@@ -93,6 +93,10 @@ mr_is_quieted () {
     if [ "${switch}" = "-q" ] || [ "${switch}" = "--quiet" ]; then
       return 0
     fi
+
+    if [ "${switch}" = "-M" ] || [ "${switch}" = "--more-minimal" ]; then
+      return 0
+    fi
   done
 
   return 1
