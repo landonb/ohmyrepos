@@ -89,6 +89,7 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-ignore"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/no-travel"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/os-is-macos"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/private-clone"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/pull-latest"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/rebase-tip"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-add"
 # CAVEAT: Though `. skip-grouping.sh` called by `skip-grouping`, it's via
