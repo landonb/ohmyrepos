@@ -68,7 +68,7 @@ rebase_tip () {
     return 1
   )
 
-  git fetch ${upstream}
+  git fetch --prune ${upstream}
 
   local merge_base=$(git merge-base ${remote_ref} ${local_branch})
   local ref_commit=$(git rev-parse ${remote_ref})
