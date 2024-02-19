@@ -17,6 +17,9 @@
 #        also indicate by the convention that in private repos I use the
 #        branch name 'private').
 
+# ISOFF/2024-02-19: This fcn. now deprecated.
+# - Use instead .gitconfig [includeIf] config. 
+
 [DEFAULT]
 lib = git_config_user_email_privatize () {
         local user_email="${LOGNAME}@$(hostname)"
