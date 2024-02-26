@@ -42,8 +42,8 @@ echoInstallHelp () {
     checkbox="❌"
   fi
 
-  if [ "${dxy_scope}" = "dxy_pro" ]; then
-    if ${SLATHER_DEFAULTS_LIMITED:-false}; then
+  if [ "${dxy_scope}" = "dxy_limit" ]; then
+    if [ "${OMR_ECHO_INSTALL_DXY_SCOPE:-dxy_all}" != "dxy_all" ]; then
       checkbox="❌"
     fi
   elif false \
