@@ -5,5 +5,5 @@
 
 [DEFAULT]
 lib =
-  . "echo-slather-install.sh"
+  . "echo-install-help.sh"
 

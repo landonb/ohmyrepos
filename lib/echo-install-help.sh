@@ -7,7 +7,7 @@
 # This fcn. used by slather-defaults (macOS-onboarder) to print list
 # of copy-paste OMR install tasks.
 
-echo_slather_install () {
+echoInstallHelp () {
   local which_os="${1:-os_all}"
   local dxy_scope="${2:-dxy_all}"
   local addendum="$3"
@@ -33,7 +33,7 @@ echo_slather_install () {
   elif [ "${which_os}" = "os_none" ]; then
     checkbox="❌"
   elif [ "${which_os}" != "os_all" ]; then
-    >&2 echo "ERROR: Unknown \`echo_slather_install\` OS target: ${which_os}"
+    >&2 echo "ERROR: Unknown \`echoInstallHelp\` OS target: ${which_os}"
 
     checkbox="❌"
   fi
@@ -45,7 +45,7 @@ echo_slather_install () {
   elif [ "${dxy_scope}" = "dxy_none" ]; then
     checkbox="❌"
   elif [ "${dxy_scope}" != "dxy_all" ]; then
-    >&2 echo "ERROR: Unknown \`echo_slather_install\` env. scope: ${dxy_scope}"
+    >&2 echo "ERROR: Unknown \`echoInstallHelp\` env. scope: ${dxy_scope}"
 
     checkbox="❌"
   fi

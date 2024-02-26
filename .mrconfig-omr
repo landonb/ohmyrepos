@@ -75,7 +75,7 @@ lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-print-na
 #   because any line number printed will not be very meaningful.
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/clone-github"
-include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/echo-slather-install"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/echo-install-help"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/fetch-selective"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-auto-commit"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-config-user-email-privatize"
@@ -225,7 +225,7 @@ installLinux = false
 
 [DEFAULT]
 autocommit = true
-slatherInstall = true
+echoInstallHelp = true
 
 # ***
 

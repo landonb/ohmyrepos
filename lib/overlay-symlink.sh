@@ -781,7 +781,7 @@ symlink_mrinfuse_typed () {
 
   if [ ! -e ${sourcep} ]; then
     if [ "${optional}" -eq 0 ]; then
-      warn "Non-optional symlink source not found: ${sourcep}"
+      warn "Non-optional symlink source not found: ${sourcep} [relative to ${MR_REPO}]"
 
       exit 1
     fi
