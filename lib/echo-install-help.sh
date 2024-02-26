@@ -20,6 +20,24 @@ echoInstallHelp () {
   which_os="$(echo "${which_os}" | tr '[:upper:]' '[:lower:]')"
   dxy_scope="$(echo "${dxy_scope}" | tr '[:upper:]' '[:lower:]')"
 
+  local checkbox="$(echoInstallHelpWidget "${which_os}" "${dxy_scope}")"
+
+  local app_name="$(basename "${MR_REPO}")"
+
+  local addendum_txt=""
+  if [ -n "${addendum}" ]; then
+    addendum_txt=" (${addendum})"
+  fi
+
+  echo "${checkbox} DepoXy: Install \`${app_name}\` from source${addendum_txt}::
+   mr -d \"${MR_REPO}\" -n install
+"
+}
+
+echoInstallHelpWidget () {
+  local which_os="${1:-os_all}"
+  local dxy_scope="${2:-dxy_all}"
+
   local checkbox="🔳"
 
   if [ "${which_os}" = "os_linux" ]; then
@@ -70,15 +88,6 @@ echoInstallHelp () {
     checkbox="❌"
   fi
 
-  local app_name="$(basename "${MR_REPO}")"
-
-  local addendum_txt=""
-  if [ -n "${addendum}" ]; then
-    addendum_txt=" (${addendum})"
-  fi
-
-  echo "${checkbox} DepoXy: Install \`${app_name}\` from source${addendum_txt}::
-   mr -d \"${MR_REPO}\" -n install
-"
+  printf "%s" "${checkbox}"
 }
 
