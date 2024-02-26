@@ -30,6 +30,12 @@ echoInstallHelp () {
     if [ "$(uname)" != 'Darmin' ]; then
       checkbox="❌"
     fi
+  elif [ "${which_os}" = "os_macos_maybe" ]; then
+    if [ "$(uname)" = 'Darmin' ]; then
+      checkbox="❓"
+    fi
+  elif [ "${which_os}" = "os_maybe" ]; then
+    checkbox="❓"
   elif false \
     || [ "${which_os}" = "os_false" ] \
     || [ "${which_os}" = "os_none" ] \
@@ -46,6 +52,12 @@ echoInstallHelp () {
     if [ "${OMR_ECHO_INSTALL_DXY_SCOPE:-dxy_all}" != "dxy_all" ]; then
       checkbox="❌"
     fi
+  elif [ "${dxy_scope}" = "dxy_limit_maybe" ]; then
+    if [ "${OMR_ECHO_INSTALL_DXY_SCOPE:-dxy_all}" = "dxy_limit" ]; then
+      checkbox="❓"
+    fi
+  elif [ "${dxy_scope}" = "dxy_maybe" ]; then
+    checkbox="❓"
   elif false \
     || [ "${dxy_scope}" = "dxy_false" ] \
     || [ "${dxy_scope}" = "dxy_none" ] \
