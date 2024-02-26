@@ -30,7 +30,11 @@ echoInstallHelp () {
     if [ "$(uname)" != 'Darmin' ]; then
       checkbox="❌"
     fi
-  elif [ "${which_os}" = "os_none" ]; then
+  elif false \
+    || [ "${which_os}" = "os_false" ] \
+    || [ "${which_os}" = "os_none" ] \
+    || [ "${which_os}" = "os_off" ] \
+  ; then
     checkbox="❌"
   elif [ "${which_os}" != "os_all" ]; then
     >&2 echo "ERROR: Unknown \`echoInstallHelp\` OS target: ${which_os}"
@@ -42,7 +46,11 @@ echoInstallHelp () {
     if ${SLATHER_DEFAULTS_LIMITED:-false}; then
       checkbox="❌"
     fi
-  elif [ "${dxy_scope}" = "dxy_none" ]; then
+  elif false \
+    || [ "${dxy_scope}" = "dxy_false" ] \
+    || [ "${dxy_scope}" = "dxy_none" ] \
+    || [ "${dxy_scope}" = "dxy_off" ] \
+  ; then
     checkbox="❌"
   elif [ "${dxy_scope}" != "dxy_all" ]; then
     >&2 echo "ERROR: Unknown \`echoInstallHelp\` env. scope: ${dxy_scope}"
