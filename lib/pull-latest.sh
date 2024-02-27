@@ -25,7 +25,6 @@ pull_latest () {
     this instead:
 
       pull_latest \"${remote_name}\" \"${remote_branch}\" \"<version-tag>\"
-
   "
 
   git fetch ${remote_name} --prune
