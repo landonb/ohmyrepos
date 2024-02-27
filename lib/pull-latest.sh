@@ -65,6 +65,7 @@ pull_latest () {
 
   git checkout -b ${install_branch} ${install_version} 2> /dev/null || true
   git checkout ${install_branch}
+  git branch -u ${remote_name}/${remote_branch}
 
   echo "Installing ${install_version} from branch ${install_branch}..."
 }
