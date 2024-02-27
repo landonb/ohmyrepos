@@ -8,6 +8,7 @@ pull_latest () {
   local remote_name="$1"
   local remote_branch="$2"
   local version_tag="$3"
+  local local_branch="${4:-${remote_branch}}"
 
   echo "SAVVY: We'll update to the latest tagged version, something like:
   
@@ -28,7 +29,8 @@ pull_latest () {
   "
 
   git fetch ${remote_name} --prune
-  git checkout ${remote_branch}
+  git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true
+  git checkout ${local_branch} 
   git branch -u ${remote_name}/${remote_branch}
   git pull --ff-only
 
