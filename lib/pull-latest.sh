@@ -49,6 +49,16 @@ pull_latest () {
     #            to periodically have to update the version number manually,
     #            just live with the warning.
     install_version="$(git latest-version-normal)"
+    if [ $? -ne 0 ] || [ -z "${install_version}" ]; then
+      >&2 echo
+      >&2 echo "ERROR: git latest-version-normal failed:"
+      >&2 echo
+      >&2 echo "  $ git latest-version-normal"
+      >&2 echo "$(git latest-version-normal 2>&1 | sed 's/^/  /')"
+      >&2 echo
+
+      return 1
+    fi
   fi
 
   local install_branch="${remote_name}/${install_version}"
