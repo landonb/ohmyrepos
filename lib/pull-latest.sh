@@ -36,6 +36,18 @@ pull_latest () {
   # REFER: `git-latest-version-normal` from
   #   https://github.com/landonb/git-smart#💡
   if [ -z "${install_version}" ]; then
+    # Note: If the latest tag is in a different branch, you'll see on stderr:
+    #   * BWARE: The latest version tag is outside this branch
+    # SAVVY: The previous checkout/branch -u/pull is unnecessary unless
+    #        no version tag found (and this path not followed).
+    #        - But included anyway to *try* to avoid warning, i.e., if
+    #          user knows repo is versioned, they can all pull_latest
+    #          with the branch name that contains the version, and they'll
+    #          avoid the warning.
+    #          - But doesn't work for all projects. E.g., Ansible only
+    #            tags special "stable-X.X" branches, so unless you want
+    #            to periodically have to update the version number manually,
+    #            just live with the warning.
     install_version="$(git latest-version-normal)"
   fi
 
