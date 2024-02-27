@@ -14,7 +14,7 @@ pull_latest () {
     git fetch ${remote_name} --prune
     git checkout ${remote_branch}
     git branch -u ${remote_name}/${remote_branch}
-    git pull --rebase --autostash
+    git pull --ff-only
     local install_version=\"\$(git latest-version-normal)\"
     local install_branch=\"${remote_name}/\${install_version}\"
     git checkout -b \${install_branch} \${install_version} || true
@@ -31,7 +31,7 @@ pull_latest () {
   git fetch ${remote_name} --prune
   git checkout ${remote_branch}
   git branch -u ${remote_name}/${remote_branch}
-  git pull --rebase --autostash
+  git pull --ff-only
 
   local install_version="${version_tag}"
   # REFER: `git-latest-version-normal` from
