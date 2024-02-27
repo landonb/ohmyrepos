@@ -63,7 +63,7 @@ pull_latest () {
 
   local install_branch="${remote_name}/${install_version}"
 
-  git checkout -b ${install_branch} ${install_version} || true
+  git checkout -b ${install_branch} ${install_version} 2> /dev/null || true
   git checkout ${install_branch}
 
   echo "Installing ${install_version} from branch ${install_branch}..."
