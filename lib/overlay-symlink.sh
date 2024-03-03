@@ -422,8 +422,8 @@ symlink_get_msg_informative () {
 #          ~/.vim/spell/en.utf-8.add → ../.mrinfuse/spell/en.utf-8.add
 #       or ~/.vim/spell/en.utf-8.add → ~/.vim/.mrinfuse/spell/en.utf-8.add
 #
-# This is not too hard (a little wonky, IMHO, but makes the .mrconfig saner,
-# I suppose).
+# This is not too hard (a little wonky, IMHO, but makes the .mrconfig
+# more readable, I suppose).
 # - (lb): But if target path is absolute, I did not go to the trouble of
 #         accommodating that (other than to raise an error-issue).
 #         (There's not much of a use case for handling relative source
