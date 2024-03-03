@@ -45,46 +45,151 @@ source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
   . logger.sh
+
+  # For git_branch_exists, git_branch_name, git_latest_commit_date,
+  # git_remote_branch_object_name, git_sha_shorten, etc.
+  . ${SHOILERPLATE:-${HOME}/.kit/sh}/sh-git-nubs/bin/git-nubs.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 rebase_tip () {
   local remote_ref="$1"
-  [ -z "${remote_ref}" ] &&
-    >&2 error "ERROR: Please specify the “remote/branch”" &&
-    return 1
+  local local_name="$2"
+  local tip_friendly="$3"
+  local skip_rebase="${4:-false}"
 
-  local remote_name="$(echo "${remote_ref}" | sed -E 's#^([^/]+).*$#\1#')"
-  [ "${remote_name}" = "${remote_ref}" ] &&
-    >&2 error "ERROR: Not a 'remote/branch': “${remote_ref}”" &&
-    return 1
+  # USAGE: Caller-scope variable.
+  TIP_BRANCH=""
 
-  local local_branch="$(
-    git rev-parse --abbrev-ref=loose HEAD 2> /dev/null
-  )"
-  echo "${local_branch}" | grep -q '^tip/' || (
-    >&2 error "ERROR: Not a TIP branch: “${local_branch}”" &&
+  # *** Guard clauses
+
+  if [ -z "${remote_ref}" ]; then
+    >&2 error "ERROR: Please specify the “remote/branch”"
+
     return 1
-  )
+  fi
+
+  # ****
+
+  local remote_name
+  remote_name="$(echo "${remote_ref}" | sed -E 's#^([^/]+).*$#\1#')"
+
+  if [ "${remote_name}" = "${remote_ref}" ]; then
+    >&2 error "ERROR: Not a 'remote/branch': “${remote_ref}”"
+
+    return 1
+  fi
+
+  # ****
+
+  local current_branch
+  current_branch="$(git_branch_name)"
+
+  local ref_branch="ref/${tip_friendly}"
+
+  # Prefer create new tip/ branch from most recent tip, falling back
+  # on ref/ if necessary, in case tip/ has recent conflict resolutions.
+  if ${skip_rebase}; then
+    ref_branch="${remote_ref}"
+  elif echo "${current_branch}" | grep -q '^tip/'; then
+    ref_branch="${current_branch}"
+  elif ! git_branch_exists "${ref_branch}"; then
+    >&2 error "ERROR: Not a TIP branch: “${current_branch}”"
+    >&2 error "- HINT: Checkout a tip/ branch, or make a ref/ branch"
+
+    return 1
+    #fi
+    #git checkout "${ref_branch}" > /dev/null 2>&1
+  fi
+
+  # ***
 
   git fetch --prune ${upstream}
 
-  local merge_base=$(git merge-base ${remote_ref} ${local_branch})
+  # ***
+
+  # User can name a local ref to make a local branch for the remote ref.
+  # But it's not necessary, just a convenience.
+  if [ -n "${local_name}" ]; then
+    if ! git checkout -b "${local_name}" "${remote_ref}" > /dev/null 2>&1; then
+      git checkout "${local_name}" > /dev/null 2>&1
+    fi
+
+    git branch -u ${remote_ref} > /dev/null
+
+    git merge --ff-only "${remote_ref}" > /dev/null
+  fi
+
+  # ***
+
+  local name=""
+  if [ -n "${tip_friendly}" ]; then
+    name="${tip_friendly}/"
+  fi
+
+  local date="$(git_commit_date "${remote_ref}")"
+
+  local remote_sha="$( \
+    git_sha_shorten "$(git_remote_branch_object_name "${remote_ref}")" 7
+  )"
+
+  # SAVVY: Don't use current date in the name, so we can detect when up to date.
+  local tip_branch="tip/${name}${date}/${remote_sha}"
+
+  local up_to_date=false
+
+  if ! git checkout -b "${tip_branch}" "${ref_branch}" > /dev/null 2>&1; then
+    info "Latest project source already TIPped"
+    info "- HINT: Delete the branch to recreate it:"
+    info "    git branch -D ${tip_branch}"
+
+    up_to_date=true
+
+    git checkout "${tip_branch}" > /dev/null 2>&1
+  fi
+
+  git branch -u ${remote_ref} > /dev/null
+
+  # ***
+
+  local merge_base=$(git merge-base ${remote_ref} ${ref_branch})
   local ref_commit=$(git rev-parse ${remote_ref})
-  [ "${merge_base}" = "${ref_commit}" ] &&
-    >&2 info "Tip branch already up to date" &&
+
+  # echo "remote_ref: ${remote_ref}"
+  # echo "ref_branch: ${ref_branch}"
+  # echo "merge_base: ${merge_base}"
+  # echo "ref_commit: ${ref_commit}"
+
+  if ! ${skip_rebase} && [ "${merge_base}" = "${ref_commit}" ]; then
+    >&2 info "Tip branch up to date"
+
+    up_to_date=true
+  fi
+
+  if ${up_to_date}; then
     return 0
+  fi
 
-  local ref_id7="$(echo ${ref_commit} | sed -E 's/^([0-9a-f]{7}).*$/\1/')"
-  local tipped_branch="tip/$(date "+%Y-%m-%d")-${ref_id7}"
+  # ***
 
-  git checkout -b ${tipped_branch}
+  if ! ${skip_rebase}; then
+    echo "git rebase ${ref_commit}"
 
-  git rebase ${ref_commit}
-  [ $? -ne 0 ] &&
-    >&2 error "ERROR: The rebase encountered conflicts. Please fix it *yourself*" &&
-    return 1
+    git rebase ${ref_commit}
+
+    if [ $? -ne 0 ]; then
+      >&2 error "ERROR: The rebase encountered conflicts. Please fix it *yourself*"
+
+      return 1
+    fi
+  fi
+
+  # ***
+
+  TIP_BRANCH="${tip_branch}"
+
+  info "Create new TIP “${tip_branch}”"
 
   return 0
 }
