@@ -313,6 +313,7 @@ makelink_create_informative () {
   )
 
   # Created new symlink.
+  local info_msg
   info_msg="$( \
     symlink_get_msg_informative \
       "$(font_info_created "Created")" "${srctype}" "${targetp}" "${symlink}" \
@@ -392,6 +393,7 @@ symlink_get_msg_informative () {
   # Turn 'dir' into 'dir.' so same count as 'file' and output (filenames and dirnames) align.
   [ "${srctype}" = 'dir' ] && srctype='dir.' || true
 
+  local info_msg
   info_msg=" ${what} $(font_emphasize ${srctype}) ${link_type} $(font_highlight $(realpath -s ${targetp})${targetd})"
 
   printf "%s" "${info_msg}"
