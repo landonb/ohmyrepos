@@ -430,6 +430,15 @@ symlink_get_msg_informative () {
 #         but specifying an absolute target; if the target needs to be
 #         an absolute path, there's no reason not to also specify an
 #         absolute path for the source.)
+#   - ALTLY/2024-03-03: The caller now resolves relative source when
+#     target is absolute. This lets user call symlink_mrinfuse_file
+#     with a relative source path and an absolute target path... and
+#     I cannot think of a use case where this would be undesirable.
+#     - This allows user to simplify, e.g.,
+#         symlink_overlay_file $(realpath ${MR_REPO}/../.mrinfuse/some-file \
+#           /path/to/target/some-file
+#       With:
+#         symlink_mrinfuse_file some-file /path/to/target/some-file
 #
 # Note this fcn. prints the path to stdout, so errors should go to stderr.
 symlink_adjust_source_relative () {
@@ -444,11 +453,17 @@ symlink_adjust_source_relative () {
   fi
 
   if ! is_relative_path "${targetp}"; then
-    >&2 error "Cannot link absolute target using a relative source path"
-    >&2 error "- source: ${sourcep}"
-    >&2 error "- target: ${targetp}"
+    # ISOFF/2024-03-03: See comment above. We can allow this.
+    # 
+    #  >&2 error "Cannot link absolute target using a relative source path"
+    #  >&2 error "- source: ${sourcep}"
+    #  >&2 error "- target: ${targetp}"
+    #
+    #  exit 1
 
-    exit 1
+    realpath "${sourcep}"
+
+    return 0
   fi
 
   # "Walk off" the release target path, directory by directory, ignoring
@@ -514,6 +529,7 @@ makelink_clobber_typed () {
   # - This may interrupt the flow if errexit.
   symlink_verify_source "${sourcep}" "${srctype}"
 
+  local origp="${sourcep}"
   sourcep="$(symlink_adjust_source_relative "${srctype}" "${sourcep}" "${targetp}")"
 
   local errcode
@@ -522,6 +538,13 @@ makelink_clobber_typed () {
     makelink_create_informative "${srctype}" "${sourcep}" "${targetp}" "${symlink}"
   else
     makelink_update_informative "${srctype}" "${sourcep}" "${targetp}" "${symlink}"
+  fi
+
+  if [ "${origp}" != "${sourcep}" ] && ! is_relative_path "${sourcep}"; then
+    local info_msg
+    info_msg="  Used absolute path  $(font_highlight ${sourcep})"
+
+    info "${info_msg}"
   fi
 
   symlink_adjusted_source_verify_target "${targetp}"
