@@ -35,6 +35,6 @@ lib =
     #
     git clone -o "${MR_REMOTE}" \
       "ssh://${MR_REMOTE}${1:-${MR_REPO}}" \
-      "${2:-$(basename ${1:-${MR_REPO}})}"
+      "${2:-$(basename -- "${1:-${MR_REPO}}")}"
   }
 

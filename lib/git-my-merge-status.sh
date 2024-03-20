@@ -243,7 +243,7 @@ bg_2a2a69 () {
 }
 
 bg_flipflop () {
-  touch "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
+  touch -- "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
 
   local flipflopflag="$(cat "${OMR_MYSTATUS_TMP_FLPFLP_FILE}")"
 

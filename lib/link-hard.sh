@@ -23,7 +23,7 @@ source_deps () {
 link_hard () {
   # The reference file.
   local canon_file="$1"
-  local local_file="${2:-${MR_REPO}/$(basename "${canon_file}")}"
+  local local_file="${2:-${MR_REPO}/$(basename -- "${canon_file}")}"
 
   # Use `ls -i` to get the inode, e.g.,:
   #   $ ls -i ${canon_file}
@@ -63,7 +63,7 @@ link_hard () {
     if [ "${local_inode}" = "${canon_inode}" ]; then
       # Same inode; already at the desired state.
       info " Hard link $(font_emphasize inode) same" \
-        "$(font_highlight "$(realpath -s ${local_file})")"
+        "$(font_highlight "$(realpath -s -- "${local_file}")")"
 
       return 0
     elif ! diff -q "${local_file}" "${canon_file}" > /dev/null; then
@@ -80,7 +80,7 @@ link_hard () {
         warn "    cd '$(pwd -L)'"
         warn "    meld '${local_file}' '${canon_file}' &"
         warn "    git add '${local_file}'"
-        warn "    git commit -m 'Deps: Update dependency ($(basename "${local_file}"))'"
+        warn "    git commit -m 'Deps: Update dependency ($(basename -- "${local_file}"))'"
         # This assumes user uses link_hard from 'infuse' tasks.
         warn "    mr -d . -n infuse"
 
@@ -89,14 +89,14 @@ link_hard () {
     fi
   fi
 
-  mkdir -p "$(dirname "${local_file}")"
+  mkdir -p "$(dirname -- "${local_file}")"
 
   # Different inode but either nothing different from canon,
   # or nothing changed locally, so we're cleared to clobber.
   ln -f "${canon_file}" "${local_file}"
 
   info " ${msg_action} $(font_emphasize "hard link")" \
-    "$(font_highlight "$(realpath -s ${local_file})")"
+    "$(font_highlight "$(realpath -s -- "${local_file}")")"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

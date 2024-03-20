@@ -22,7 +22,7 @@ link_private_ignore () {
     shift
   fi
 
-  local targetp="$(dirname "${lnkpath}")/.ignore"
+  local targetp="$(dirname -- "${lnkpath}")/.ignore"
 
   local was_link_force="${MRT_LINK_FORCE}"
   local was_link_safe="${MRT_LINK_SAFE}"

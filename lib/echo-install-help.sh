@@ -22,7 +22,7 @@ echoInstallHelp () {
 
   local checkbox="$(echoInstallHelpWidget "${which_os}" "${dxy_scope}")"
 
-  local app_name="$(basename "${MR_REPO}")"
+  local app_name="$(basename -- "${MR_REPO}")"
 
   local addendum_txt=""
   if [ -n "${addendum}" ]; then

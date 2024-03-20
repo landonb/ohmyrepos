@@ -108,7 +108,7 @@ git_auto_commit_path_one () {
   fi
 
   local msg_prefix="myrepos: autoci: Add Favorite: [@$(hostname)]"
-  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename "${repo_file}")”}"
+  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename -- "${repo_file}")”}"
 
   local inclT=""
   [ ${MRT_LINK_FORCE} -ne 0 ] || inclT=" T|"
@@ -220,7 +220,7 @@ git_auto_commit_path_many () {
 
   [ -z "${MR_GIT_AUTO_COMMIT_FILES_ADDED}" ] \
     || MR_GIT_AUTO_COMMIT_FILES_ADDED="${MR_GIT_AUTO_COMMIT_FILES_ADDED}, "
-  MR_GIT_AUTO_COMMIT_FILES_ADDED="${MR_GIT_AUTO_COMMIT_FILES_ADDED}“$(basename "${repo_file}")”"
+  MR_GIT_AUTO_COMMIT_FILES_ADDED="${MR_GIT_AUTO_COMMIT_FILES_ADDED}“$(basename -- "${repo_file}")”"
 
   git_auto_commit_path_one "${repo_file}" ${skip_commit}
 }

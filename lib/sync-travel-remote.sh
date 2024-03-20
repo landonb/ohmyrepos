@@ -286,7 +286,7 @@ git_dir_check () {
     info "No repo found: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
 
     if [ "${repo_type}" = 'travel' ]; then
-      touch ${MR_TMP_TRAVEL_HINT_FILE}
+      touch -- "${MR_TMP_TRAVEL_HINT_FILE}"
     else  # "${repo_type}" = 'local'
       # (lb): This should be unreacheable, because $repo_path is $MR_REPO,
       # and `mr` will have failed before now.

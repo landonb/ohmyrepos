@@ -133,7 +133,7 @@ infuser_prepare () {
   shift
 
   infuser_set_envs "${repodir}"
-  info "Infusing $(repo_highlight ${repodir}) [for ‘$(basename $0)’]"
+  info "Infusing $(repo_highlight ${repodir}) [for ‘$(basename -- "$0")’]"
   myrepostravel_opts_parse "${@}"
 }
 
@@ -234,7 +234,7 @@ ensure_source_dir_exists () {
 
 safe_backup_existing_target () {
   local targetp="$1"
-  local targetf="$(basename "${targetp}")"
+  local targetf="$(basename -- "${targetp}")"
   local backup_postfix=$(date +%Y.%m.%d.%H.%M.%S)
   local backup_targetp="${targetp}-${backup_postfix}"
 
@@ -300,7 +300,7 @@ makelink_create_informative () {
 
   # Caller guarantees (via ! -e and ! -h) that $targetp does not exist.
 
-  local targetd="$(dirname "${targetp}")"
+  local targetd="$(dirname -- "${targetp}")"
   mkdir -p "${targetd}"
 
   eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'" || (
@@ -344,7 +344,7 @@ makelink_update_informative () {
       # that the user specified -f/--force; or else the code didn't care to
       # ask. See:
       #   safely_backup_or_die_if_not_forced.
-      info_msg=" Clobbered file with ${link_type} $(font_highlight $(realpath -s ${targetp}))"
+      info_msg=" Clobbered file with ${link_type} $(font_highlight $(realpath -s -- "${targetp}"))"
     else
       info_msg="$(symlink_get_msg_informative \
         "$(font_info_checked "Checked")" "${srctype}" "${targetp}" "${symlink}" \
@@ -368,7 +368,7 @@ makelink_update_informative () {
   /bin/rm "${targetp}"
 
   eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'" || (
-    error "Failed to replace symlink at: $(realpath -s ${targetp})"
+    error "Failed to replace symlink at: $(realpath -s -- "${targetp}")"
 
     exit 1
   )
@@ -394,7 +394,12 @@ symlink_get_msg_informative () {
   [ "${srctype}" = 'dir' ] && srctype='dir.' || true
 
   local info_msg
-  info_msg=" ${what} $(font_emphasize ${srctype}) ${link_type} $(font_highlight $(realpath -s ${targetp})${targetd})"
+  info_msg=" ${what} $( \
+    font_emphasize ${srctype}) ${link_type} $(\
+      font_highlight $( \
+        realpath -s -- "${targetp}"
+      )${targetd}
+    )"
 
   printf "%s" "${info_msg}"
 }
@@ -435,7 +440,8 @@ symlink_get_msg_informative () {
 #     with a relative source path and an absolute target path... and
 #     I cannot think of a use case where this would be undesirable.
 #     - This allows user to simplify, e.g.,
-#         symlink_overlay_file $(realpath ${MR_REPO}/../.mrinfuse/some-file \
+#         symlink_overlay_file \
+#           $(realpath -- "${MR_REPO}/../.mrinfuse/some-file") \
 #           /path/to/target/some-file
 #       With:
 #         symlink_mrinfuse_file some-file /path/to/target/some-file
@@ -461,7 +467,7 @@ symlink_adjust_source_relative () {
     #
     #  exit 1
 
-    realpath "${sourcep}"
+    realpath -- "${sourcep}"
 
     return 0
   fi
@@ -554,7 +560,7 @@ makelink_clobber_typed () {
 
 symlink_file_clobber () {
   local sourcep="$1"
-  local targetp="${2:-$(basename "${sourcep}")}"
+  local targetp="${2:-$(basename -- "${sourcep}")}"
 
   makelink_clobber_typed 'file' "${sourcep}" "${targetp}" '-s'
 }
@@ -563,7 +569,7 @@ symlink_file_clobber () {
 #       but it's provided to complement symlink_file_clobber.
 symlink_dir_clobber () {
   local sourcep="$1"
-  local targetp="${2:-$(basename "${sourcep}")}"
+  local targetp="${2:-$(basename -- "${sourcep}")}"
 
   makelink_clobber_typed 'dir' "${sourcep}" "${targetp}" '-s'
 }
@@ -573,7 +579,7 @@ symlink_dir_clobber () {
 symlink_overlay_typed () {
   local srctype="$1"
   local sourcep="$2"
-  local targetp="${3:-$(basename "${sourcep}")}"
+  local targetp="${3:-$(basename -- "${sourcep}")}"
 
   params_register_defaults
 
@@ -598,7 +604,7 @@ symlink_overlay_dir () {
 hardlink_overlay_typed () {
   local srctype="$1"
   local sourcep="$2"
-  local targetp="${3:-$(basename "${sourcep}")}"
+  local targetp="${3:-$(basename -- "${sourcep}")}"
 
   params_register_defaults
 
@@ -762,7 +768,7 @@ path_to_mrinfuse_resolve () {
     mrinfuse_root="$(mrinfuse_findup)" || (
       >&2 error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
       >&2 error "- start: $(pwd)"
-      >&2 error "- target: ${MRT_INFUSE_DIR:-.mrinfuse}/.*/$(basename "$(pwd)")/${fpath}"
+      >&2 error "- target: ${MRT_INFUSE_DIR:-.mrinfuse}/.*/$(basename -- "$(pwd)")/${fpath}"
 
       exit 1
     )
