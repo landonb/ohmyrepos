@@ -36,14 +36,14 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
 #   dance to copy files into home.
 [${HOME}]
 checkout =
-  [ -z ${MR_REMOTE} ] && fatal 'You must set MR_REMOTE'
-  git clone "${MR_REMOTE}/${MR_HOME:-${HOME}}" '/tmp/myhome'
+  [ -z ${MR_REMOTE} ] && fatal "You must set MR_REMOTE"
+  git clone "${MR_REMOTE}/${MR_HOME:-${HOME}}" "/tmp/myhome"
   shopt -s dotglob
   command mv --no-clobber -- /tmp/myhome/* "${HOME}/"
   shopt -u dotglob
   rmdir /tmp/myhome/
 
-# Include this project in the 'home' group so you can call, e.g.:
+# Include this project in the "home" group so you can call, e.g.:
 #   MR_INCLUDE=home mr -d / ls
 skip = mr_exclusive "home"
 
@@ -65,7 +65,7 @@ skip = mr_exclusive "home"
 # As mentioned in the previous comment, I keep what dotfiles I can
 # in a public repo online, which I store locally at ~/.homefries.
 [${HOME}/.homefries]
-checkout = git clone 'git@github.com:landonb/home-fries.git' '.homefries'
+checkout = git clone "git@github.com:landonb/home-fries.git" ".homefries"
 
 # On top of the public repo I layer some private files, which
 # are setup via the `infuse` task, e.g.:
@@ -89,11 +89,11 @@ infuse =
   # or you could stuff them all in another shell script, e.g.,
   ${MR_HOME:-${HOME}}/.waffle/infuse-homefries "${@}"
 
-# Use 'order' to process ~/.homefries after ~/.waffle, because
+# Use "order" to process ~/.homefries after ~/.waffle, because
 # waffle-fries contains the home-fries infuse script.
 order = 11
 
-# Add to the 'home' group, e.g., `MR_INCLUDE=home mr -d / ls`.
+# Add to the "home" group, e.g., `MR_INCLUDE=home mr -d / ls`.
 skip = mr_exclusive "home"
 
 # ========================================================================
@@ -108,8 +108,8 @@ skip = mr_exclusive "home"
 # project, endearingly called waffle (fries).
 [${HOME}/.waffle]
 # Like we do for the $HOME repo, checkout from a peer machine.
-checkout = [ -z ${MR_REMOTE} ] && fatal 'You must set MR_REMOTE' ||
-  git clone "${MR_REMOTE}/${MR_HOME:-${HOME}}/.waffle" '.waffle'
+checkout = [ -z ${MR_REMOTE} ] && fatal "You must set MR_REMOTE" ||
+  git clone "${MR_REMOTE}/${MR_HOME:-${HOME}}/.waffle" ".waffle"
 
 # Similar to home-fries, run a private infuse script.
 infuse = ${MR_HOME:-${HOME}}/.waffle/infuse-waffle "${@}"
@@ -123,7 +123,7 @@ order = 10
 # --------------
 # “I trust you.”
 #
-# The 'autocommit' action is a powerful -- and potentially harmful --
+# The "autocommit" action is a powerful -- and potentially harmful --
 # tool for a busy, active Git lifestyle. The autocommit feature lets
 # you makes changes and commit those changes without (a) reviewing
 # your changes, or (b) writing a meaningful commit message. This
@@ -147,12 +147,12 @@ autocommit =
   git_auto_commit_parse_args "${@}"
   #
   # Auto-commit Vimprojects tray file, and grep-steady mapping.
-  git_auto_commit_one 'home/.vim/my-vimprojects/.vimprojects'
-  git_auto_commit_one 'home/.vim/dubs_grep_steady/dubs_projects.vim'
+  git_auto_commit_one "home/.vim/my-vimprojects/.vimprojects"
+  git_auto_commit_one "home/.vim/dubs_grep_steady/dubs_projects.vim"
   #
   # Sort the spell file, for easy diff'ing, or merging/meld'ing.
   # - The .vimrc startup file will remake the .spl file when you restart Vim.
-  sort_file_then_commit 'home/.vim/spell/en.utf-8.add'
+  sort_file_then_commit "home/.vim/spell/en.utf-8.add"
 
 skip = mr_exclusive "home"
 
@@ -166,14 +166,14 @@ skip = mr_exclusive "home"
 # You should check out my awesome Vim packages!
 
 [${HOME}/.vim]
-checkout = git clone 'git@github.com:landonb/dubs-vim.git' '.vim'
+checkout = git clone "git@github.com:landonb/dubs-vim.git" ".vim"
 # I use `chain` here because I have, like, 50 packages cloned for
 # Vim, which I manage through ~/.vim/.mrconfig, which this action
 # will cause to be loaded (though not without `~/.vim/.mrconfig`
 # also being listed in the ~/.mrtrust file).
 chain = true
 infuse = ${MR_HOME:-${HOME}}/.waffle/infuse-vim "${@}"
-# Add to 'vim' group, à la `MR_INCLUDE=vim mr -d / ls`.
+# Add to "vim" group, à la `MR_INCLUDE=vim mr -d / ls`.
 skip = mr_exclusive "vim"
 
 # NOTE: The autocommit for ~/.vim/spell/spell/en.utf-8.add
@@ -186,7 +186,7 @@ skip = mr_exclusive "vim"
 #  Oh, My Repos! (this project, hello!)
 
 [${HOME}/.ohmyrepos]
-checkout = git clone 'git@github.com:landonb/ohmyrepos.git' '.ohmyrepos'
+checkout = git clone "git@github.com:landonb/ohmyrepos.git" ".ohmyrepos"
 infuse =
   link_private_exclude "${@}"
   link_private_ignore "${@}"
@@ -203,11 +203,11 @@ skip = mr_exclusive "home"
 # used to track notes files if you don't care so much about auditing
 # commits or writing special commit messages (b/c they're just notes!).
 # - This example is different than previous examples: it shows the
-#   'git_auto_commit_new' option.
+#   "git_auto_commit_new" option.
 
 [/path/to/my-notes]
-checkout = [ -z ${MR_REMOTE} ] && fatal 'You must set MR_REMOTE' ||
-  git clone "${MR_REMOTE}/path/to/my-notes" 'my-notes'
+checkout = [ -z ${MR_REMOTE} ] && fatal "You must set MR_REMOTE" ||
+  git clone "${MR_REMOTE}/path/to/my-notes" "my-notes"
 autocommit = git_auto_commit_all "${@}" && git_auto_commit_new "${@}"
 # This example also shows how to include the project in multiple groups, e.g.,
 # use `MR_INCLUDE=personal mr -d / ls`
