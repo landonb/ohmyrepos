@@ -39,7 +39,7 @@ sort_file_then_commit () {
 
     # --dictionary-order: Emoji, A-Z, then a-z.
     cat "${targetf}" | LC_ALL='C' sort -d > "${sortedf}"
-    /bin/mv -f "${sortedf}" "${targetf}"
+    command mv -f -- "${sortedf}" "${targetf}"
 
     git_auto_commit_one "${targetf}" "${@}"
   else

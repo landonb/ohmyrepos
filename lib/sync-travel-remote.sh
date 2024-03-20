@@ -221,7 +221,7 @@ travel_process_chores_file_lock_acquire () {
 
   while true; do
     # mkdir is atomic, how convenient.
-    if $(/bin/mkdir "${MR_TMP_TRAVEL_LOCK_DIR}" 2> /dev/null); then
+    if $(mkdir "${MR_TMP_TRAVEL_LOCK_DIR}" 2> /dev/null); then
 
       return
     fi

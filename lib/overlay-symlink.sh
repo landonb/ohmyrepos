@@ -238,7 +238,7 @@ safe_backup_existing_target () {
   local backup_postfix=$(date +%Y.%m.%d.%H.%M.%S)
   local backup_targetp="${targetp}-${backup_postfix}"
 
-  /bin/mv "${targetp}" "${targetp}-${backup_postfix}"
+  command mv -- "${targetp}" "${targetp}-${backup_postfix}"
 
   info "Collision resolved: Moved existing ‘${targetf}’ to: ${backup_targetp}"
 }

@@ -39,7 +39,7 @@ checkout =
   [ -z ${MR_REMOTE} ] && fatal 'You must set MR_REMOTE'
   git clone "${MR_REMOTE}/${MR_HOME:-${HOME}}" '/tmp/myhome'
   shopt -s dotglob
-  /bin/mv --no-clobber /tmp/myhome/* ${HOME}/
+  command mv --no-clobber -- /tmp/myhome/* "${HOME}/"
   shopt -u dotglob
   rmdir /tmp/myhome/
 
