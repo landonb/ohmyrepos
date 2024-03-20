@@ -11,7 +11,7 @@ pull_latest () {
   local local_branch="${4:-${remote_branch}}"
 
   echo "SAVVY: We'll update to the latest tagged version, something like:
-  
+
     git fetch ${remote_name} --prune
     git checkout ${remote_branch}
     git branch -u ${remote_name}/${remote_branch}
@@ -20,7 +20,7 @@ pull_latest () {
     local install_branch=\"${remote_name}/\${install_version}\"
     git checkout -b \${install_branch} \${install_version} || true
     git checkout \${install_branch}
-  
+
   - ALTLY: If you want to install a specific version, run \`git tags\`
     and pick the desired tag, then update the 'install' action to call
     this instead:
@@ -30,7 +30,7 @@ pull_latest () {
 
   git fetch ${remote_name} --prune
   git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true
-  git checkout ${local_branch} 
+  git checkout ${local_branch}
   git branch -u ${remote_name}/${remote_branch}
   git pull --ff-only
 
