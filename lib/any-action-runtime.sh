@@ -65,7 +65,8 @@ git_any_action_started () {
 }
 
 git_any_action_stopped () {
-  local setup_time_0=$(cat "${OMR_RUNTIME_TEMPFILE}")
+  local setup_time_0
+  setup_time_0="$(cat "${OMR_RUNTIME_TEMPFILE}")"
 
   if [ -z "${setup_time_0}" ]; then
     # Unreachable.
