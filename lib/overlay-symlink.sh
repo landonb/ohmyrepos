@@ -365,7 +365,7 @@ makelink_update_informative () {
   # the new symlink gets created inside the referenced directory.
   # To handle either situation -- the existing symlink references
   # either a file or a directory -- remove the target first.
-  /bin/rm "${targetp}"
+  command rm -- "${targetp}"
 
   eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'" || (
     error "Failed to replace symlink at: $(realpath -s -- "${targetp}")"

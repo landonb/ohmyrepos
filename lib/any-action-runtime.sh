@@ -85,7 +85,7 @@ git_any_action_stopped () {
     printf %s "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
   fi
 
-  /bin/rm -f "${OMR_RUNTIME_TEMPFILE_BASE}-*"
+  command rm -f "${OMR_RUNTIME_TEMPFILE_BASE}-*"
 }
 
 mr_is_quieted () {

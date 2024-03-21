@@ -221,7 +221,7 @@ travel_process_chores_file_lock_acquire () {
 
   while true; do
     # mkdir is atomic, how convenient.
-    if $(mkdir "${MR_TMP_TRAVEL_LOCK_DIR}" 2> /dev/null); then
+    if $(mkdir -- "${MR_TMP_TRAVEL_LOCK_DIR}" 2> /dev/null); then
 
       return
     fi
@@ -240,7 +240,7 @@ travel_process_chores_file_lock_acquire () {
 travel_process_chores_file_lock_release () {
   is_multiprocessing || return 0
 
-  /bin/rmdir "${MR_TMP_TRAVEL_LOCK_DIR}"
+  rmdir -- "${MR_TMP_TRAVEL_LOCK_DIR}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -381,10 +381,10 @@ git_travel_cache_setup () {
   #  old PID, and then the user sees old hints or chores. Or more importantly,
   #  the action cannot obtain the lock because an old lock dir was orphaned).
 
-  /bin/rm -f "${MR_TMP_TRAVEL_HINT_FILE_BASE}-"*
-  /bin/rm -f "${MR_TMP_TRAVEL_CHORES_FILE_BASE}-"*
+  command rm -f -- "${MR_TMP_TRAVEL_HINT_FILE_BASE}-"*
+  command rm -f -- "${MR_TMP_TRAVEL_CHORES_FILE_BASE}-"*
 
-  /bin/rmdir "${MR_TMP_TRAVEL_LOCK_DIR_BASE}-"* 2> /dev/null || true
+  rmdir -- "${MR_TMP_TRAVEL_LOCK_DIR_BASE}-"* 2> /dev/null || true
 }
 
 git_travel_cache_teardown () {
@@ -487,7 +487,7 @@ git_travel_process_hint_file () {
   info
   info "  $(fg_lightorange)MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel$(attr_reset)"
 
-  /bin/rm "${MR_TMP_TRAVEL_HINT_FILE}"
+  command rm -- "${MR_TMP_TRAVEL_HINT_FILE}"
 }
 
 git_travel_process_chores_file () {
@@ -500,7 +500,7 @@ git_travel_process_chores_file () {
     echo
   fi
 
-  /bin/rm "${MR_TMP_TRAVEL_CHORES_FILE}"
+  command rm -- "${MR_TMP_TRAVEL_CHORES_FILE}"
 }
 
 # COPYD/2023-04-29: MAYBE: DRY this: Copied from git-my-merge-status.sh.
@@ -595,7 +595,7 @@ git_ensure_or_clone_target () {
   ${restore_errexit} && set -e
 
   local git_resp="$(<"${git_respf}")"
-  /bin/rm "${git_respf}"
+  command rm -- "${git_respf}"
 
   _git_echo_long_op_finis
 

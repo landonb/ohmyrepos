@@ -114,12 +114,12 @@ git_status_cache_setup () {
   #  MR_STRIPING=${MR_STRIPING:-false}
   MR_STRIPING=${MR_STRIPING:-true}
 
-  /bin/rm -f "${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-"*
+  command rm -f -- "${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-"*
 
-  /bin/rm -f "${OMR_MYSTATUS_TMP_FLPFLP_FILE_BASE}-"*
+  command rm -f -- "${OMR_MYSTATUS_TMP_FLPFLP_FILE_BASE}-"*
 
   # Set the start time for the elapsed time display.
-  /bin/rm -f "${OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE}-"*
+  command rm -f -- "${OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE}-"*
 
   if [ "${OMR_MYSTATUS_SHOW_PROG}" = 'elapsed' ]; then
     print_nanos_now > ${OMR_MYSTATUS_TMP_TIMEIT_FILE}
@@ -157,9 +157,9 @@ git_status_cache_teardown () {
     # NOPE: ret_code=1
   fi
 
-  /bin/rm -f "${OMR_MYSTATUS_TMP_CHORES_FILE}"
-  /bin/rm -f "${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
-  /bin/rm -f "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
+  command rm -f -- "${OMR_MYSTATUS_TMP_CHORES_FILE}"
+  command rm -f -- "${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
+  command rm -f -- "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
 
   return ${ret_code}
 }

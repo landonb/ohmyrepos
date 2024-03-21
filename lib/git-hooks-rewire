@@ -24,7 +24,7 @@ lib =
       if [ -e ".git/hooks/${hook_name}-OFF" ]; then
         if cmp -s ".git/hooks/${hook_name}" ".git/hooks/${hook_name}-OFF"; then
           # This happens on re-install.
-          /bin/rm ".git/hooks/${hook_name}"
+          command rm -- ".git/hooks/${hook_name}"
           info " Removed $(font_emphasize "file") useless $(font_highlight ".git/hooks/${hook_name}")"
         else
           error "ERROR: Failed: cmp -s '.git/hooks/${hook_name}' '.git/hooks/${hook_name}-OFF'"
