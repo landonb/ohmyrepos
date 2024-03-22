@@ -1,0 +1,277 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/ohmyrepos#😤
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+__USAGE__='
+  path/to/omr-report [<base-dir> ...] [<prune-dir> -prune ...]
+
+  E.g.,
+
+    $ omr-report "${HOME}" "/opt/work" "${HOME}/.gopath" -prune "/opt/work/ignore" -prune
+'
+
+# These environs are also effective, but rarely used.
+OMR_PROGGER=${OMR_PROGGER:-true}
+OMR_TRACE_CMD=${OMR_TRACE_CMD:-false}
+OMR_VERBOSE=${OMR_VERBOSE:-false}
+OMR_VERBOSE_SKIPPED=${OMR_VERBOSE_SKIPPED:-false}
+OMR_VERBOSE_NOT_SKIPPED=${OMR_VERBOSE_NOT_SKIPPED:-false}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+omr_report () {
+  local start_dirs=()
+  local prune_dirs=()
+
+  while [ "$1" != '' ]; do
+    if [ "$2" = '-prune' ]; then
+      prune_dirs+=("$1")
+      shift 2
+    else
+      start_dirs+=("$1")
+      shift
+    fi
+  done
+
+  if [ ${#start_dirs[@]} -eq 0 ]; then
+    start_dirs+=("${HOME}")
+  fi
+
+  # ***
+
+  local prune_opts=""
+
+  for ((ix = 0; ix < ${#prune_dirs[@]}; ix++)); do
+    prune_dir="${prune_dirs[$ix]}"
+
+    if [ -n "${prune_opts}" ]; then
+      prune_opts="${prune_opts} -o "
+    fi
+    prune_opts="${prune_opts}-path \"${prune_dir}\""
+  done
+
+  if [ -n "${prune_opts}" ]; then
+    prune_opts="\( ${prune_opts} \) -prune -o"
+  fi
+
+  # ***
+
+  local REG_CNT=0
+  local SKP_CNT=0
+  local UNK_CNT=0
+
+  for ((ix = 0; ix < ${#start_dirs[@]}; ix++)); do
+    base_dir="${start_dirs[$ix]}"
+
+    scan_for_projects "${base_dir}" "${prune_opts}"
+
+    clear_line
+  done
+
+  echo "Number of registered OMR projects: ${REG_CNT} (${SKP_CNT} skipped)"
+
+  if [ ${UNK_CNT} -ne 0 ]; then
+    >&2 echo "ERROR: OMR missing this many gits: ${UNK_CNT}"
+
+    return 1
+  fi
+}
+
+# ***
+
+scan_for_projects () {
+  local base_dir="$1"
+  local prune_opts="$2"
+
+  clear_line
+
+  echo "base_dir: ${base_dir}"
+
+  local cmd_find_git_dirs
+  cmd_find_git_dirs="$(print_cmd_find_git_dirs "${base_dir}" "${prune_opts}")"
+
+  trace_cmd "${cmd_find_git_dirs}"
+
+  # ***
+
+  local dot_cnt=0
+
+  local progger_set="${SPINNER_SEQUENCE:-▏▎▍▌▋▊▉▊▋▌▍▎}"
+  local progger_width=${SPINNER_ONEWIDTH:-1}
+  local progger_len=${#progger_set}
+  local progger_curr=0
+
+  # ***
+
+  while read git_dir; do
+    cache_termimal_width
+
+    local reg_code=0
+    omr_is_registered "$(dirname -- "${git_dir}")" \
+      || reg_code=$?
+
+    if [ ${reg_code} -eq 1 ]; then
+      let "UNK_CNT += 1"
+      dot_cnt=0
+    else
+      if [ ${reg_code} -eq 0 ]; then
+        let "REG_CNT += 1"
+      elif [ ${reg_code} -eq 99 ]; then
+        let "SKP_CNT += 1"
+      fi
+
+      if [ ${TERM_WIDTH} -gt 0 ]; then
+        if ${OMR_PROGGER:-true}; then
+          local progger_char=${progger_set:${progger_curr}:${progger_width}}
+
+          printf "${progger_char}"
+
+          let "dot_cnt += ${progger_width}"
+        fi
+      fi
+
+      progger_curr=$(((${progger_curr} + ${progger_width}) % ${progger_len}))
+    fi
+
+    if [ ${dot_cnt} -gt $((${TERM_WIDTH} / 2)) ]; then
+      clear_line
+      dot_cnt=0
+    fi
+  done < <(eval "${cmd_find_git_dirs}");
+}
+
+# ***
+
+# E.g.,
+#   find \
+#     "${HOME}/" \
+#     \( \
+#       -name "TBD-*" -o -name "*-TBD" \
+#       -o -path "${HOME}/Downloads" \
+#       -o -path "${HOME}/.gopath" \
+#       -o -path "${HOME}/.trash*" \
+#     \) -prune -o \
+#     -type d \
+#     -name ".git" \
+#     -print \
+#   );
+
+print_cmd_find_git_dirs () {
+  local base_dir="$1"
+  local prune_opts="$2"
+
+  echo "find \\
+    \"${base_dir}/\" \\
+    ${prune_opts} \\
+    -type d \\
+    -name \".git\" \\
+    -print"
+}
+
+trace_cmd () {
+  local the_cmd="$1"
+
+  if ! ${OMR_TRACE_CMD:-false}; then
+    return 0
+  fi
+
+  echo "${the_cmd}"
+}
+
+# ***
+
+TERM_WIDTH=0
+
+# Remember that [ -t 1 ] is false when called in a $(subprocess).
+stdout_isatty () {
+  [ -t 1 ]
+}
+
+cache_termimal_width () {
+  TERM_WIDTH=0
+
+  if ! stdout_isatty; then
+    return 0
+  fi
+  
+  local terminal=/dev/pts/1
+
+  TERM_WIDTH=$(stty -a <"${terminal}" | grep -Po '(?<=columns )\d+')
+}
+
+clear_line () {
+  printf "\r"
+
+  if [ ${TERM_WIDTH} -gt 0 ]; then
+    printf " %.0s" $(eval echo {1..${TERM_WIDTH}})
+  fi
+
+  printf "\r"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+omr_is_registered () {
+  local proj_path="${1:-.}"
+
+  local cwd_omr_root
+
+  if ! cwd_omr_root="$( \
+    mr -d "${proj_path}" -n run sh -c 'echo "${MR_REPO}"' 2> /dev/null
+  )"; then
+    # E.g., OUTPUT:
+    #   (0 secs.) mr run: no repositories found to work on
+    >&2 echo "✗ unregistered, parentless directory: ${proj_path}"
+
+    return 1
+  fi
+
+  # Removing timing/finished message:
+  #   (0 secs.) mr run: finished (1 ok)
+  cwd_omr_root="$(echo "${cwd_omr_root}" | head -1)"
+
+  if [ -z "${cwd_omr_root}" ]; then
+    # Unreachable path.
+    >&2 echo "✗ unexpectedly, \`mr\` ok, ! mr_repo: ${proj_path}"
+
+    return 1
+  fi
+
+  if echo "${cwd_omr_root}" | grep -q " mr run: finished (1 skipped)$"; then
+    if ${OMR_VERBOSE:-false} || ${OMR_VERBOSE_SKIPPED:-false}; then
+      clear_line
+      echo "✓ happily registered, but skiparooed: ${proj_path}"
+    fi
+
+    return 99
+  fi
+
+  if [ "$(realpath -- "${cwd_omr_root}")" != "$(realpath -- "${proj_path}")" ]; then
+    clear_line
+    >&2 echo "✗ unregistered, but has known parent: ${proj_path} (${cwd_omr_root})"
+
+    return 1
+  fi
+
+  if ${OMR_VERBOSE:-false} || ${OMR_VERBOSE_NOT_SKIPPED:-false}; then
+    clear_line
+    echo "✓ yes, yes it is, happily registered: ${cwd_omr_root}"
+  fi
+
+  return 0
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  omr_report
+}
+
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  main "$@"
+fi
+
