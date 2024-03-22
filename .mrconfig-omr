@@ -261,9 +261,11 @@ no_print_action_autocommit = true
 no_print_dir_autocommit = true
 no_print_failed_autocommit = true
 
-# 2020-03-14: (lb): I added these 2 no-prints to try quieter
-# `run` commands, e.g., `mr -d / run bash -c '...'`. While I
-# am not committed (yet) to keeping these, so far, I like.
+# If a user `mr -d some/path -n run`s a command, they probably
+# expect total control over the output. And it's easy to print
+# the repo path, e.g.,
+#   mr -d some/path -n run sh -c 'echo "${MR_REPO}"'
+no_print_action_run = true
 no_print_dir_run = true
 no_print_failed_run = true
 
