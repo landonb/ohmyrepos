@@ -421,4 +421,5 @@ main () {
 main "$@"
 unset -f main
 unset -f source_deps
+unset -f reveal_biz_vars
 

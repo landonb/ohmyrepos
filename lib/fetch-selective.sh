@@ -65,4 +65,5 @@ main () {
 
 main "$@"
 unset -f main
+unset -f reveal_biz_vars
 
