@@ -1341,6 +1341,30 @@ colorize_diff () {
 # ***
 
 # USAGE: MR_NO_RESET_HARD=false MR_REMOTE=<remote> mr -d / ffssh
+#
+# Dig through the remote/branch reflog to see if it recently referenced
+# what's currently the local HEAD.
+# - E.g., consider that user ran this script a week ago, now they're
+#   running it again, and they haven't done anything else on the local
+#   machine. The local machine is, in essence, their backup machine.
+#   And remote/branch is their active work.
+#   - So no work has been done locally, and before git-fetch ran,
+#     [ $(git rev-parse HEAD) = $(git rev-parse remote/branch) ]
+#     which is the state from the last time the user ran `ffssh`.
+#     - Now suppose the git-fetch moved the remote/branch pointer.
+#       Then the old value (what was `git rev-parse remote/branch`)
+#       is now value at `git rev-parse remote/branch@{1}`.
+#     - So while we could've checked the SHA before git-fetch, we can
+#       find the same value now. And we can also go go back further in
+#       the reflog. Though this may be unlikely to be helpful, unless
+#       the user ran git-fetch otherwise outside this script. But for
+#       most uses cases, if the remote/branch pointer was ever set to
+#       local HEAD, it was likely its last ref.
+# - Finally, if confirmed, it indicates that it's safe to use reset-hard
+#   without clobbering any new work locally, because there is no new work.
+#   The user has been working on and rebasing remote/branch, which is the
+#   only reason why histories have diverged.
+
 _git_merge_reset_hard_if_local_unchanged () {
   local target_repo="$1"
   # E.g., '<remote>/<branch>'
@@ -1569,6 +1593,8 @@ git_fetch_n_cobr () {
   else
     source_branch="${target_branch}"
   fi
+
+  # ***
 
   # Set caller's variable.
   MR_ACTIVE_BRANCH="${source_branch}"
