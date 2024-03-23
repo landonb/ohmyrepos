@@ -1037,8 +1037,9 @@ git_change_branches_if_necessary () {
   # NOTE/2020-09-21: This case block might not fire any more, if the change
   # to `git_checkedout_branch_name_direct` works (I set --abbrev-ref=loose).
   case "${source_branch}" in
-    "heads/"*) >&2 error "ERROR?: Try \`cd <source_repo> &&" \
-                         "git remote set-head ${target_branch} --delete\`"
+    "heads/"*) 
+      >&2 error "ERROR?: Try \`cd <source_repo> &&" \
+        "git remote set-head ${target_branch} --delete\`"
   esac
 
   # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
