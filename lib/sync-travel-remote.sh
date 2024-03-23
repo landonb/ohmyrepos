@@ -1204,16 +1204,6 @@ _git_merge_ff_only_safe_and_complicated () {
   git_resp=$(git merge --ff-only ${to_commit} 2>&1) || extcd=$?
   local merge_retcode=${extcd}
 
-  # 2018-03-26 16:41: Weird: was this directory moved, hence the => ?
-  #    src/js/{ => solutions}/settings/constants.js       |  85 ++-
-  #local pattern_txt='^ \S* *\| +\d+ ?[+-]*$'
-  local pattern_txt='^ [^\|]+\| +\d+ ?[+-]*$'
-  #local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
-  #  | grep -P -v " +\S+ +\| +Bin$" \
-  #local pattern_bin='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
-  #local pattern_bin='^ \S*( => \S*)? *\| +Bin( \d+ -> \d+ bytes)?$'
-  local pattern_bin='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
-
   # ***
 
   verbose "git merge says:\n${git_resp}"
@@ -1302,6 +1292,18 @@ _git_merge_ff_only_safe_and_complicated () {
   return ${merge_retcode}
 }
 
+# ***
+
+# 2018-03-26 16:41: Weird: was this directory moved, hence the => ?
+#    src/js/{ => solutions}/settings/constants.js       |  85 ++-
+#local pattern_txt='^ \S* *\| +\d+ ?[+-]*$'
+pattern_txt='^ [^\|]+\| +\d+ ?[+-]*$'
+#local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
+#  | grep -P -v " +\S+ +\| +Bin$" \
+#local pattern_bin='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
+#local pattern_bin='^ \S*( => \S*)? *\| +Bin( \d+ -> \d+ bytes)?$'
+pattern_bin='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
+
 # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
 # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
 # but subsequent lines have changed background color to end of line, seems weird:
@@ -1328,6 +1330,8 @@ colorize_diff () {
   printf %s "${git_resp}" | grep -P "${pattern}" | head -1 | eval "${sub_colorize_head}"
   printf %s "${git_resp}" | grep -P "${pattern}" | tail +2 | eval "${sub_colorize_tails}"
 }
+
+# ***
 
 # USAGE: MR_NO_RESET_HARD=false MR_REMOTE=<remote> mr -d / ffssh
 _git_merge_reset_hard_if_local_unchanged () {
