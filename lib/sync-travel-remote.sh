@@ -1277,14 +1277,20 @@ _git_merge_ff_only_safe_and_complicated () {
   #     /usr/bin/env sed: -e expression #1, char 7: unterminated `s' command
   #   because $() returns empty.
   SHCOLORS_OFF=false
-  local grep_sed_sed='
-    /usr/bin/env sed "s/\$/\\$(attr_reset)/g" |
-    /usr/bin/env sed "s/^/\\$(bg_blue)/g"
+  local sub_colorize_head='
+    /usr/bin/env sed "s/^/\\$(bg_blue)/g" |
+    /usr/bin/env sed "s/\$/\\$(attr_reset)/g"
   '
+  local sub_colorize_tails='
+    /usr/bin/env sed "s/^/                             \\$(bg_blue)/g" |
+    /usr/bin/env sed "s/\$/\\$(attr_reset)/g"
+  '
+
   colorize_diff () {
     local pattern="$1"
 
-    printf %s "${git_resp}" | grep -P "${pattern}" | eval "${grep_sed_sed}"
+    printf %s "${git_resp}" | grep -P "${pattern}" | head -1 | eval "${sub_colorize_head}"
+    printf %s "${git_resp}" | grep -P "${pattern}" | tail +2 | eval "${sub_colorize_tails}"
   }
 
   local changes_txt="$(colorize_diff "${pattern_txt}")"
