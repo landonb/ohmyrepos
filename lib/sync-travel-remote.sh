@@ -1239,7 +1239,7 @@ _git_merge_ff_only_safe_and_complicated () {
     | grep -P -v "^ \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ deletions?\(-\)$" \
     | grep -P -v "${PATTERN_TXT}" \
-    | grep -P -v "${pattern_bin}" \
+    | grep -P -v "${PATTERN_BIN}" \
     | grep -v "^fatal: Not possible to fast-forward, aborting.$" \
     # OMITD: See note above:
     #  | grep -v "^merge: [-a-z0-9]+/ - not something we can merge$"
@@ -1259,7 +1259,7 @@ _git_merge_ff_only_safe_and_complicated () {
   fi
 
   local changes_txt="$(colorize_diff "${git_resp}" "${PATTERN_TXT}")"
-  local changes_bin="$(colorize_diff "${git_resp}" "${pattern_bin}")"
+  local changes_bin="$(colorize_diff "${git_resp}" "${PATTERN_BIN}")"
 
   if [ -n "${changes_txt}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
@@ -1299,17 +1299,17 @@ _git_merge_ff_only_safe_and_complicated () {
 #    src/js/{ => solutions}/settings/constants.js       |  85 ++-
 #local PATTERN_TXT='^ \S* *\| +\d+ ?[+-]*$'
 PATTERN_TXT='^ [^\|]+\| +\d+ ?[+-]*$'
-#local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
+#local PATTERN_BIN='^ \S* *\| +Bin \d+ -> \d+ bytes$'
 #  | grep -P -v " +\S+ +\| +Bin$" \
-#local pattern_bin='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
-#local pattern_bin='^ \S*( => \S*)? *\| +Bin( \d+ -> \d+ bytes)?$'
-pattern_bin='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
+#local PATTERN_BIN='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
+#local PATTERN_BIN='^ \S*( => \S*)? *\| +Bin( \d+ -> \d+ bytes)?$'
+PATTERN_BIN='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
 
 # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
 # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
 # but subsequent lines have changed background color to end of line, seems weird:
 #   local changes_txt="$(printf %s "${git_resp}" | grep -P "${PATTERN_TXT}")"
-#   local changes_bin="$(printf %s "${git_resp}" | grep -P "${pattern_bin}")"
+#   local changes_bin="$(printf %s "${git_resp}" | grep -P "${PATTERN_BIN}")"
 # So use sed to sandwich each line with color changes.
 # - Be sure color is enabled, lest:
 #     /usr/bin/env sed: -e expression #1, char 7: unterminated `s' command
