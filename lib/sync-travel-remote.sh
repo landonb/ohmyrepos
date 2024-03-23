@@ -1319,11 +1319,11 @@ colorize_diff () {
 
   SHCOLORS_OFF=false
   local sub_colorize_head='
-    /usr/bin/env sed "s/^/\\$(bg_blue)/g" |
+    /usr/bin/env sed "s/^/  \\$(bg_blue)/g" |
     /usr/bin/env sed "s/\$/\\$(attr_reset)/g"
   '
   local sub_colorize_tails='
-    /usr/bin/env sed "s/^/                             \\$(bg_blue)/g" |
+    /usr/bin/env sed "s/^/                               \\$(bg_blue)/g" |
     /usr/bin/env sed "s/\$/\\$(attr_reset)/g"
   '
 
