@@ -37,7 +37,7 @@ lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
 
 # - Wire the color library dependency.
 #   https://github.com/landonb/sh-colors#💥
-lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-colors/bin"
+lib = PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/deps/sh-colors/bin"
 
 # - Wire the logger library dependency.
 #   https://github.com/landonb/sh-logger#🎮🐸
