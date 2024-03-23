@@ -1281,13 +1281,14 @@ _git_merge_ff_only_safe_and_complicated () {
     /usr/bin/env sed "s/\$/\\$(attr_reset)/g" |
     /usr/bin/env sed "s/^/\\$(bg_blue)/g"
   '
+  colorize_diff () {
+    local pattern="$1"
 
-  local changes_txt="$( \
-    printf %s "${git_resp}" | grep -P "${pattern_txt}" | eval "${grep_sed_sed}" \
-  )"
-  local changes_bin="$( \
-    printf %s "${git_resp}" | grep -P "${pattern_bin}" | eval "${grep_sed_sed}" \
-  )"
+    printf %s "${git_resp}" | grep -P "${pattern}" | eval "${grep_sed_sed}"
+  }
+
+  local changes_txt="$(colorize_diff "${pattern_txt}")"
+  local changes_bin="$(colorize_diff "${pattern_bin}")"
 
   if [ -n "${changes_txt}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
