@@ -1327,6 +1327,12 @@ colorize_diff () {
     /usr/bin/env sed "s/\$/\\$(attr_reset)/g"
   '
 
+  if [ -z "${git_resp}" ]; then
+    echo "<No diff>" | eval "${sub_colorize_head}"
+
+    return 0
+  fi
+
   printf %s "${git_resp}" | grep -P "${pattern}" | head -1 | eval "${sub_colorize_head}"
   printf %s "${git_resp}" | grep -P "${pattern}" | tail +2 | eval "${sub_colorize_tails}"
 }
