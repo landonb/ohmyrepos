@@ -1133,7 +1133,7 @@ git_merge_ff_only () {
   #   remote repo (a happy state), or the repos have diverged
   #   (and the user will want to resolve the conflict).
   if git merge-base --is-ancestor "HEAD" "${to_commit}"; then
-    _synctrem_git_merge_ff_only_safe "${target_repo}" "${to_commit}"
+    _git_merge_ff_only_safe_and_complicated "${target_repo}" "${to_commit}"
   elif git merge-base --is-ancestor "${to_commit}" "HEAD"; then
     # Local ahead of remote.
     print_mergefail_msg_localahead "${target_repo}"
@@ -1147,7 +1147,7 @@ git_merge_ff_only () {
   fi
 }
 
-_synctrem_git_merge_ff_only_safe () {
+_git_merge_ff_only_safe_and_complicated () {
   local target_repo="$1"
   local to_commit="$2"
 
