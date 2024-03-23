@@ -1098,7 +1098,7 @@ git_change_branches_if_necessary () {
 
       if [ $extcd -ne 0 ]; then
         # FIXME/2019-10-24: On unpack, this might need/want to be origin/, not travel/
-        git checkout --track ${MR_REMOTE}/${source_branch}
+        git checkout --track "${MR_REMOTE}/${source_branch}"
       fi
     fi
     DID_BRANCH_CHANGE=1
