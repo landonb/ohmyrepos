@@ -1267,34 +1267,8 @@ _git_merge_ff_only_safe_and_complicated () {
     fi
   fi
 
-  # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
-  # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
-  # but subsequent lines have changed background color to end of line, seems weird:
-  #   local changes_txt="$(printf %s "${git_resp}" | grep -P "${pattern_txt}")"
-  #   local changes_bin="$(printf %s "${git_resp}" | grep -P "${pattern_bin}")"
-  # So use sed to sandwich each line with color changes.
-  # - Be sure color is enabled, lest:
-  #     /usr/bin/env sed: -e expression #1, char 7: unterminated `s' command
-  #   because $() returns empty.
-  SHCOLORS_OFF=false
-  local sub_colorize_head='
-    /usr/bin/env sed "s/^/\\$(bg_blue)/g" |
-    /usr/bin/env sed "s/\$/\\$(attr_reset)/g"
-  '
-  local sub_colorize_tails='
-    /usr/bin/env sed "s/^/                             \\$(bg_blue)/g" |
-    /usr/bin/env sed "s/\$/\\$(attr_reset)/g"
-  '
-
-  colorize_diff () {
-    local pattern="$1"
-
-    printf %s "${git_resp}" | grep -P "${pattern}" | head -1 | eval "${sub_colorize_head}"
-    printf %s "${git_resp}" | grep -P "${pattern}" | tail +2 | eval "${sub_colorize_tails}"
-  }
-
-  local changes_txt="$(colorize_diff "${pattern_txt}")"
-  local changes_bin="$(colorize_diff "${pattern_bin}")"
+  local changes_txt="$(colorize_diff "${git_resp}" "${pattern_txt}")"
+  local changes_bin="$(colorize_diff "${git_resp}" "${pattern_bin}")"
 
   if [ -n "${changes_txt}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
@@ -1326,6 +1300,33 @@ _git_merge_ff_only_safe_and_complicated () {
   cd "${before_cd}"
 
   return ${merge_retcode}
+}
+
+# NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
+# 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
+# but subsequent lines have changed background color to end of line, seems weird:
+#   local changes_txt="$(printf %s "${git_resp}" | grep -P "${pattern_txt}")"
+#   local changes_bin="$(printf %s "${git_resp}" | grep -P "${pattern_bin}")"
+# So use sed to sandwich each line with color changes.
+# - Be sure color is enabled, lest:
+#     /usr/bin/env sed: -e expression #1, char 7: unterminated `s' command
+#   because $() returns empty.
+colorize_diff () {
+  local git_resp="$1"
+  local pattern="$2"
+
+  SHCOLORS_OFF=false
+  local sub_colorize_head='
+    /usr/bin/env sed "s/^/\\$(bg_blue)/g" |
+    /usr/bin/env sed "s/\$/\\$(attr_reset)/g"
+  '
+  local sub_colorize_tails='
+    /usr/bin/env sed "s/^/                             \\$(bg_blue)/g" |
+    /usr/bin/env sed "s/\$/\\$(attr_reset)/g"
+  '
+
+  printf %s "${git_resp}" | grep -P "${pattern}" | head -1 | eval "${sub_colorize_head}"
+  printf %s "${git_resp}" | grep -P "${pattern}" | tail +2 | eval "${sub_colorize_tails}"
 }
 
 # USAGE: MR_NO_RESET_HARD=false MR_REMOTE=<remote> mr -d / ffssh
