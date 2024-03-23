@@ -1238,7 +1238,7 @@ _git_merge_ff_only_safe_and_complicated () {
     | grep -P -v " mode change \d+ => \d+ \S+" \
     | grep -P -v "^ \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ deletions?\(-\)$" \
-    | grep -P -v "${pattern_txt}" \
+    | grep -P -v "${PATTERN_TXT}" \
     | grep -P -v "${pattern_bin}" \
     | grep -v "^fatal: Not possible to fast-forward, aborting.$" \
     # OMITD: See note above:
@@ -1258,7 +1258,7 @@ _git_merge_ff_only_safe_and_complicated () {
     fi
   fi
 
-  local changes_txt="$(colorize_diff "${git_resp}" "${pattern_txt}")"
+  local changes_txt="$(colorize_diff "${git_resp}" "${PATTERN_TXT}")"
   local changes_bin="$(colorize_diff "${git_resp}" "${pattern_bin}")"
 
   if [ -n "${changes_txt}" ]; then
@@ -1297,8 +1297,8 @@ _git_merge_ff_only_safe_and_complicated () {
 
 # 2018-03-26 16:41: Weird: was this directory moved, hence the => ?
 #    src/js/{ => solutions}/settings/constants.js       |  85 ++-
-#local pattern_txt='^ \S* *\| +\d+ ?[+-]*$'
-pattern_txt='^ [^\|]+\| +\d+ ?[+-]*$'
+#local PATTERN_TXT='^ \S* *\| +\d+ ?[+-]*$'
+PATTERN_TXT='^ [^\|]+\| +\d+ ?[+-]*$'
 #local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
 #  | grep -P -v " +\S+ +\| +Bin$" \
 #local pattern_bin='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
@@ -1308,7 +1308,7 @@ pattern_bin='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
 # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
 # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
 # but subsequent lines have changed background color to end of line, seems weird:
-#   local changes_txt="$(printf %s "${git_resp}" | grep -P "${pattern_txt}")"
+#   local changes_txt="$(printf %s "${git_resp}" | grep -P "${PATTERN_TXT}")"
 #   local changes_bin="$(printf %s "${git_resp}" | grep -P "${pattern_bin}")"
 # So use sed to sandwich each line with color changes.
 # - Be sure color is enabled, lest:
