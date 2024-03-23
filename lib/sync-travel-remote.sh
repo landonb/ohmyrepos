@@ -49,6 +49,7 @@ GIT_BARE_REPO='--bare'
 #
 #   MR_REMOTE_HOME=${MR_REMOTE_HOME}
 #
+#   MR_NO_CHECKOUT=${MR_NO_CHECKOUT:-false}
 # Environs used from `mr`:
 #
 #   MR_ACTION
@@ -1091,6 +1092,11 @@ git_change_branches_if_necessary () {
       "${target_branch}: " \
       "$(fg_lightorange)$(attr_underline)${wasref}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${newref}$(attr_reset)"
+  elif ${MR_NO_CHECKOUT:-false}; then
+    # DUNNO/2024-03-22: Check back in 2028 if you want to keep this.
+    debug "  $(fg_mintgreen)$(attr_emphasis)✓ stcky-br $(attr_reset)" \
+      "$(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
+      "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
   fi
 
   cd "${before_cd}"
@@ -1415,15 +1421,18 @@ git_fetch_n_cobr () {
 
   # ***
 
-  local source_branch
-  source_branch=$(git_source_branch_deduce "${source_repo}" "${target_repo}")
-  # Set caller's variable.
-  MR_ACTIVE_BRANCH="${source_branch}"
-
-  # ***
-
   local target_branch
   target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
+
+  local source_branch
+  if ! ${MR_NO_CHECKOUT:-false}; then
+    source_branch=$(git_source_branch_deduce "${source_repo}" "${target_repo}")
+  else
+    source_branch="${target_branch}"
+  fi
+
+  # Set caller's variable.
+  MR_ACTIVE_BRANCH="${source_branch}"
 
   # Because `cd` above, do not need to pass "${target_repo}" (on $3).
   git_change_branches_if_necessary "${source_branch}" "${target_branch}"
