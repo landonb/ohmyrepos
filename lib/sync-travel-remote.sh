@@ -872,7 +872,7 @@ git_fetch_remote_travel () {
   fi
 
   if ${remote_name_invalid} || ${remote_path_invalid}; then
-    print_fatchfail_msg "${target_repo}" "${source_repo}" "${rel_repo}" \
+    print_fetchfail_msg "${target_repo}" "${source_repo}" "${rel_repo}" \
       ${remote_name_invalid} ${remote_path_invalid}
 
     if ${remote_name_invalid}; then
@@ -908,7 +908,7 @@ git_fetch_remote_travel () {
   cd "${before_cd}"
 }
 
-print_fatchfail_msg () {
+print_fetchfail_msg () {
   local target_repo="$1"
   local source_repo="$2"
   local rel_repo="$3"
