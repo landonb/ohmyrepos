@@ -655,6 +655,7 @@ git_checkedout_branch_name_remote () {
     # Likely $MR_REPO, and likely the cwd.
     cd "${target_repo}"
 
+    # SAVVY: Network call. Uses `git ls-remote <remote>.
     git remote show ${MR_REMOTE} |
       grep "HEAD branch:" |
       /usr/bin/env sed -e "s/^.*HEAD branch:\s*//"
