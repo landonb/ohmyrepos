@@ -1114,16 +1114,17 @@ git_merge_ff_only () {
     debug "  $(fg_mediumgrey)skip-HEAD$(attr_reset)  " \
       "$(fg_mediumgrey)${target_repo}$(attr_reset)"
 
-    return
     # MEH/2019-11-21 03:12: We could get around detached HEAD by using SHA, e.g.,:
     #   # Remote is non-local (ssh) and detached head ((unknown)). Get HEAD's SHA.
     #   to_commit=$(git ls-remote ${MR_REMOTE} | grep -P "\tHEAD$" | cut -f1)
     # but the use case for detached HEAD is slim (so far just my ~/.vim repo which
     # has submodules, as far as I'm aware), so I'd rather do nothing/skip merge on
     # detached HEAD repos.
-  else
-    to_commit="${MR_REMOTE}/${source_branch}"
+
+    return 0
   fi
+
+  to_commit="${MR_REMOTE}/${source_branch}"
 
   # ***
 
