@@ -65,7 +65,7 @@ _travel_source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-reveal_biz_vars () {
+_travel_reveal_biz_vars () {
   local mrpid="$(mr_process_id)"
 
   # When called via multi-process `mr -j [n>1]`, colors.sh omits ANSI
@@ -1505,7 +1505,7 @@ repo_path_for_remote_user () {
 git_merge_ffonly_ssh_mirror () {
   set -e
 
-  reveal_biz_vars
+  _travel_reveal_biz_vars
 
   git_merge_check_env_remote
   git_merge_check_env_repo
@@ -1537,7 +1537,7 @@ git_update_dev_path () {
 git_update_device_fetch_from_local () {
   set -e
 
-  reveal_biz_vars
+  _travel_reveal_biz_vars
 
   MR_REMOTE=${MR_REMOTE:-$(hostname)}
 
@@ -1551,7 +1551,7 @@ git_update_device_fetch_from_local () {
 git_update_local_fetch_from_device () {
   set -e
 
-  reveal_biz_vars
+  _travel_reveal_biz_vars
 
   git_merge_check_env_remote
   git_update_ensure_ready
@@ -1617,7 +1617,7 @@ git_update_local_fetch_from_device () {
 sync_travel_remote_setup () {
   _travel_source_deps
 
-  reveal_biz_vars
+  _travel_reveal_biz_vars
 }
 
 main () {
@@ -1633,5 +1633,5 @@ main () {
 }
 
 main "$@"
-unset -f reveal_biz_vars
+unset -f _travel_source_deps
 
