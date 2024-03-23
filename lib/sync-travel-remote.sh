@@ -635,36 +635,26 @@ git_ensure_or_clone_target () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_checkedout_branch_name_direct () {
-  local before_cd="$(pwd -L)"
+  local target_repo="$1"
 
-  cd "$1"
+  (
+    cd "${target_repo}"
 
-  local branch_name
-  branch_name=$(git rev-parse --abbrev-ref=loose HEAD)
-
-  cd "${before_cd}"
-
-  printf %s "${branch_name}"
+    git rev-parse --abbrev-ref=loose HEAD
+  )
 }
 
 git_checkedout_branch_name_remote () {
   local target_repo="$1"
 
-  local before_cd="$(pwd -L)"
+  (
+    # Likely $MR_REPO, and likely the cwd.
+    cd "${target_repo}"
 
-  # Likely $MR_REPO, and likely the cwd.
-  cd "${target_repo}"
-
-  local branch_name
-  branch_name=$( \
     git remote show ${MR_REMOTE} |
-    grep "HEAD branch:" |
-    /usr/bin/env sed -e "s/^.*HEAD branch:\s*//" \
+      grep "HEAD branch:" |
+      /usr/bin/env sed -e "s/^.*HEAD branch:\s*//"
   )
-
-  cd "${before_cd}"
-
-  printf %s "${branch_name}"
 }
 
 git_source_branch_deduce () {
