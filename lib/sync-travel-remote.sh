@@ -1633,5 +1633,7 @@ main () {
 }
 
 main "$@"
-unset -f _travel_source_deps
+# Leave for runtime:
+#  unset -f _travel_source_deps
+#  unset -f _travel_reveal_biz_vars
 
