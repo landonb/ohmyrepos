@@ -1365,6 +1365,12 @@ _git_merge_reset_hard_if_local_unchanged () {
         info "  $(bg_red)$(fg_white)RESET-HRD$(attr_reset)  " \
           "$(fg_hotpink)${MR_REPO}$(attr_reset)"
 
+        # Cut off the final summary line (which merge doesn't report, either).
+        local git_diff="$(git diff --compact-summary ${head_sha}..HEAD | head -n -1)"
+        local pattern=""
+
+        debug "$(colorize_diff "${git_diff}" "${pattern}")"
+
         return 0
       else
         # Git emitted an error, too, probably. (Though unsure why
