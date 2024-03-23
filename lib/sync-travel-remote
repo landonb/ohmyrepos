@@ -10,26 +10,87 @@ lib =
   # # Ha! `source` not POSIX, but `.` is.
   . "sync-travel-remote.sh"
 
-# Call `MR_REMOTE=<host> mr ffssh` to keep any machines with identical
-# directory hierarchies synced, e.g., if you want to switch between
-# multiple development machines. The action will ensure each repo
-# has a remote called '<host>' with the url, ssh://<host>/${MR_REPO}
-# It'll fetch that remote, change to its active branch, and then
-# attempt a --ff-only merge to its HEAD.
+# ***
+
+# Use `ffssh` to keep any two machines with identical directory
+# hierarchies synced, e.g.
+#
+#   MR_REMOTE=<host> mr ffssh
+#
+# This is useful if you like to switch between multiple development
+# machines, and you want to find the same projects on each machine,
+# with the same branches checked out, and the latest code on both.
+#
+# The action will ensure that each repo has a remote called
+# '${MR_REMOTE}' (using `add` or `set-url`) with url format:
+#
+#   ssh://${MR_REMOTE}/${MR_REPO}
+#
+# It'll fetch that remote, checkout a local branch with the same name
+# as the remote's active branch, and then attempt to --ff-only merge.
+#
+# - If the --ff-only merge fails, ffssh will check the reflog for
+#   ${MR_REMOTE}/<local-branch> to see if only the remote branch has
+#   changed. If so, it means the user rebased the remote branch but has
+#   not touched the local branch, i.e., there's no new work locally. In
+#   this case, ffssh uses git-reset-hard to update the local branch.
+#
+# USAGE:
+#
+# - The remote host name is passed via environ, e.g.,
+#
+#     MR_REMOTE=<host> mr -d / ffssh
+#
+# - If you use a different user name on each host, you must
+#   to indicate the home directory on the remote host, e.g.,
+#
+#     unclehenry@kansas $ MR_REMOTE=oz MR_REMOTE_HOME=/home/dorothy mr -d / ffssh
+
 git_ffssh = git_merge_ffonly_ssh_mirror "$@"
 
-# If you'd like to sync machines using a local directory instead, such
-# as one from an encrypted filesystem mounted off a pluggable USB drive,
-# or if you'd like to create a directory of all your mr-managed repos,
-# call `MR_DEVICE=<> mr travel`. The action will create bare repos under
-# the path provided, mirroring the path that exists on your local system.
+# ***
+
+# The `travel` command is used to backup your projects to a local directory,
+# which might be an encrypted filesystem mounted off a pluggable USB device
+# that you carry on your person as a precaution against data loss.
+#
+# - The local path is passed via environ, e.g.,
+#
+#     MR_TRAVEL=<path/to/backup> mr -d / travel
+#
+# The action creates --bare repos under the path provided, mirroring the
+# projects that exists on your local system at their same paths under the
+# backup root.
+#
+# - The `travel` command is essentially a glorified git-push.
+
 git_travel = git_update_device_fetch_from_local "$@"
 
-# (lb): The builtin `mr update` calls git-pull, but here we use `update`
-# to fetch and --ff-only merge instead, and not from the 'origin'
-# remote (typically a github.com path for public repos) but instead from
-# a --bare remote maintained locally (typically mounted as necessary,
-# say, using an encrypted filesystem). Call, i.e., `MR_DEVICE=<> mr update`.
-# ... 2019-10-23 22:59: Or maybe I want to call it `mr unpack`...
+# The `unpack` command is the counterpart to `travel`.
+#
+# The `unpack` command will fetch from a local path, and it'll update
+# another local repo on the same machine, using the same strategy as
+# `ffssh` — it prefers to use `git merge --ff-only`, but it'll fallback
+# `git reset --hard` if it deduces that there are no local changes.
+#
+# - This command is useful if you shuffle encrypted data around on
+#   a thumb drive. E.g., before you leave your home office for the
+#   office office, use `travel` to update a thumb drive. Then, at
+#   work, run `unpack` to pull your changes from home.
+#
+#   - You might also consider git-put-wise instead of `travel` and
+#     `unpack`. git-put-wise uses private GitHub repos and scoped
+#     commits to help you sync multiple development environments:
+#
+#       https://github.com/DepoXy/git-put-wise
+#
+#     But at least the `travel` command is nice for keep a thumb
+#     drive backup on your person, if you're looking to really
+#     up your data backup game.
+#
+# - Pass the local path as an environ when invoking `unpack`, e.g.,
+#
+#     MR_TRAVEL=<path/to/backup> mr unpack
+
 git_unpack = git_update_local_fetch_from_device "$@"
 

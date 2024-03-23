@@ -41,6 +41,20 @@ MR_APP_NAME='mr'
 
 GIT_BARE_REPO='--bare'
 
+# Required environ(s) for `ffssh`:
+#
+#   MR_REMOTE
+#
+# Optional environs for `ffssh`:
+#
+#   MR_REMOTE_HOME=${MR_REMOTE_HOME}
+#
+# Environs used from `mr`:
+#
+#   MR_ACTION
+#   MR_HOME
+#   MR_SWITCHES
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _travel_source_deps () {
@@ -660,7 +674,7 @@ git_source_branch_deduce () {
   local source_branch
   # Check if SSH remote, i.e., ssh://....
   if is_ssh_path "${source_repo}"; then
-    # If detached HEAD (b/c git submodule, or other why), remote-show shows "(unknown)".
+    # If detached HEAD (b/c git submodule, or other), remote-show shows "(unknown)".
     source_branch=$(git_checkedout_branch_name_remote "${target_repo}")
   else
     # If detached HEAD (b/c git submodule, or other), rev-parse--abbrev-ref says "HEAD".
@@ -959,8 +973,8 @@ print_fatchfail_msg () {
       "  $(fg_lightorange)MR_REMOTE=<fixme>$(attr_reset) mr -d $(fg_lightorange)${MR_REPO}$(attr_reset) -n ffssh" \
         >> "${MR_TMP_TRAVEL_CHORES_FILE}"
   elif ${remote_path_invalid}; then
-    # On the other hand, if it's the path that is incorrect, then it's
-    # likely an MR_REMOTE_HOME issue, and it's likely to affect all
+    # On the other hand, if it's the path that's incorrect, then it's
+    # likely a MR_REMOTE_HOME issue, and it's likely to affect all
     # repos under user's home. But we don't know that all repos are
     # stored under user's home, so some repo tasks might succeed.
     echo \
@@ -1420,6 +1434,8 @@ git_fetch_n_cobr () {
 
   # Because `cd` above, do not need to pass "${target_repo}" (on $3).
   git_change_branches_if_necessary "${source_branch}" "${target_branch}"
+
+  # ***
 
   cd "${before_cd}"
 }
