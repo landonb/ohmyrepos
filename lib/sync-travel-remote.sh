@@ -512,6 +512,7 @@ git_travel_process_chores_notify () {
       | grep \
         -e "^  ${OMR_CPYST_CD}" \
         -e "MR_REMOTE=<fixme>" \
+        -e "ssh ${MR_REMOTE} " \
       | wc -l \
   )
 
@@ -1368,8 +1369,12 @@ print_mergefail_msg_localahead () {
   warn "  $(fg_lightorange)$(attr_underline)✗ local-ahead❗$(attr_reset)  " \
     "$(fg_lightorange)$(attr_underline)${target_repo}$(attr_reset)"
 
+  local rem_repo="$(repo_path_for_remote_user "${MR_REPO}")"
+  local mr_repo="$(repo_path_for_remote_user "$(command -v mr)")"
+
   echo \
-    "  $(fg_lightorange)ssh ${MR_REMOTE} 'cd ${MR_REPO} && mr -d . -n ffssh'$(attr_reset)" \
+    "  $(fg_lightorange)ssh ${MR_REMOTE}" \
+    "'cd ${rem_repo} && MR_REMOTE=$(hostname) ${mr_repo} -d . -n ffssh'$(attr_reset)" \
       >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 }
 
