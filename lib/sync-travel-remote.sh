@@ -50,6 +50,9 @@ GIT_BARE_REPO='--bare'
 #   MR_REMOTE_HOME=${MR_REMOTE_HOME}
 #
 #   MR_NO_CHECKOUT=${MR_NO_CHECKOUT:-false}
+#   MR_NO_RESET_HARD=${MR_NO_RESET_HARD:-true}
+#   MR_REFLOG_SCAN_MAXDEPTH=${MR_REFLOG_SCAN_MAXDEPTH:-10}
+#
 # Environs used from `mr`:
 #
 #   MR_ACTION
@@ -699,6 +702,25 @@ git_source_branch_deduce () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+git_commit_object_name () {
+  local gitref="${1:-HEAD}"
+  local opts="$2"
+
+  git rev-parse ${opts} "${gitref}"
+}
+
+git_reflog_latest_epoch_ts () {
+  local gitref="${1:-HEAD}"
+
+  git --no-pager reflog -1 --format=%at "${gitref}" 2> /dev/null
+}
+
+git_reflog_latest_iso_time () {
+  local gitref="${1:-HEAD}"
+
+  git --no-pager reflog -1 --format=%ai "${gitref}" 2> /dev/null
+}
+
 git_is_bare_repository () {
   [ $(git rev-parse --is-bare-repository) = 'true' ] && return 0 || return 1
 }
@@ -1146,10 +1168,15 @@ git_merge_ff_only () {
 
     false
   else
-    # Diverged.
-    print_mergefail_msg_diverged "${target_repo}" "${to_commit}" ""
+    if ( \
+      ${MR_NO_RESET_HARD:-true} \
+      || ! _git_merge_reset_hard_if_local_unchanged "${target_repo}" "${to_commit}"
+    ); then
+      # Diverged.
+      print_mergefail_msg_diverged "${target_repo}" "${to_commit}" ""
 
-    false
+      false
+    fi
   fi
 }
 
@@ -1293,6 +1320,93 @@ _git_merge_ff_only_safe_and_complicated () {
 
   return ${merge_retcode}
 }
+
+# USAGE: MR_NO_RESET_HARD=false MR_REMOTE=<remote> mr -d / ffssh
+_git_merge_reset_hard_if_local_unchanged () {
+  local target_repo="$1"
+  # E.g., '<remote>/<branch>'
+  local to_commit="$2"
+
+  local head_sha="$(git_commit_object_name)"
+
+  local reflog_depth=1
+
+  while [ "${reflog_depth}" -lt ${MR_REFLOG_SCAN_MAXDEPTH:-10} ]; do
+    local reflog_ref="${to_commit}@{${reflog_depth}}"
+
+    local reflog_id
+    if ! reflog_id="$(git_commit_object_name "${reflog_ref}")"; then
+      # No more reflog entries.
+      break
+    fi
+
+    if [ "${reflog_id}" = "${head_sha}" ]; then
+      # Bingo! We found an old remote ref that matches current branch HEAD.
+      # - We assume this to mean that user has worked on remote repo, but
+      #   not local repo. So it's safe to reset-hard aka move local branch
+      #   pointer, no questions asked.
+      _trace_reflog_time_checks "${reflog_ref}"
+
+      git reset --hard "${to_commit}" > /dev/null
+
+      if [ $? -eq 0 ]; then
+        info "  $(bg_red)$(fg_white)RESET-HRD$(attr_reset)  " \
+          "$(fg_hotpink)${MR_REPO}$(attr_reset)"
+
+        return 0
+      else
+        # Git emitted an error, too, probably. (Though unsure why
+        # reset-hard would ever fail.)
+        warn "  $(bg_red)$(fg_white)GIT FAILD$(attr_reset)  " \
+          "$(fg_hotpink)${MR_REPO}$(attr_reset)"
+
+        return 1
+      fi
+
+      break
+    fi
+
+    reflog_depth=$((reflog_depth + 1))
+  done
+
+  return 1
+}
+
+# The reflog timestamps are probably not meaningful, but we can check.
+# - Idea being, when user runs `ffssh` on a host, there are two most
+#   likely possible states for each repo: either user has worked on
+#   that repo since the previous `ffssh`, or they haven't. When it's
+#   the latter, we would expect that the local HEAD was last changed
+#   by this script, i.e., on --ff-only git-merge, or on git-reset-hard.
+#   We'd also expect that the <remote>/<branch> (to_commit) reference
+#   was changed during the same process, on git-fetch. Meaning that,
+#   both refs were changed at about the same time, and their respective
+#   reflog entries reflect as much.
+# - This check seems completely unnecessary. But I'm curious if the
+#   statements would ever disagree. MAYBE: Though I expect they might
+#   disagree by 1 sec. if the wall time clicks over.
+_trace_reflog_time_checks () {
+  local reflog_ref="$1"
+
+  local head_ref_changed
+  local remote_ref_changed
+  reflog_time_head="$(git_reflog_latest_epoch_ts)"
+  reflog_time_remote="$(git_reflog_latest_epoch_ts "${reflog_ref}")"
+
+  if [ ${reflog_time_head} -ne ${reflog_time_remote} ]; then
+    local reflog_date_remote
+    local reflog_date_remote
+    reflog_date_head="$(git_reflog_latest_iso_time)"
+    reflog_date_remote="$(git_reflog_latest_iso_time "${reflog_ref}")"
+
+    warn "Reflog diss: (head - remote) =" \
+      "(${reflog_date_head} - ${reflog_date_remote}) =" \
+      "(${reflog_time_head} - ${reflog_time_remote}) =" \
+      "$((${reflog_time_head} - ${reflog_time_remote})) secs."
+  fi
+}
+
+# ***
 
 print_mergefail_msg_diverged () {
   local target_repo="$1"
