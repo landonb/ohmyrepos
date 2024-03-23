@@ -1293,12 +1293,12 @@ _git_merge_ff_only_safe_and_complicated () {
   if [ -n "${changes_txt}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
-    info "${changes_txt}"
+    debug "${changes_txt}"
   fi
   if [ -n "${changes_bin}" ]; then
     info "       $(fg_mintgreen)$(attr_emphasis)bin+$(attr_reset)  " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
-    info "${changes_bin}"
+    debug "${changes_bin}"
   fi
 
   # We verified `git status --porcelain` indicated nothing before trying to merge,
