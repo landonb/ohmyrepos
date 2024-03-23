@@ -1295,14 +1295,7 @@ _git_merge_ff_only_safe_and_complicated () {
 
 # ***
 
-# 2018-03-26 16:41: Weird: was this directory moved, hence the => ?
-#    src/js/{ => solutions}/settings/constants.js       |  85 ++-
-#local PATTERN_TXT='^ \S* *\| +\d+ ?[+-]*$'
 PATTERN_TXT='^ [^\|]+\| +\d+ ?[+-]*$'
-#local PATTERN_BIN='^ \S* *\| +Bin \d+ -> \d+ bytes$'
-#  | grep -P -v " +\S+ +\| +Bin$" \
-#local PATTERN_BIN='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
-#local PATTERN_BIN='^ \S*( => \S*)? *\| +Bin( \d+ -> \d+ bytes)?$'
 PATTERN_BIN='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
 
 # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
