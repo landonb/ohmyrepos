@@ -654,7 +654,7 @@ git_ensure_or_clone_target () {
 
   DID_CLONE_REPO=1
 
-  info "  $(fg_lightgreen)$(attr_emphasis)✓ cloned🖐 $(attr_reset)" \
+  info "  $(fg_lightgreen)$(attr_emphasis)✓ cloned🖐  $(attr_reset)" \
     "$(fg_lightgreen)${MR_REPO}$(attr_reset)"
 }
 
@@ -756,7 +756,7 @@ git_must_be_tidy () {
 
   [ -z "$(git status --porcelain)" ] && return 0 || true
 
-  info "   $(fg_lightorange)$(attr_underline)✗ not tidy$(attr_reset) " \
+  info " $(fg_lightorange)$(attr_underline)✗ not tidy$(res_underline) $(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
 
   # ***
@@ -1219,7 +1219,7 @@ git_change_branches_if_necessary () {
   # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
   if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
     # If (detached) HEAD is active branch, do naught.
-    info "  $(fg_mintgreen)$(attr_emphasis)✗ checkout$(attr_reset) " \
+    info " $(fg_mintgreen)$(attr_emphasis)✗ checkout $(attr_reset) " \
       "SKIP: $(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
 
@@ -1436,11 +1436,12 @@ _git_merge_ff_only_safe_and_complicated () {
   if [ ${merge_retcode} -ne 0 ]; then
     print_mergefail_msg_diverged "${target_repo}" "${to_commit}" "${git_resp}" || true
   elif (printf %s "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
+    # Aka ✓ up-2-date.
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
   elif [ -z "${changes_txt}" ] && [ -z "${changes_bin}" ]; then
-    # A warning, so you can update the grep above and recognize this output.
-    warn "  $(fg_mintgreen)$(attr_emphasis)!familiar$(attr_reset)  " \
+    # A ✗ warning, so you can update the grep above and recognize this output.
+    warn " $(fg_mintgreen)$(attr_emphasis)!familiar $(attr_reset)  " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
   # else, ${merge_retcode} is 0/true, and either/or changes_txt/_bin,
   # and we've already printed multiple info statements, nothing more
@@ -1621,9 +1622,7 @@ print_mergefail_msg_diverged () {
 
   local common_ancestor_sha="$(shorten_sha "$(git merge-base HEAD ${to_commit})")"
 
-  # CXPX/NOT-DRY: This info copied from git-my-merge-status, probably same as:
-  #   git_status_check_report_9chars 'mergefail' '  '
-  info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
+  warn " $(fg_lightorange)$(attr_underline)✗ merge-no$(res_underline) $(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
 
   # (lb): So weird: Dubs Vim syntax highlight broken on "... ${to_commit}\` ...".
@@ -1695,7 +1694,7 @@ shorten_sha () {
 print_mergefail_msg_localahead () {
   local target_repo="$1"
 
-  warn "  $(fg_lightorange)$(attr_underline)✗ localchg$(attr_reset) " \
+  warn " $(fg_lightorange)$(attr_underline)✗ localchg$(res_underline) $(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${target_repo}$(attr_reset)"
 
   local rem_repo="$(print_path_for_remote_user "${MR_REPO}")"
@@ -1713,8 +1712,8 @@ print_mergefail_msg_dangling () {
   local target_repo="$1"
   local to_commit="$2"
 
-  warn "  $(fg_lightorange)$(attr_underline)✗ dangling$(attr_reset) " \
-    "$(fg_lightorange)$(attr_underline)${target_repo}$(attr_reset)"
+  warn " $(fg_lightorange)$(attr_underline)✗ dangling$(res_underline) $(attr_reset) " \
+    "$(fg_lightorange)$(attr_underline)${target_repo}$(res_underline) (no such branch: ${to_commit})$(attr_reset)"
 
   # ***
 
