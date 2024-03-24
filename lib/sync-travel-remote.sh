@@ -1277,13 +1277,12 @@ git_merge_ff_only () {
 
   to_commit="${MR_REMOTE}/${source_branch}"
 
-  # ***
-
   # Cannot fast-forward merge if HEAD not at or behind remote.
   # - If that's the case, the local repo could be ahead of the
   #   remote repo (a happy state), or the repos have diverged
   #   (and the user will want to resolve the conflict).
   if git merge-base --is-ancestor "HEAD" "${to_commit}"; then
+    # Remote ahead of local, or refs the same.
     _git_merge_ff_only_safe_and_complicated "${target_repo}" "${to_commit}"
   elif git merge-base --is-ancestor "${to_commit}" "HEAD"; then
     # Local ahead of remote.
