@@ -1309,22 +1309,27 @@ git_merge_ff_only () {
     print_mergefail_msg_dangling "${target_repo}" "${to_commit}"
   else
     # Cannot fast-forward merge if HEAD not at or behind remote.
-    # - If that's the case, the local repo could be ahead of the
-    #   remote repo (a happy state), or the repos have diverged
-    #   (and the user will want to resolve the conflict).
+    # - If so, the local repo is either ahead of the remote repo (happy state),
+    #   or the repos have diverged (and user will want to resolve the conflict).
     if git merge-base --is-ancestor "HEAD" "${to_commit}"; then
-      # Remote ahead of local, or refs the same.
+      # Local behind remote, or refs the same; try to merge.
       _git_merge_ff_only_safe_and_complicated "${target_repo}" "${to_commit}"
     elif git merge-base --is-ancestor "${to_commit}" "HEAD"; then
-      # Local ahead of remote.
+      # Local ahead of remote; tell user how to ff the remote.
       print_mergefail_msg_localahead "${target_repo}"
     else
       if ( \
         ${MR_NO_RESET_HARD:-true} \
         || ! _git_merge_reset_hard_if_local_unchanged "${target_repo}" "${to_commit}"
       ); then
-        # Diverged.
+        # Branches diverged. If MR_NO_RESET_HARD=true, means there's likely
+        # new work locally (sussed by checking the remote/branch@{n} reflog).
+        # Otherwise, user opted-out hard-reset, so it might just be that the
+        # user rebased the remote but hasn't touched the local project.
         print_mergefail_msg_diverged "${target_repo}" "${to_commit}" ""
+      else
+        # The reset-hard was a success.
+        true
       fi
     fi
   fi
@@ -1662,6 +1667,8 @@ print_mergefail_msg_diverged () {
   travel_chores_file_delineate_chore_block_end
 
   travel_process_chores_file_lock_release
+
+  # ***
 
   false  # So caller doesn't have to
 }
