@@ -1246,15 +1246,24 @@ git_change_branches_if_necessary () {
       #  git update-ref refs/heads/${source_branch} remotes/${MR_REMOTE}/${source_branch}
       git symbolic-ref HEAD refs/heads/${source_branch}
     else
-      local extcd=0
-      (git checkout ${source_branch} >/dev/null 2>&1) || extcd=$?
-
-      if [ $extcd -ne 0 ]; then
+      if ! git checkout "${source_branch}" >/dev/null 2>&1; then
         # SAVVY: Note that `git checkout --track <remote>/<branch>` is
         # essentially `git checkout --branch <branch> <remote>/<branch>`,
         # each of while fails if the branch already exists.
         #  git checkout -b "${source_branch}" "${MR_REMOTE}/${source_branch}"
-        git checkout --track "${MR_REMOTE}/${source_branch}" >/dev/null 2>&1
+        if ! git checkout --track "${MR_REMOTE}/${source_branch}" >/dev/null 2>&1; then
+          # Unlikely path. Might happen if remote branch was removed since
+          # the script queried remote/HEAD, like, milliseconds ago. Otherwise
+          # no good reason to be in here.
+          warn " $(fg_mintgreen)$(attr_emphasis)✗ co-faild $(attr_reset) " \
+            "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)"
+
+          warn "  $ checkout --track \"${MR_REMOTE}/${source_branch}\""
+          git checkout --track "${MR_REMOTE}/${source_branch}" 2>&1 \
+            | while IFS= read -r line; do
+              warn "$(echo "$line" | sed 's/^/  /')"
+            done
+        fi
       fi
     fi
     DID_BRANCH_CHANGE=1
