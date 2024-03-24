@@ -153,7 +153,7 @@ is_single_project_mr_command () {
 
 # Print the parent process (`mr`) command args.
 print_ppid_command_args () {
-  ps -ocommand= -p ${PPID}
+  ps -ocommand= -p ${PPID} | sed 's/^perl //'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1302,23 +1302,30 @@ git_merge_ff_only () {
 
   to_commit="${MR_REMOTE}/${source_branch}"
 
-  # Cannot fast-forward merge if HEAD not at or behind remote.
-  # - If that's the case, the local repo could be ahead of the
-  #   remote repo (a happy state), or the repos have diverged
-  #   (and the user will want to resolve the conflict).
-  if git merge-base --is-ancestor "HEAD" "${to_commit}"; then
-    # Remote ahead of local, or refs the same.
-    _git_merge_ff_only_safe_and_complicated "${target_repo}" "${to_commit}"
-  elif git merge-base --is-ancestor "${to_commit}" "HEAD"; then
-    # Local ahead of remote.
-    print_mergefail_msg_localahead "${target_repo}"
+  if ! git rev-parse "${to_commit}" >/dev/null 2>&1; then
+    # If a remote branch is deleted but we're not changing the branch locally,
+    # e.g., `MR_NO_CHECKOUT=true mr -d . -n ffssh`, then remote/branch is no
+    # longer a valid object.
+    print_mergefail_msg_dangling "${target_repo}" "${to_commit}"
   else
-    if ( \
-      ${MR_NO_RESET_HARD:-true} \
-      || ! _git_merge_reset_hard_if_local_unchanged "${target_repo}" "${to_commit}"
-    ); then
-      # Diverged.
-      print_mergefail_msg_diverged "${target_repo}" "${to_commit}" ""
+    # Cannot fast-forward merge if HEAD not at or behind remote.
+    # - If that's the case, the local repo could be ahead of the
+    #   remote repo (a happy state), or the repos have diverged
+    #   (and the user will want to resolve the conflict).
+    if git merge-base --is-ancestor "HEAD" "${to_commit}"; then
+      # Remote ahead of local, or refs the same.
+      _git_merge_ff_only_safe_and_complicated "${target_repo}" "${to_commit}"
+    elif git merge-base --is-ancestor "${to_commit}" "HEAD"; then
+      # Local ahead of remote.
+      print_mergefail_msg_localahead "${target_repo}"
+    else
+      if ( \
+        ${MR_NO_RESET_HARD:-true} \
+        || ! _git_merge_reset_hard_if_local_unchanged "${target_repo}" "${to_commit}"
+      ); then
+        # Diverged.
+        print_mergefail_msg_diverged "${target_repo}" "${to_commit}" ""
+      fi
     fi
   fi
 }
@@ -1683,6 +1690,34 @@ print_mergefail_msg_localahead () {
     "  $(fg_lightorange)ssh ${MR_REMOTE}" \
     "'cd ${rem_repo} && MR_REMOTE=$(hostname) ${mr_repo} -d . -n ffssh'$(attr_reset)" \
       >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+
+  false  # So caller doesn't have to
+}
+
+print_mergefail_msg_dangling () {
+  local target_repo="$1"
+  local to_commit="$2"
+
+  warn "  $(fg_lightorange)$(attr_underline)✗ dangling$(attr_reset) " \
+    "$(fg_lightorange)$(attr_underline)${target_repo}$(attr_reset)"
+
+  # ***
+
+  travel_process_chores_file_lock_acquire
+
+  travel_chores_file_delineate_chore_block_beg
+  echo "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
+    "&& $(fg_lightorange)git checkout < You-figure-it-out >$(attr_reset)" \
+      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  echo "  └─▶ OR: Run this task again, but checkout remote HEAD:" \
+      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  echo "        $(fg_mintgreen)MR_NO_CHECKOUT=false $(print_ppid_command_args)$(attr_reset)" \
+      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  travel_chores_file_delineate_chore_block_end
+
+  travel_process_chores_file_lock_release
+
+  # ***
 
   false  # So caller doesn't have to
 }
