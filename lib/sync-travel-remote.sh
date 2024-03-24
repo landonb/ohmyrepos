@@ -1692,9 +1692,9 @@ git_fetch_n_cobr () {
 
   # ***
 
-  # 2018-03-22: Set a remote to the sync device. There's always only 1,
-  # apparently. I think this'll work well.
+  # Create or verify remote to the sync device.
   git_set_remote_travel "${source_repo}"
+
   git_remote_delete_head
 
   git_fetch_remote_travel "${target_repo}" "${target_type}" "${source_repo}" "${rel_repo}"
