@@ -147,6 +147,15 @@ is_multiprocessing () {
   ${IS_MULTIPROCESSING}
 }
 
+is_single_project_mr_command () {
+  print_ppid_command_args | grep -q " -n( |$)"
+}
+
+# Print the parent process (`mr`) command args.
+print_ppid_command_args () {
+  ps -ocommand= -p ${PPID}
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1252,10 +1261,12 @@ git_change_branches_if_necessary () {
       "$(fg_lightorange)$(attr_underline)${wasref}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${newref}$(attr_reset)"
   elif ${MR_NO_CHECKOUT:-false}; then
-    # DUNNO/2024-03-22: Check back in 2028 if you want to keep this.
-    debug "  $(fg_mintgreen)$(attr_emphasis)✓ stcky-br $(attr_reset)" \
-      "$(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
-      "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
+    if is_single_project_mr_command; then
+      # DUNNO/2024-03-22: Check back in 2028 if you want to keep this.
+      debug "  $(fg_mintgreen)$(attr_emphasis)✓ stcky-br $(attr_reset)" \
+        "$(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
+        "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
+    fi
   fi
 
   cd "${before_cd}"
