@@ -1053,7 +1053,8 @@ git_fetch_remote_travel () {
       git remote remove "${MR_REMOTE}"
     fi
 
-    false  # errexit's
+    # Exit using errexit.
+    false
   elif [ ${fetch_success} -ne 0 ]; then
     # Trigger errexit with `fatal`'s `return 1`.
     # - Note this might be the 3rd time we print the git-fetch response.
@@ -1065,6 +1066,7 @@ git_fetch_remote_travel () {
         >> "${MR_TMP_TRAVEL_CHORES_FILE}"
     travel_process_chores_file_lock_release
 
+    # Exits on errexit.
     fatal "Unexpected fetch failure!\n${git_resp}"
   fi
 
