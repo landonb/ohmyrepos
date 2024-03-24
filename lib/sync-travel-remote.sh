@@ -1665,8 +1665,8 @@ print_mergefail_msg_localahead () {
   warn "  $(fg_lightorange)$(attr_underline)✗ local-ahead❗$(attr_reset)  " \
     "$(fg_lightorange)$(attr_underline)${target_repo}$(attr_reset)"
 
-  local rem_repo="$(repo_path_for_remote_user "${MR_REPO}")"
-  local mr_repo="$(repo_path_for_remote_user "$(command -v mr)")"
+  local rem_repo="$(print_path_for_remote_user "${MR_REPO}")"
+  local mr_repo="$(print_path_for_remote_user "$(command -v mr)")"
 
   echo \
     "  $(fg_lightorange)ssh ${MR_REMOTE}" \
@@ -1781,7 +1781,7 @@ git_merge_check_env_travel () {
 #                      and /home/linux_user -> /Users/macos_user on @macOS,
 #   - But adding symlink requires root privileges, among other concerns,
 #     so prefer MR_REMOTE_HOME.
-repo_path_for_remote_user () {
+print_path_for_remote_user () {
   local local_repo="$1"
 
   if [ -z "${MR_REMOTE_HOME}" ]; then
@@ -1801,7 +1801,7 @@ git_merge_ffonly_ssh_mirror () {
   git_merge_check_env_remote
   git_merge_check_env_repo
   MR_FETCH_HOST=${MR_FETCH_HOST:-${MR_REMOTE}}
-  local rem_repo="$(repo_path_for_remote_user "${MR_REPO}")"
+  local rem_repo="$(print_path_for_remote_user "${MR_REPO}")"
   local rel_repo="$(lchop_sep "${rem_repo}")"
   local ssh_path="ssh://${MR_FETCH_HOST}/${rel_repo}"
   git_fetch_n_cobr_n_merge "${ssh_path}" "${MR_REPO}" 'ssh' 'local' "${rel_repo}"
