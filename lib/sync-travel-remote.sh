@@ -545,6 +545,20 @@ git_travel_process_chores_notify () {
   notice "Here's some copy-pasta to help you get started:"
 }
 
+# Add empties before and after multiple chore lines for the same repo,
+# to make easier for user to track which chore they're on.
+travel_chores_file_delineate_chore_block_beg () {
+  if [ -e "${MR_TMP_TRAVEL_CHORES_FILE}" ] \
+    && [ -n "$(tail -1 "${MR_TMP_TRAVEL_CHORES_FILE}")" ] \
+  ; then
+    echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  fi
+}
+
+travel_chores_file_delineate_chore_block_end () {
+  echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1616,13 +1630,7 @@ print_mergefail_msg_diverged () {
 
   travel_process_chores_file_lock_acquire
 
-  # Add empties before and after multiple chore lines for the same repo,
-  # to make easier for user to track which chore they're on.
-  if [ -e "${MR_TMP_TRAVEL_CHORES_FILE}" ] \
-    && [ -n "$(tail -1 "${MR_TMP_TRAVEL_CHORES_FILE}")" ] \
-  ; then
-    echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
-  fi
+  travel_chores_file_delineate_chore_block_beg
   echo \
     "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
     "&& $(fg_lightorange)git diff ${local_head_sha}..${to_commit}$(attr_reset)" \
@@ -1633,7 +1641,7 @@ print_mergefail_msg_diverged () {
       "$(fg_mintgreen)git reset --hard ${to_commit}$(attr_reset) OR"\
       "$(fg_mintgreen)< Your choice >$(attr_reset)" \
       >> "${MR_TMP_TRAVEL_CHORES_FILE}"
-  echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+  travel_chores_file_delineate_chore_block_end
 
   travel_process_chores_file_lock_release
 
