@@ -644,7 +644,7 @@ git_ensure_or_clone_target () {
 
   DID_CLONE_REPO=1
 
-  info "  $(fg_lightgreen)$(attr_emphasis)✓ cloned🖐$(attr_reset)  " \
+  info "  $(fg_lightgreen)$(attr_emphasis)✓ cloned🖐 $(attr_reset)" \
     "$(fg_lightgreen)${MR_REPO}$(attr_reset)"
 }
 
@@ -746,7 +746,7 @@ git_must_be_tidy () {
 
   [ -z "$(git status --porcelain)" ] && return 0 || true
 
-  info "   $(fg_lightorange)$(attr_underline)✗ messy$(attr_reset)   " \
+  info "   $(fg_lightorange)$(attr_underline)✗ not tidy$(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
 
   # ***
@@ -1205,7 +1205,7 @@ git_change_branches_if_necessary () {
   # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
   if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
     # If (detached) HEAD is active branch, do naught.
-    info "  $(fg_mintgreen)$(attr_emphasis)✗ checkout $(attr_reset)" \
+    info "  $(fg_mintgreen)$(attr_emphasis)✗ checkout$(attr_reset) " \
       "SKIP: $(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
 
@@ -1662,7 +1662,7 @@ shorten_sha () {
 print_mergefail_msg_localahead () {
   local target_repo="$1"
 
-  warn "  $(fg_lightorange)$(attr_underline)✗ local-ahead❗$(attr_reset)  " \
+  warn "  $(fg_lightorange)$(attr_underline)✗ localchg$(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${target_repo}$(attr_reset)"
 
   local rem_repo="$(print_path_for_remote_user "${MR_REPO}")"
