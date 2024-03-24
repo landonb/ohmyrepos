@@ -52,6 +52,7 @@ GIT_BARE_REPO='--bare'
 #   MR_NO_CHECKOUT=${MR_NO_CHECKOUT:-false}
 #   MR_NO_RESET_HARD=${MR_NO_RESET_HARD:-true}
 #   MR_REFLOG_SCAN_MAXDEPTH=${MR_REFLOG_SCAN_MAXDEPTH:-10}
+#   MR_GIT_DIFF_STAT_GRAPH_WIDTH=${MR_GIT_DIFF_STAT_GRAPH_WIDTH:-40}
 #
 # Environs used from `mr`:
 #
@@ -775,6 +776,10 @@ git_must_be_tidy () {
   false
 }
 
+print_graph_width_cfg () {
+  printf "%s" "-c diff.statGraphWidth=${MR_GIT_DIFF_STAT_GRAPH_WIDTH:-40}"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1356,7 +1361,7 @@ _git_merge_ff_only_safe_and_complicated () {
 
   local extcd=0
   local git_resp
-  git_resp=$(git merge --ff-only ${to_commit} 2>&1) || extcd=$?
+  git_resp=$(git $(print_graph_width_cfg) merge --ff-only ${to_commit} 2>&1) || extcd=$?
   local merge_retcode=${extcd}
 
   # ***
@@ -1544,7 +1549,10 @@ _git_merge_reset_hard_if_local_unchanged () {
           "$(fg_hotpink)${MR_REPO}$(attr_reset)"
 
         # Cut off the final summary line (which merge doesn't report, either).
-        local git_diff="$(git diff --compact-summary ${head_sha}..HEAD | head -n -1)"
+        local git_diff="$( \
+          git $(print_graph_width_cfg) diff --compact-summary ${head_sha}..HEAD \
+          | head -n -1
+        )"
         local pattern=""
 
         debug "$(colorize_diff "${git_diff}" "${pattern}")"
