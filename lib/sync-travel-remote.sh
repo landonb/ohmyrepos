@@ -1250,7 +1250,10 @@ git_change_branches_if_necessary () {
       (git checkout ${source_branch} >/dev/null 2>&1) || extcd=$?
 
       if [ $extcd -ne 0 ]; then
-        # FIXME/2019-10-24: On unpack, this might need/want to be origin/, not travel/
+        # SAVVY: Note that `git checkout --track <remote>/<branch>` is
+        # essentially `git checkout --branch <branch> <remote>/<branch>`,
+        # each of while fails if the branch already exists.
+        #  git checkout -b "${source_branch}" "${MR_REMOTE}/${source_branch}"
         git checkout --track "${MR_REMOTE}/${source_branch}"
       fi
     fi
