@@ -805,6 +805,128 @@ git_set_remote_travel () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Delete the (useless) default branch for the remote,
+# to avoid "dangling" warnings.
+#
+# - Sometimes, a remote has its own HEAD, e.g.,
+#
+#     $ git symbolic-ref refs/remotes/origin/HEAD
+#     refs/remotes/origin/main
+#
+#     $ cat .git/refs/remotes/origin/HEAD
+#     ref: refs/remotes/origin/main
+#
+# But this is of limited utility (/opining).
+#
+# - Per *Specifying Revisions* from `man gitrevisions`:
+#
+#     When ambiguous, a <refname> is disambiguated by taking the first
+#     match in the following rules:
+#
+#       1. If $GIT_DIR/<refname> exists, ...
+#
+#       ...
+#
+#       6. otherwise, refs/remotes/<refname>/HEAD if it exists.
+#
+# - Meaning you can omit the remote branch name.
+#
+#   For example, given 'refs/remotes/origin/HEAD' described above,
+#
+#     git merge origin
+#
+#   Would be equivalent to:
+#
+#     git merge origin/main
+#
+# But when have you ever *not* specified the remote branch name?
+#
+# - Furthermore, would you ever *not* want to be explicit?
+#
+# - At face value, it's sorta similar to how one might use branch
+#   upstream values to simplify push and pull.
+#
+#   But it's also not the same, because a remote/HEAD is global,
+#   and not branch-specific.
+#
+#   So I'm not really sure how it's useful.
+#
+# Most importantly (the reason I care so much), if the reference
+# goes away (if you delete that branch from the remote), you'll
+# start seeing dangling ref warnings with some commands:
+#
+#   $ git rev-parse refs/remotes/origin/HEAD
+#   warning: ignoring dangling symref refs/remotes/origin/HEAD
+#   refs/remotes/origin/HEAD
+#
+# - And you might originally see it when running this script, e.g.,
+#   during `ffssh` when this script calls `git fetch <remote> --prune`,
+#   you might see:
+#
+#     - [deleted]         (none)     -> origin/main
+#       (refs/remotes/origin/HEAD has become dangling)
+#
+#   - One might think this value is automatically updated to match
+#     the current branch on the remote, but AFAIK the user maintains
+#     this value locally. (E.g., it is not updated as a side-effect
+#     of other commands, like `git remote show <remote>` or
+#     `git ls-remote <remote>`.
+#
+#     - From `git remote add` from `man git-remote`:
+#
+#           With -m <master> option, a symbolic-ref refs/remotes/<name>/HEAD
+#           is set up to point at remote’s <master> branch.
+#
+#           See also the set-head command.
+#
+#     - From `git remote set-head` from `man git-remote`:
+#
+#         Sets or deletes the default branch (i.e. the target of the
+#         symbolic-ref refs/remotes/<name>/HEAD) for the named remote.
+#
+#         Having a default branch for a remote is not required, but allows
+#         the name of the remote to be specified in lieu of a specific branch.
+#
+#     And since that's all I see on the subject, my guess is the user is
+#     expected to move this pointer as necessary.
+#
+#     (Also, are `git remote add -m <branch>` and `git remote set-head`
+#      the only ways to add the ref? Because then I cannot explain why
+#      some of my repos have it set, because I didn't set it myself.)
+#
+# So we'll preemptively remove that pointer, so it doesn't
+# grief us on `git fetch --prune`.
+
+git_remote_delete_head () {
+  local git_resp
+
+  git_resp="$(git rev-parse "${MR_REMOTE}" 2>&1 > /dev/null)" || true
+
+  # If no stderr, means success, i.e., remote/HEAD exists.
+  # - Likewise if call failed and stderr says dangling,
+  #   then also exists.
+  # - Which is basically a long way to test if the file exists:
+  #     [ -f .git/refs/${MR_REMOTE}/HEAD ]
+  if [ -z "${git_resp}" ] \
+    || echo "${git_resp}" | grep -q "^warning: ignoring dangling symref " \
+  ; then
+    # This is always quiet, whether or not it deletes the file.
+    git remote set-head "${MR_REMOTE}" --delete
+
+    info "  $(bg_red)$(fg_white)$(attr_emphasis)🪓 r/HEAD🤯$(attr_reset)" \
+      "$(fg_hotpink)${MR_REPO}/.git/refs/remotes/${MR_REMOTE}/HEAD$(attr_reset)"
+  else
+    local ref_file=".git/refs/remotes/${MR_REMOTE}/HEAD"
+
+    if [ -f "${ref_file}" ]; then
+      # Unreachable code.
+      warn "Unxpected: remote/HEAD should not exist: ${MR_REPO}/${ref_file}"
+    fi
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 git_fetch_remote_travel () {
   local target_repo="${1:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
@@ -1573,6 +1695,8 @@ git_fetch_n_cobr () {
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
   # apparently. I think this'll work well.
   git_set_remote_travel "${source_repo}"
+  git_remote_delete_head
+
   git_fetch_remote_travel "${target_repo}" "${target_type}" "${source_repo}" "${rel_repo}"
 
   # ***
