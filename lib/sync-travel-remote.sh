@@ -1254,7 +1254,7 @@ git_change_branches_if_necessary () {
         # essentially `git checkout --branch <branch> <remote>/<branch>`,
         # each of while fails if the branch already exists.
         #  git checkout -b "${source_branch}" "${MR_REMOTE}/${source_branch}"
-        git checkout --track "${MR_REMOTE}/${source_branch}"
+        git checkout --track "${MR_REMOTE}/${source_branch}" >/dev/null 2>&1
       fi
     fi
     DID_BRANCH_CHANGE=1
