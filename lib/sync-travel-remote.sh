@@ -1287,8 +1287,6 @@ git_merge_ff_only () {
   elif git merge-base --is-ancestor "${to_commit}" "HEAD"; then
     # Local ahead of remote.
     print_mergefail_msg_localahead "${target_repo}"
-
-    false
   else
     if ( \
       ${MR_NO_RESET_HARD:-true} \
@@ -1296,8 +1294,6 @@ git_merge_ff_only () {
     ); then
       # Diverged.
       print_mergefail_msg_diverged "${target_repo}" "${to_commit}" ""
-
-      false
     fi
   fi
 }
@@ -1396,7 +1392,7 @@ _git_merge_ff_only_safe_and_complicated () {
   # We verified `git status --porcelain` indicated nothing before trying to merge,
   # so this could mean the branch diverged from remote, or something. Inform user.
   if [ ${merge_retcode} -ne 0 ]; then
-    print_mergefail_msg_diverged "${target_repo}" "${to_commit}" "${git_resp}"
+    print_mergefail_msg_diverged "${target_repo}" "${to_commit}" "${git_resp}" || true
   elif (printf %s "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
@@ -1640,6 +1636,8 @@ print_mergefail_msg_diverged () {
   echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
 
   travel_process_chores_file_lock_release
+
+  false  # So caller doesn't have to
 }
 
 shorten_sha () {
@@ -1666,6 +1664,8 @@ print_mergefail_msg_localahead () {
     "  $(fg_lightorange)ssh ${MR_REMOTE}" \
     "'cd ${rem_repo} && MR_REMOTE=$(hostname) ${mr_repo} -d . -n ffssh'$(attr_reset)" \
       >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+
+  false  # So caller doesn't have to
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
