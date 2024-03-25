@@ -125,7 +125,7 @@ scan_for_projects () {
       fi
 
       if [ ${TERM_WIDTH} -gt 0 ]; then
-        if ${OMR_PROGGER:-true}; then
+        if ${OMR_PROGGER:-true} && stdout_isatty; then
           local progger_char=${progger_set:${progger_curr}:${progger_width}}
 
           printf "${progger_char}"
@@ -204,6 +204,10 @@ cache_termimal_width () {
 }
 
 clear_line () {
+  if ! stdout_isatty; then
+    return 0
+  fi
+  
   printf "\r"
 
   if [ ${TERM_WIDTH} -gt 0 ]; then
