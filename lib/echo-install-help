@@ -4,6 +4,10 @@
 # License: MIT
 
 [DEFAULT]
+# Avoid 'failed' during `mr -d / echoInstallHelp` on repos that don't use it.
+echoInstallHelp = true
+
+[DEFAULT]
 lib =
   . "echo-install-help.sh"
 

@@ -123,15 +123,6 @@ teardown_dispatch_append = git_any_cache_teardown "${@}"
 # ========================================================================
 # ------------------------------------------------------------------------
 
-# Default some actions to 'true' so that, for projects that do not
-# define these actions, `mr -d / <action>` will not report 'failed'.
-
-[DEFAULT]
-autocommit = true
-echoInstallHelp = true
-
-# ***
-
 [DEFAULT]
 # For all actions (any action), do not print blank line between repos.
 no_print_sep = true
