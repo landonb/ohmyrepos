@@ -1,0 +1,26 @@
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/ohmyrepos#😤
+# License: MIT
+
+[DEFAULT]
+
+# Use skip_unless_archiving to disable a project unless MR_ARCHIVED set.
+#
+# - Use case: You don't normally want `mr -d /` to run on archival projects,
+#   but you need some way to occasionally include those projects, e.g., when
+#   running `MR_REMOTE=foo mr -d / ffssh` to backup your projects.
+#
+# Usage, e.g.,:
+#
+#   [/path/to/project]
+#   ...
+#   skip = skip_unless_archiving
+#
+# To reactivate projects disabled by skip_unless_archiving,
+# set the MR_ARCHIVED environment, e.g.,:
+#
+#   MR_ARCHIVED=true mr -d /path/to/project foo
+
+lib = skip_unless_archiving () { [ -z ${MR_ARCHIVED+x} ]; }
+
