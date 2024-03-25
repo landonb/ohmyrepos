@@ -14,7 +14,7 @@
 [DEFAULT]
 checkout =
   if [ -z "${MR_REPO_REMOTES}" ]; then
-    >&2 echo "ERROR: Missing project-specific MR_REPO_REMOTES var, or 'checkout' action"
+    >&2 echo "ERROR: Please define either MR_REPO_REMOTES environ, or 'checkout' action"
     #
     exit 1
   fi

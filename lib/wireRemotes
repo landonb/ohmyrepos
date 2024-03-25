@@ -23,7 +23,7 @@
 wireRemotes =
   exit_if_arg_missing () {
     if [ -z "$1" ]; then
-      >&2 echo "ERROR: Incomplete MR_REPO_REMOTES for project: ${MR_REPO}"
+      >&2 echo "ERROR: Please set MR_REPO_REMOTES for project: ${MR_REPO}"
       #
       exit 1
     fi
