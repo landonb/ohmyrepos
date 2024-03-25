@@ -112,6 +112,11 @@ _git_url_according_to_user () {
     url_subdir="${git_host_user}/$(basename -- "${url_subdir}")"
   fi
 
+  # If the host path is absolute, assume local remote.
+  if [ "${remote_url_or_path#/}" != "${remote_url_or_path}" ]; then
+    git_host_origin=""
+  fi
+
   # Reassemable URL using scheme/protocol (HTTPS/SSH) and domain (github.com)
   # from arg or environ.
   local git_url="${git_host_origin}${url_subdir}"
