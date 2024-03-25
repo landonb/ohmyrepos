@@ -213,14 +213,6 @@ wireRemotes =
 
 # ***
 
-# Defaults for `install-os-specific` function.
-
-[DEFAULT]
-installDarwin = false
-installLinux = false
-
-# ***
-
 # Default some actions to 'true' so that, for projects that do not
 # define these actions, `mr -d / <action>` will not report 'failed'.
 

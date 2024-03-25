@@ -4,6 +4,11 @@
 # License: MIT
 
 [DEFAULT]
+# Defaults for `install_os_specific` function.
+installDarwin = false
+installLinux = false
+
+[DEFAULT]
 lib =
   . "install-os-specific.sh"
 
