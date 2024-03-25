@@ -9,17 +9,9 @@
 # to a travel device.
 #
 # - Use case: Your travel device uses a tomb, which must be created with
-#   a fixed size, and which takes longer to mount the larger the size,
-#   and your USB device has limited capactity compared to machine disks,
-#   so there are some projects you don't want to be synced to the travel
-#   device.
-#
-# - Use case: You use an encrypted shadow repo to manage personal files
-#   on a corporate device. On your personal machine, you have both the
-#   encrypted and plaintext directories of the same repo, and you only
-#   want to sync the plaintext directory to the (already) encrypted
-#   travel device (and also the encrypted shadow repo grows hugely big
-#   with every change).
+#   a fixed size, and which takes longer to mount the larger the size.
+#   And that USB device has limited capactity compared to machine disks,
+#   so there are some projects you don't want copied to the travel device.
 #
 # Usage, e.g.,:
 #
