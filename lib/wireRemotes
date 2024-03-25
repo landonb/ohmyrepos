@@ -29,7 +29,7 @@ wireRemotes =
     fi
   }
   #
-  set -- ${MR_REPO_REMOTES}
+  eval "set -- ${MR_REPO_REMOTES}"
   #
   exit_if_arg_missing "$1"
   #
