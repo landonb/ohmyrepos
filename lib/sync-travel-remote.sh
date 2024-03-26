@@ -1820,7 +1820,7 @@ git_fetch_n_cobr_n_merge () {
   # Insist local repo tidy; set remote; fetch remote; change local branch.
   git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_type}" "${target_type}" "${rel_repo}"
 
-  # Fast-forward merge, so no new commits, and complain if cannot.
+  # Try to fast-forward merge, or use reset-hard if safe, otherwise complain.
   git_move_local_branch_if_safe "${MR_ACTIVE_BRANCH}" "${target_repo}"
 }
 
@@ -1877,6 +1877,7 @@ git_merge_ffonly_ssh_mirror () {
   local rem_repo="$(print_path_for_remote_user "${MR_REPO}")"
   local rel_repo="$(lchop_sep "${rem_repo}")"
   local ssh_path="ssh://${MR_REMOTE}/${rel_repo}"
+  # rel_repo only used for error message.
   git_fetch_n_cobr_n_merge "${ssh_path}" "${MR_REPO}" 'ssh' 'local' "${rel_repo}"
 }
 
