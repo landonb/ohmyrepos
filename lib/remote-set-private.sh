@@ -3,7 +3,7 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-# USAGE: Use private_remote for projects that are not published online.
+# USAGE: Use remote_set_private for projects that are not published online.
 #
 # This means the remote URL depends on the remote host name (if using SSH) or
 # the local path prefix (if using a local path, such as a mounted USB device).
@@ -14,14 +14,14 @@
 # Usage, e.g.,:
 #
 #   [/path/to/project]
-#   lib = private_remote
+#   lib = remote_set_private
 #
 # Or, to specify a custom destination directory on 'checkout':
 #
 #   [/path/to/project]
-#   lib = private_remote "target-dir"
+#   lib = remote_set_private "target-dir"
 #
-# The `private_remote` function will configure MR_REPO_REMOTES
+# The `remote_set_private` function will configure MR_REPO_REMOTES
 # for use by certain actions, like `checkout` and `wireRemotes`.
 #
 # You'll need to specify the remote host when running OMR, e.g.,:
@@ -32,7 +32,7 @@
 #
 #   MR_TRAVEL=/media/user/usb-stick MR_REMOTE=usb mr -d /path/to/project checkout
 #
-# Note as such that `private_remote` configures the URL depending on MR_TRAVEL.
+# Note as such that `remote_set_private` configures the URL depending on MR_TRAVEL.
 #
 # - If MR_TRAVEL is unset, the URL prefix is "ssh://${MR_REMOTE}/".
 #
@@ -41,13 +41,13 @@
 # This flexibility lets you avoid hard-coding any URLs into individual
 # project 'checkout' actions.
 
-# HSTRY: Without `private_remote`, there's a long way to do this, e.g.,
+# HSTRY: Without `remote_set_private`, there's a long way to do this, e.g.,
 #
 #   [/path/to/project]
 #   checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
 #     git clone -o "${MR_REMOTE}" "${MR_TRAVEL}/${MR_REPO}"
 
-private_remote () {
+remote_set_private () {
   local dst_path="$1"
 
   if [ "${MR_ACTION}" = "checkout" ]; then
@@ -58,7 +58,7 @@ private_remote () {
     fi
   elif [ "${MR_ACTION}" = "wireRemotes" ]; then
     if [ -z "${MR_REMOTE}" ]; then
-      warn "Skipping private_remote b/c no MR_REMOTE: ${MR_REPO}"
+      warn "Skipping remote_set_private b/c no MR_REMOTE: ${MR_REPO}"
 
       return 0
     fi
