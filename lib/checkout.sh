@@ -11,12 +11,11 @@ mr_repo_checkout () {
     #
     exit 1
   fi
-  #
+
   eval "set -- ${MR_REPO_REMOTES}"
   local remote_name="$1"
   local remote_url_or_path="$2"
   local dest_dir=""
-  #
   # Test if couplet or thruple: If third arg. ends in /, indicates dest. dir;
   # otherwise (if set) is start of next remote name/url[/dest] pair/throuple
   # (which 'wireRemotes' uses, but not 'checkout').
@@ -29,7 +28,7 @@ mr_repo_checkout () {
   if [ "${3%/}" != "${3}" ]; then
     dest_dir="$3"
   fi
-  #
+
   # Note this uses `_git_url_according_to_user` to make appropriate URL.
   git_clone_giturl -o "${remote_name}" "${remote_url_or_path}" "${dest_dir}"
 }
