@@ -96,10 +96,6 @@ private_remote () {
     rem_path="$(git_update_dev_path)"
   fi
 
-  MR_REPO_REMOTES="${MR_REMOTE} '${rem_path}'"
-
-  if [ -n "${dst_path}" ]; then
-    MR_REPO_REMOTES="${MR_REPO_REMOTES} '${dst_path}'"
-  fi
+  remote_set "${MR_REMOTE}" "${rem_path}" "${dst_path}"
 }
 
