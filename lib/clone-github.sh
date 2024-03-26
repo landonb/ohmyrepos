@@ -18,16 +18,16 @@
 # USAGE:
 #
 #   # Clones https://github.com/user/repo.git or git@github.com:user/repo.git
-#   # depending on OHMYREPOS_GIT_HOST_ORIGIN environ (defaults HTTPS):
+#   # depending on MR_GIT_HOST_ORIGIN environ (defaults HTTPS):
 #   git_clone_giturl "user/repo.git"
 #
 #   # Similar, but also specifies the remote name, e.g., "upstream":
 #   git_clone_giturl -o "upstream" "user/repo.git"
 #
 #   # Specify the SSH transport protocol.
-#   OHMYREPOS_GIT_HOST_ORIGIN="git@github.com:" mr -d . install
+#   MR_GIT_HOST_ORIGIN="git@github.com:" mr -d . install
 #
-# Probably for each host you'll simply `export OHMYREPOS_GIT_HOST_ORIGIN`
+# Probably for each host you'll simply `export MR_GIT_HOST_ORIGIN`
 # from some Bashrc or equivalent so you don't have to think about it.
 
 git_clone_giturl () {
@@ -97,7 +97,7 @@ git_clone_giturl () {
 #   https://www.rfc-editor.org/rfc/rfc6454#section-5
 _git_url_according_to_user () {
   local remote_url_or_path="$1"
-  local git_host_origin="${2:-${OHMYREPOS_GIT_HOST_ORIGIN:-https://github.com/}}"
+  local git_host_origin="${2:-${MR_GIT_HOST_ORIGIN:-https://github.com/}}"
   local git_host_user="$3"
 
   # Strip prefix (if included) from project URL.

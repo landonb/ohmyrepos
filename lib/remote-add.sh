@@ -8,7 +8,7 @@ remote_add () {
   local remote_name="$1"
   local remote_url_or_path="$2"
   # Generally, you won't specify the following 2 args from a project.
-  # - Prefer specifying the origin via an environ, OHMYREPOS_GIT_HOST_ORIGIN.
+  # - Prefer specifying the origin via an environ, MR_GIT_HOST_ORIGIN.
   local git_host_origin="$3"
   # - Prefer not setting this arg at all, ever. (DUNNO: Why did I add this?
   #   If it's really not used, nor useful, we should remove it.)
