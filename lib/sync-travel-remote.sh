@@ -1874,10 +1874,9 @@ git_merge_ffonly_ssh_mirror () {
 
   git_merge_check_env_remote
   git_merge_check_env_repo
-  MR_FETCH_HOST=${MR_FETCH_HOST:-${MR_REMOTE}}
   local rem_repo="$(print_path_for_remote_user "${MR_REPO}")"
   local rel_repo="$(lchop_sep "${rem_repo}")"
-  local ssh_path="ssh://${MR_FETCH_HOST}/${rel_repo}"
+  local ssh_path="ssh://${MR_REMOTE}/${rel_repo}"
   git_fetch_n_cobr_n_merge "${ssh_path}" "${MR_REPO}" 'ssh' 'local' "${rel_repo}"
 }
 
