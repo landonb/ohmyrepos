@@ -464,24 +464,34 @@ This behavior is wired using ``myrepos``' ``_append`` hooks, e.g.,::
   ...
   teardown_dispatch_append = git_any_cache_teardown "${@}"
 
-``remote_add``
-==============
+``MR_REPO_REMOTES``
+===================
 
-If you want to wire more git-remote URLs to a project, use ``remote_add``.
+If you want to wire more git-remote URLs to a project, use ``MR_REPO_REMOTES``.
 
-For instance, I like to use a remote named 'upstream' to store the URL
-of the original project for any project that I've forked.
+For instance, you might use a remote named 'upstream' to store the URL
+of the original project for any project that you've forked.
 
-I also call the command ``wireupstream``, so I can then call
-``mr -d /path/to/project wireupstream``.
+In this case, define the ``MR_REPO_REMOTES`` variable for a project,
+and skip the 'checkout' action, which will be handled automatically.
 
 Here's an example that shows how I've got the ``myrepos`` remotes wired,
-one to my fork (what git sets to 'origin' by default), and another remote
-I wire to the upstream ``myrepos`` project::
+one to my fork, and another remote I wire to the upstream ``myrepos``
+project::
 
   [/path/to/projects/myrepos]
-  checkout = git clone 'git@github.com:landonb/myrepos.git' 'myrepos'
-  wireupstream = remote_add upstream 'git://myrepos.branchable.com/'
+  lib = MR_REPO_REMOTES="
+    origin git@github.com:landonb/myrepos.git
+    upstream git://myrepos.branchable.com/
+    "
+
+The ``MR_REPO_REMOTES`` works with two commands: 'checkout', and 'wireRemotes'.
+
+Note that 'checkout' only uses the first remote from the list.
+
+To configure the other remotes, call ``wireRemotes``, e.g.,::
+
+  mr -d / wireRemotes
 
 ################################
 Usage: ``mr`` Command Extensions
