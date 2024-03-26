@@ -1437,12 +1437,12 @@ _git_merge_ff_only_safe_and_complicated () {
   if [ -n "${changes_txt}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
-    debug "${changes_txt}"
+    debug_mline "${changes_txt}"
   fi
   if [ -n "${changes_bin}" ]; then
     info "       $(fg_mintgreen)$(attr_emphasis)bin+$(attr_reset)  " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
-    debug "${changes_bin}"
+    debug_mline "${changes_bin}"
   fi
 
   # We verified `git status --porcelain` indicated nothing before trying to merge,
@@ -1501,8 +1501,25 @@ colorize_diff () {
     return 0
   fi
 
-  printf %s "${git_resp}" | grep -P "${pattern}" | head -1 | eval "${sub_colorize_head}"
-  printf %s "${git_resp}" | grep -P "${pattern}" | tail +2 | eval "${sub_colorize_tails}"
+  if ! ${MR_DIFF_REPORT_MULTIPLE_TRACE:-true}; then
+    printf %s "${git_resp}" | grep -P "${pattern}" | head -1 | eval "${sub_colorize_head}"
+    printf %s "${git_resp}" | grep -P "${pattern}" | tail +2 | eval "${sub_colorize_tails}"
+  else
+    printf %s "${git_resp}" | grep -P "${pattern}" | eval "${sub_colorize_head}"
+  fi
+}
+
+debug_mline () {
+  local changes="$1"
+
+  if ! ${MR_DIFF_REPORT_MULTIPLE_TRACE:-true}; then
+    debug "$line"
+  else
+    # Note that `done <<< "${changes}"` is not POSIX, so piping instead.
+    echo "${changes}" | while IFS= read -r line; do
+      debug "$line"
+    done
+  fi
 }
 
 # ***
@@ -1570,7 +1587,7 @@ _git_merge_reset_hard_if_local_unchanged () {
         )"
         local pattern=""
 
-        debug "$(colorize_diff "${git_diff}" "${pattern}")"
+        debug_mline "$(colorize_diff "${git_diff}" "${pattern}")"
 
         return 0
       else
