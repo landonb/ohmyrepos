@@ -16,7 +16,7 @@
 # Usage, e.g.,:
 #
 #   [/path/to/project]
-#   checkout = private_clone
+#   ...
 #   skip = no_travel
 #
 # To disable no_travel, set the MR_ARCHIVED environment, e.g.,:
