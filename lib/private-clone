@@ -29,9 +29,10 @@
 
 lib =
   private_clone () {
-    [ -z ${MR_REMOTE} ] &&
-      error 'You must set MR_REMOTE' &&
-      return 1
+    if [ -z "${MR_REMOTE}" ]; then
+      # Fail using errexit.
+      fatal 'ERROR: You must set MR_REMOTE'
+    fi
     #
     git clone -o "${MR_REMOTE}" \
       "ssh://${MR_REMOTE}${1:-${MR_REPO}}" \
