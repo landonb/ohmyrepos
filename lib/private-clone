@@ -28,6 +28,8 @@
 #   MR_REMOTE=hostname mr -d /path/to/project checkout
 
 lib =
+  local local_path="${1:-${MR_REPO}}"
+  #
   private_clone () {
     if [ -z "${MR_REMOTE}" ]; then
       # Fail using errexit.
@@ -35,7 +37,7 @@ lib =
     fi
     #
     git clone -o "${MR_REMOTE}" \
-      "ssh://${MR_REMOTE}${1:-${MR_REPO}}" \
-      "${2:-$(basename -- "${1:-${MR_REPO}}")}"
+      "ssh://${MR_REMOTE}${local_path}" \
+      "${2:-$(basename -- "${local_path}")}"
   }
 
