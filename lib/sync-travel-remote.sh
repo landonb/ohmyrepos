@@ -1295,7 +1295,7 @@ git_change_branches_if_necessary () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_merge_ff_only () {
+git_move_local_branch_if_safe () {
   local source_branch="$1"
   local target_repo="${2:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
@@ -1821,7 +1821,7 @@ git_fetch_n_cobr_n_merge () {
   git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_type}" "${target_type}" "${rel_repo}"
 
   # Fast-forward merge, so no new commits, and complain if cannot.
-  git_merge_ff_only "${MR_ACTIVE_BRANCH}" "${target_repo}"
+  git_move_local_branch_if_safe "${MR_ACTIVE_BRANCH}" "${target_repo}"
 }
 
 git_pack_travel_device () {
