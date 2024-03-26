@@ -8,16 +8,23 @@
 #
 #     [/path/to/one/repo]
 #     lib = MR_REPO_REMOTES="
-#       origin https://github.com/git/git.git git/
+#       origin https://github.com/git/git.git dest-dir/
 #       fork https://github.com/user1/git.git
 #       spoon https://github.com/user2/git.git
 #       "
 #
-#     [/path/to/another/repo]
-#     lib = MR_REPO_REMOTES="
-#       origin https://github.com/git/git.git
-#       fork https://github.com/user1/git.git
-#       "
+# - As a convenience, use `remote_set` for improved readability, e.g.,
+#
+#     [/path/to/one/repo]
+#     lib =
+#       remote_set origin https://github.com/git/git.git dest-dir
+#       remote_set fork https://github.com/user1/git.git
+#       remote_set spoon https://github.com/user2/git.git
+#
+# Note that the clone destination directory ('dest-dir' in the previous
+# examples) must end in a slash in the MR_REPO_REMOTES string (e.g.,
+# 'dest-dir/'. But when using `remote_set`, it may be omitted (e.g.,
+# 'dest-dir').
 
 [DEFAULT]
 wireRemotes =

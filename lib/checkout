@@ -1,15 +1,101 @@
-# If no explicit 'checkout' action, use MR_REPO_REMOTES environ.
-# - DRY: This lets us avoid having project-specific 'checkout' and
-#   'wireRemotes' actions that both specify the same main remote.
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/ohmyrepos#😤
+# License: MIT
 
-# Note myrepos won't run user actions unless the project directory exists,
-# but it exempts the 'checkout' action.
+# USAGE: Automates repo. checkout using the MR_REPO_REMOTES environ.
+#
+# - In conventional `mr` usage, the user would hard-code the remote
+#   properties in the 'checkout' action, e.g.,
+#
+#     [/path/to/project]
+#     checkout = git clone -o origin https://github.com/path/to/project
+#
+# But then the remote name and URL are not available to other actions.
+#
+# So OMR adds a MR_REPO_REMOTES environ that can be used to cache one
+# or more remote properties for other actions to use.
+#
+# OMR also wires a default 'checkout' action that calls `mr_repo_checkout`,
+# which uses the MR_REPO_REMOTES environ to get the remote name and URL.
+# So rather than having to hard-code the remote name and URL in the
+# 'checkout' action itself, the user defines them from a `lib` statement
+# (and then omits the 'checkout' action entirely).
+#
+# There are a few ways to setup the environ.
+#
+# - The user can set the environ manually, e.g.,
+#
+#     [/path/to/project]
+#     lib = MR_REPO_REMOTES="origin https://github.com/path/to/project"
+#
+#     # Or, with a custom destination directory, e.g.,
+#     [/path/to/project]
+#     lib = MR_REPO_REMOTES="origin https://github.com/path/to/project local-dest/"
+#
+#   Note that the destination directory argument must end in a trailing slash.
+#
+# - Or the user can use the `remote_set` convenience, e.g.,
+#
+#     [/path/to/project]
+#     lib = remote_set origin https://github.com/path/to/project
+#
+#     # Or, with a custom destination directory, e.g.,
+#     [/path/to/project]
+#     lib = remote_set origin https://github.com/path/to/project local-dest
+#
+#   When using `remote_set`, it is not necessary to add a trailing slash
+#   to the destination directory argument.
+#
+# The MR_REPO_REMOTES environ is also used by 'wireRemotes' action to
+# remote-add one or more remotes.
+#
+# - The same mechanisms can be used to specifiy multiple remotes, e.g.,
+#
+#     [/path/to/project]
+#     lib =
+#       remote_set origin https://github.com/path/to/project local-dest
+#       remote_set upstream https://github.com/path/to/upstream
+#
+#     # Or, doing so directly:
+#     [/path/to/project]
+#     lib = MR_REPO_REMOTES="
+#       origin https://github.com/path/to/project local-dest/
+#       upstream https://github.com/path/to/upstream
+#     "
+#
+#     In which case the properties from the first `remote_set` (or from
+#     the first entry in MR_REPO_REMOTES) are used by `mr_repo_checkout`,
+#     and all entries are used by 'wireRemotes'.
+#
+# The MR_REPO_REMOTES environ is currently used by two actions.
+#
+# - They're used on checkout if a project omits the 'checkout' action
+#   (or if it specifies `checkout = mr_repo_checkout`).
+#
+# - And the same set of remotes is used by 'wireRemotes', e.g.,
+#
+#     mr -d / wireRemotes
+#
+#   will calls `git remote add ...` on each set of remote properties
+#   in MR_REPO_REMOTES.
+#
+# Essentially, MR_REPO_REMOTES and `remote_set` are used to DRY the
+# config, so the user can specify remotes once and have them reused
+# by multiple commands.
+
+# Note that myrepos won't run user actions unless the project directory
+# exists, but it exempts the 'checkout' action.
+#
 # - Also, myrepos will skip 'checkout' if the project directory exists.
-# - So if we wanted to call another action from 'checkout', we'd have to
-#   create the destination directory first, e.g.,
-#     mkdir -p -- "${MR_REPO}"
-#     mr -d "${MR_REPO}" -n <someOtherAction>
-#   But we can inline what we need to do here.
+#
+# - As such, if the user wants to call another action from 'checkout',
+#   they must create the destination directory first, e.g.,
+#
+#     [/path/to/project]
+#     checkout =
+#       mkdir -p -- "${MR_REPO}"
+#       mr -d "${MR_REPO}" -n <someOtherAction>
 
 [DEFAULT]
 

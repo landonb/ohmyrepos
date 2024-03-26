@@ -480,16 +480,15 @@ one to my fork, and another remote I wire to the upstream ``myrepos``
 project::
 
   [/path/to/projects/myrepos]
-  lib = MR_REPO_REMOTES="
-    origin git@github.com:landonb/myrepos.git
-    upstream git://myrepos.branchable.com/
-    "
+  lib =
+    remote_set origin git@github.com:landonb/myrepos.git
+    remote_set upstream git://myrepos.branchable.com/
 
-The ``MR_REPO_REMOTES`` works with two commands: 'checkout', and 'wireRemotes'.
+Two commands currently use ``MR_REPO_REMOTES``: 'checkout', and 'wireRemotes'.
 
 Note that 'checkout' only uses the first remote from the list.
 
-To configure the other remotes, call ``wireRemotes``, e.g.,::
+To ``git remote add ...`` the other remotes, call ``wireRemotes``, e.g.,::
 
   mr -d / wireRemotes
 
