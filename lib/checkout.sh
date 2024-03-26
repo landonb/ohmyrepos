@@ -7,8 +7,12 @@
 
 mr_repo_checkout () {
   if [ -z "${MR_REPO_REMOTES}" ]; then
+    >&2 error "ERROR: The MR_REPO_REMOTES environ is unset"
+    >&2 error "- Please set MR_REPO_REMOTES directly, or use \`remote_set\` to set it"
+    >&2 error "- Or, define a custom 'checkout' action and do something else"
+
     # Stop on errexit.
-    >&2 fatal "ERROR: Please define either MR_REPO_REMOTES environ, or 'checkout' action"
+    return 1
   fi
 
   eval "set -- ${MR_REPO_REMOTES}"
