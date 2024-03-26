@@ -220,7 +220,7 @@ clear_line () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 omr_is_registered () {
-  local proj_path="${1:-.}"
+  local proj_path="${1:-$(pwd)}"
 
   local cwd_omr_root
 
