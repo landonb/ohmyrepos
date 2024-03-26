@@ -7,9 +7,8 @@
 
 mr_repo_checkout () {
   if [ -z "${MR_REPO_REMOTES}" ]; then
-    >&2 echo "ERROR: Please define either MR_REPO_REMOTES environ, or 'checkout' action"
-    #
-    exit 1
+    # Stop on errexit.
+    >&2 fatal "ERROR: Please define either MR_REPO_REMOTES environ, or 'checkout' action"
   fi
 
   eval "set -- ${MR_REPO_REMOTES}"
