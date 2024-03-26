@@ -15,20 +15,93 @@
 
 # ***
 
-# USAGE:
+# OVIEW: This file defines a function, `git_clone_giturl` that the
+#        user is unlikely to call directly if they use `remote_set`.
 #
-#   # Clones https://github.com/user/repo.git or git@github.com:user/repo.git
-#   # depending on MR_GIT_HOST_ORIGIN environ (defaults HTTPS):
-#   git_clone_giturl "user/repo.git"
+#        This file uses an environ, `MR_GIT_HOST_ORIGIN`, that the
+#        user will likely want to export from their shell.
+
+# USAGE: You will likely want to export the environ from your shell.
 #
-#   # Similar, but also specifies the remote name, e.g., "upstream":
-#   git_clone_giturl -o "upstream" "user/repo.git"
+# - E.g., call this during ~/.bashrc or equivalent, then don't worry
+#   about it again:
 #
-#   # Specify the SSH transport protocol.
-#   MR_GIT_HOST_ORIGIN="git@github.com:" mr -d . install
+#     export MR_GIT_HOST_ORIGIN="git@github.com:"
 #
-# Probably for each host you'll simply `export MR_GIT_HOST_ORIGIN`
-# from some Bashrc or equivalent so you don't have to think about it.
+# Keep reading for more details.
+
+# USAGE: Set `MR_GIT_HOST_ORIGIN` to specify if remote URLs use SSH or HTTPS.
+#
+# - When the environ is unset or set to "https://github.com/", calling, e.g.,
+#
+#     MR_GIT_HOST_ORIGIN= mr -d . checkout
+#
+#   will clone:
+#
+#     https://github.com/user/repo.git
+#
+#   This assumes the 'checkout' action calls this function:
+#
+#     [/path/to/project]
+#     checkout = git_clone_giturl -o "upstream" "user/repo.git"
+#
+#   or the user uses `remote_set` instead and leaves 'checkout' unset:
+#
+#     [/path/to/project]
+#     lib = remote_set "upstream" "user/repo.git"
+#
+# - You can use SSH transport by setting the environ to "git@github.com:", e.g.,
+#
+#     MR_GIT_HOST_ORIGIN="git@github.com:" mr -d . checkout
+#
+#   will clone:
+#
+#     git@github.com:user/repo.git
+#
+# - Note the environ lets you specify a local remote instead, e.g.,
+#
+#     MR_GIT_HOST_ORIGIN=/media/user/some-mount mr -d /path/to/user/repo -n checkout
+#
+#   will clone:
+#
+#     /media/user/some-mount/path/to/user/repo
+
+# USAGE: The `git_clone_giturl` function accepts two options from git-clone:
+#
+#   -c/--config and -o/--origin
+# 
+# - This example shows how to specify the remote name:
+#
+#     git_clone_giturl -o "upstream" "user/repo.git"
+
+# USAGE: The `git_clone_giturl` function accepts an optional destination
+# directory as the final non-option argument, e.g.,:
+#
+#     git_clone_giturl -o "upstream" "user/repo.git" "dest-dir/"
+
+# USAGE: As mentioned above, not all users will call this function.
+#
+# - If they want to, the user can wire this from a 'checkout' action, e.g.,
+#
+#     [/path/to/project]
+#     checkout = git_clone_giturl -o "upstream" "user/repo.git"
+#
+# - But the `remote_set` approach offers a better solution, e.g.,
+#
+#     [/path/to/project]
+#     lib = remote_set "upstream" "user/repo.git"
+#
+# - `remote_set` lets you define multiple remotes, and those remotes
+#   can be used by other actions, e.g., `mr -d / wireRemotes'.
+#
+# - If the 'checkout' action is absent, the default action calls
+#   `mr_repo_checkout` (from checkout.sh) which passes the first
+#   remote from `remote_set` to this function, `git_clone_giturl`.
+#   This function uses MR_GIT_HOST_ORIGIN to format the URL, and
+#   to clone the remote repository.
+#
+# So generally the user will set MR_GIT_HOST_ORIGIN and use
+# `remote_set`, but they won't call this function directly.
 
 git_clone_giturl () {
   local remote_url_or_path=""
