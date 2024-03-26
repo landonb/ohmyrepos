@@ -222,10 +222,12 @@ clear_line () {
 omr_is_registered () {
   local proj_path="${1:-$(pwd)}"
 
-  local cwd_omr_root
+  local cmd_mr_repo_force
 
-  if ! cwd_omr_root="$( \
-    mr -d "${proj_path}" -n run sh -c 'echo "${MR_REPO}"' 2> /dev/null
+  # Use --force in case current directory is not registered, but parent is
+  # registered but skipped.
+  if ! cmd_mr_repo_force="$( \
+    mr -d "${proj_path}" -n --force run sh -c 'echo "${MR_REPO}"' 2> /dev/null
   )"; then
     # E.g., OUTPUT:
     #   (0 secs.) mr run: no repositories found to work on
@@ -234,18 +236,35 @@ omr_is_registered () {
     return 1
   fi
 
-  # Removing timing/finished message:
+  # Remove second line, the timing/finished message:
   #   (0 secs.) mr run: finished (1 ok)
-  cwd_omr_root="$(echo "${cwd_omr_root}" | head -1)"
+  cmd_mr_repo_force="$(echo "${cmd_mr_repo_force}" | head -1)"
 
-  if [ -z "${cwd_omr_root}" ]; then
+  if [ -z "${cmd_mr_repo_force}" ]; then
     # Unreachable path.
     >&2 echo "✗ unexpectedly, \`mr\` ok, ! mr_repo: ${proj_path}"
 
     return 1
   fi
 
-  if echo "${cwd_omr_root}" | grep -q " mr run: finished (1 skipped)$"; then
+  local omr_path_matches=false
+  if _omr_realpath_cmp "${cmd_mr_repo_force}" "${proj_path}"; then
+    omr_path_matches=true
+  fi
+
+  local cmd_mr_repo_normal
+  cmd_mr_repo_normal="$(mr -d "${proj_path}" -n run sh -c 'echo "${MR_REPO}"')"
+  # Remove timing/finished message.
+  cmd_mr_repo_normal="$(echo "${cmd_mr_repo_normal}" | head -1)"
+
+  if echo "${cmd_mr_repo_normal}" | grep -q " mr run: finished (1 skipped)$"; then
+    if ! "${omr_path_matches}"; then
+      clear_line
+      >&2 echo "✗ unregistered, has a skipped parent: ${proj_path} (${cmd_mr_repo_force})"
+
+      return 1
+    fi
+
     if ${OMR_VERBOSE:-false} || ${OMR_VERBOSE_SKIPPED:-false}; then
       clear_line
       echo "✓ happily registered, but skiparooed: ${proj_path}"
@@ -254,19 +273,26 @@ omr_is_registered () {
     return 99
   fi
 
-  if [ "$(realpath -- "${cwd_omr_root}")" != "$(realpath -- "${proj_path}")" ]; then
+  if ! "${omr_path_matches}"; then
     clear_line
-    >&2 echo "✗ unregistered, but has known parent: ${proj_path} (${cwd_omr_root})"
+    >&2 echo "✗ unregistered, but has known parent: ${proj_path} (${cmd_mr_repo_force})"
 
     return 1
   fi
 
   if ${OMR_VERBOSE:-false} || ${OMR_VERBOSE_NOT_SKIPPED:-false}; then
     clear_line
-    echo "✓ yes, yes it is, happily registered: ${cwd_omr_root}"
+    echo "✓ yes, yes it is, happily registered: ${cmd_mr_repo_force}"
   fi
 
   return 0
+}
+
+_omr_realpath_cmp () {
+  local lhs_path="$1"
+  local rhs_path="$2"
+
+  [ "$(realpath -- "${lhs_path}")" = "$(realpath -- "${rhs_path}")" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
