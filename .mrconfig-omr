@@ -99,7 +99,7 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-grouping"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-unless-archiving"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sorted-commit"
 include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote"
-include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/wireRemotes"
+include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/wire-remotes"
 
 # ========================================================================
 # ------------------------------------------------------------------------
