@@ -5,5 +5,5 @@
 
 [DEFAULT]
 lib =
-  . "clone-github.sh"
+  . "clone-giturl.sh"
 
