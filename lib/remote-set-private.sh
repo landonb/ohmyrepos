@@ -56,7 +56,7 @@ remote_set_private () {
       # Stop on errexit.
       fatal "You must set MR_REMOTE"
     fi
-  elif [ "${MR_ACTION}" = "wireRemotes" ]; then
+  elif [ "${MR_ACTION}" = "wireRemotes" ] || [ "${MR_ACTION}" = "reportRemotes" ]; then
     if [ -z "${MR_REMOTE}" ]; then
       warn "Skipping remote_set_private b/c no MR_REMOTE: ${MR_REPO}"
 

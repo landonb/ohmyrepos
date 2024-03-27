@@ -9,3 +9,5 @@ lib =
 
 wireRemotes = wire_remotes
 
+reportRemotes = report_remotes
+

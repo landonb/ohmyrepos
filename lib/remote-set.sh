@@ -17,7 +17,10 @@ remote_set () {
     MR_REPO_REMOTES="${MR_REPO_REMOTES} "
   fi
 
-  MR_REPO_REMOTES="${MR_REPO_REMOTES}${rem_name} \"${rem_path}\""
+  local git_url
+  git_url="$(_github_url_according_to_user "${rem_path}")"
+
+  MR_REPO_REMOTES="${MR_REPO_REMOTES}${rem_name} \"${git_url}\""
 
   if [ -n "${dst_path}" ]; then
     # Add trailing slash, so mr_repo_checkout knows the first remote
