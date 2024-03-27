@@ -35,7 +35,7 @@ wire_remotes () {
     fi
   }
 
-  eval "set -- ${MR_REPO_REMOTES}"
+  eval "set -- $(echo "${MR_REPO_REMOTES}" | tr -d '\n')"
 
   exit_if_arg_missing "$1"
 

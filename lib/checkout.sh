@@ -15,7 +15,7 @@ mr_repo_checkout () {
     return 1
   fi
 
-  eval "set -- ${MR_REPO_REMOTES}"
+  eval "set -- $(echo "${MR_REPO_REMOTES}" | tr -d '\n')"
   local remote_name="$1"
   local remote_url_or_path="$2"
   local dest_dir=""
