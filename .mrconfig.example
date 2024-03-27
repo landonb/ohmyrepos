@@ -65,7 +65,7 @@ skip = mr_exclusive "home"
 # As mentioned in the previous comment, I keep what dotfiles I can
 # in a public repo online, which I store locally at ~/.homefries.
 [${HOME}/.homefries]
-checkout = git clone "git@github.com:landonb/home-fries.git" ".homefries"
+lib = remote_set origin "https://github.com/landonb/home-fries.git" ".homefries"
 
 # On top of the public repo I layer some private files, which
 # are setup via the `infuse` task, e.g.:
@@ -166,7 +166,7 @@ skip = mr_exclusive "home"
 # You should check out my awesome Vim packages!
 
 [${HOME}/.vim]
-checkout = git clone "git@github.com:landonb/dubs-vim.git" ".vim"
+lib = remote_set origin "https://github.com/landonb/dubs-vim.git" ".vim"
 # I use `chain` here because I have, like, 50 packages cloned for
 # Vim, which I manage through ~/.vim/.mrconfig, which this action
 # will cause to be loaded (though not without `~/.vim/.mrconfig`
@@ -186,7 +186,7 @@ skip = mr_exclusive "vim"
 #  Oh, My Repos! (this project, hello!)
 
 [${HOME}/.ohmyrepos]
-checkout = git clone "git@github.com:landonb/ohmyrepos.git" ".ohmyrepos"
+lib = remote_set origin "https://github.com/landonb/ohmyrepos.git" ".ohmyrepos"
 infuse =
   link_private_exclude "${@}"
   link_private_ignore "${@}"

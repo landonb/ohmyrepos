@@ -66,7 +66,7 @@ For example, suppose the script is named ``infuse-ohmyrepos.sh``,
 then my ``mrconfig`` rule looks like this::
 
   [/path/to/projects/ohmyrepos]
-  checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
+  lib = remote_set origin https://github.com/landonb/ohmyrepos.git
   infuse = ${HOME}/.mrinfuse/infuse-ohmyrepos.sh "${@}"
 
 You can omit the ``"${@}"`` unless you want to pass arguments to your
@@ -109,7 +109,7 @@ For instance, here's where you might find my private ignore file::
 And then here's how I've wired the ``.mrconfig`` rule::
 
   [/path/to/projects/ohmyrepos]
-  checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
+  lib = remote_set origin https://github.com/landonb/ohmyrepos.git
   infuse = link_private_exclude
 
 After running ``mr infuse``, the infuse action will have placed the
@@ -160,7 +160,7 @@ find my private ignore file::
 And then here's how I'd wire my ``.mrconfig`` rule::
 
   [/path/to/projects/ohmyrepos]
-  checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
+  lib = remote_set origin https://github.com/landonb/ohmyrepos.git
   infuse = link_private_ignore
 
 Now you can just run ``mr infuse`` to setup the symlink — or just for
@@ -172,7 +172,7 @@ Hint: If you have both a private ``exclude`` and a private ``ignore``,
 you can list both commands, e.g.,::
 
   [/path/to/projects/ohmyrepos]
-  checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
+  lib = remote_set origin https://github.com/landonb/ohmyrepos.git
   infuse =
     link_private_exclude
     link_private_ignore
@@ -211,7 +211,7 @@ For instance, you could place the private ignore file this way instead::
 And in ``.mrconfig``::
 
   [/path/to/projects/ohmyrepos]
-  checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
+  lib = remote_set origin https://github.com/landonb/ohmyrepos.git
   infuse = symlink_mrinfuse_file ".ignore"
 
 If you want to use a different name for the target file, pass it as a parameter.
@@ -220,7 +220,7 @@ E.g., suppose I had a slightly different ``.ignore`` on different machines.
 I could create host-specific files, and then I could key off that name, e.g.,::
 
   [/path/to/projects/ohmyrepos]
-  checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
+  lib = remote_set origin https://github.com/landonb/ohmyrepos.git
   infuse = symlink_mrinfuse_file ".ignore-$(hostname)" ".ignore"
 
 Note that ``symlink_mrinfuse_file`` fails if the source file is missing.
@@ -250,7 +250,7 @@ that I didn't always bother to create a file for each host. I
 could instead fallback to symlink a default file. E.g.,::
 
   [/path/to/projects/ohmyrepos]
-  checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
+  lib = remote_set origin https://github.com/landonb/ohmyrepos.git
   infuse =
     symlink_mrinfuse_file_first ".ignore-$(hostname)" ".ignore" ".ignore"
 
@@ -276,7 +276,7 @@ symlink command (``/bin/ln``) runs in the context of the project directory
 For example, let's symlink a private notes file in my project working tree::
 
   [/path/to/projects/ohmyrepos]
-  checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
+  lib = remote_set origin https://github.com/landonb/ohmyrepos.git
   infuse = symlink_overlay_file "/path/to/notes/OhMyRepos.rst"
 
 This will create a symlink titled "OhMyRepos.rst" in my project root.
@@ -284,7 +284,7 @@ This will create a symlink titled "OhMyRepos.rst" in my project root.
 I could alternatively specify an alternative target destination, e.g.,::
 
   [/path/to/projects/ohmyrepos]
-  checkout = git clone 'git@github.com:landonb/ohmyrepos.git' 'ohmyrepos'
+  lib = remote_set origin https://github.com/landonb/ohmyrepos.git
   infuse =
     symlink_overlay_file "/path/to/notes/backlog/OhMyRepos.rst" "docs/Private-Notes.rst"
 
@@ -448,7 +448,7 @@ Here's what the Vim project rule might look like (and look, it clones
 my awesome Vim project, Dubs Vim!)::
 
   [${HOME}/.vim]
-  checkout = git clone 'git@github.com:landonb/dubs-vim.git' '.vim'
+  lib = remote_set origin https://github.com/landonb/dubs-vim.git ".vim"
   infuse = symlink_mrinfuse_file 'spell/en.utf-8.add'
 
 ``any-action-runtime``
