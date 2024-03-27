@@ -36,12 +36,13 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../.mrconfig-omr"
 #   dance to copy files into home.
 [${HOME}]
 checkout =
-  [ -z ${MR_REMOTE} ] && fatal "You must set MR_REMOTE"
-  git clone "${MR_REMOTE}/${MR_HOME:-${HOME}}" "/tmp/myhome"
+  local tmp_dir="/tmp/home-some"
+  remote_set_private "${tmp_dir}"
+  mr_repo_checkout
   shopt -s dotglob
-  command mv --no-clobber -- /tmp/myhome/* "${HOME}/"
+  command mv --no-clobber -- "${tmp_dir}"* "${HOME}/"
   shopt -u dotglob
-  rmdir /tmp/myhome/
+  rmdir "${tmp_dir}"
 
 # Include this project in the "home" group so you can call, e.g.:
 #   MR_INCLUDE=home mr -d / ls
@@ -108,8 +109,7 @@ skip = mr_exclusive "home"
 # project, endearingly called waffle (fries).
 [${HOME}/.waffle]
 # Like we do for the $HOME repo, checkout from a peer machine.
-checkout = [ -z ${MR_REMOTE} ] && fatal "You must set MR_REMOTE" ||
-  git clone "${MR_REMOTE}/${MR_HOME:-${HOME}}/.waffle" ".waffle"
+lib = remote_set_private
 
 # Similar to home-fries, run a private infuse script.
 infuse = ${MR_HOME:-${HOME}}/.waffle/infuse-waffle "${@}"
@@ -206,8 +206,7 @@ skip = mr_exclusive "home"
 #   "git_auto_commit_new" option.
 
 [/path/to/my-notes]
-checkout = [ -z ${MR_REMOTE} ] && fatal "You must set MR_REMOTE" ||
-  git clone "${MR_REMOTE}/path/to/my-notes" "my-notes"
+lib = remote_set_private
 autocommit = git_auto_commit_all "${@}" && git_auto_commit_new "${@}"
 # This example also shows how to include the project in multiple groups, e.g.,
 # use `MR_INCLUDE=personal mr -d / ls`

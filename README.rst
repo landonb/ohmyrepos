@@ -354,8 +354,7 @@ This example shows how I might wire my notes repo to automate add and
 commit my notes file when it changes::
 
   [/path/to/notes]
-  checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
-    git clone "${MR_TRAVEL}/path/to/notes" 'notes'
+  lib = remote_set_private
   autocommit =
     git_auto_commit_parse_args "${@}"
     # Auto-commit private Ohmyrepos notes.
@@ -385,8 +384,7 @@ Suppose I have two notes file (or however many), e.g.,::
 Then I could have them all committed automatically thuslyy::
 
   [/path/to/notes]
-  checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
-    git clone "${MR_TRAVEL}/path/to/notes" 'notes'
+  lib = remote_set_private
   autocommit = git_auto_commit_all "${@}"
 
 ``autocommit``: ``git_auto_commit_new``
@@ -400,8 +398,7 @@ to auto-commit changes to existing files, so oftentimes the two options
 are combined, e.g.,::
 
   [/path/to/notes]
-  checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
-    git clone "${MR_TRAVEL}/path/to/notes" 'notes'
+  lib = remote_set_private
   autocommit = git_auto_commit_all "${@}" && git_auto_commit_new "${@}"
 
 ``autocommit``: Ignore Most Projects
@@ -430,8 +427,7 @@ Suppose that the spell file is under ``~/.dotfiles/home/.vim/spell``.
 Here's how the ``.mrconfig`` might look::
 
   [${HOME}/.dotfiles]
-  checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
-    git clone "${MR_TRAVEL}/${MR_HOME:-${HOME}}/.dotfiles" '.dotfiles'
+  lib = remote_set_private
     autocommit =
       # Sort the spell file, for easy diff'ing, or merging/meld'ing.
       # - The .vimrc startup file will remake the .spl file when you restart Vim.
