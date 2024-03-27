@@ -26,3 +26,9 @@ remote_set () {
   fi
 }
 
+# ***
+
+mr_repo_remotes_complete () {
+  echo "${MR_REPO_REMOTES}" | tr -d '\n'
+}
+
