@@ -10,8 +10,12 @@ remote_add () {
   # Generally, you won't specify the following 2 args from a project.
   # - Prefer specifying the origin via an environ, MR_GIT_HOST_ORIGIN.
   local git_host_origin="$3"
-  # - Prefer not setting this arg at all, ever. (DUNNO: Why did I add this?
-  #   If it's really not used, nor useful, we should remove it.)
+  # - The remote user part of the URL can be overriden with this arg,
+  #   or the MR_GIT_HOST_USER arg. It's not generally very useful,
+  #   because you'll always want to just use the user from the original
+  #   URL. But if you maintain the same repo under different users
+  #   (e.g., you keep a private copy of some repos under a different
+  #   GH user), you can use this injector to make it easier.
   local git_host_user="$4"
 
   local git_url

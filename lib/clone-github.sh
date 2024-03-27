@@ -171,7 +171,7 @@ git_clone_giturl () {
 _git_url_according_to_user () {
   local remote_url_or_path="$1"
   local git_host_origin="${2:-${MR_GIT_HOST_ORIGIN:-https://github.com/}}"
-  local git_host_user="$3"
+  local git_host_user="${3:-${MR_GIT_HOST_USER}}"
 
   # Strip prefix (if included) from project URL.
   local url_subdir
