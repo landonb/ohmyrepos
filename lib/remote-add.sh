@@ -18,9 +18,11 @@ remote_add () {
   #   GH user), you can use this injector to make it easier.
   local git_host_user="$4"
 
+  # BWARE: Leave the last 2 args unquoted, because unset has meaning
+  # in the called function.
   local git_url
   git_url="$( \
-    _git_url_according_to_user "${remote_url_or_path}" "${git_host_origin}" "${git_host_user}" \
+    _git_url_according_to_user "${remote_url_or_path}" ${git_host_origin} ${git_host_user} \
   )"
 
   git remote remove "${remote_name}" 2> /dev/null || true

@@ -172,23 +172,39 @@ git_clone_giturl () {
 #   https://www.rfc-editor.org/rfc/rfc6454#section-5
 _git_url_according_to_user () {
   local remote_url_or_path="$1"
-  local git_host_origin="${2:-${MR_GIT_HOST_ORIGIN:-https://github.com/}}"
-  local git_host_user="${3:-${MR_GIT_HOST_USER}}"
+  local git_host_origin="$2"
+  local git_host_user="$3"
 
-  # Strip prefix (if included) from project URL.
-  local url_subdir
-  url_subdir="$( \
-    echo "${remote_url_or_path}" \
-    | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
-  )"
-
-  # Replace Git host user/org name if specified.
-  if [ -n "${git_host_user}" ]; then
-    url_subdir="${git_host_user}/$(basename -- "${url_subdir}")"
+  if [ -z "${2+x}" ]; then
+    git_host_origin="${MR_GIT_HOST_ORIGIN:-https://github.com/}"
   fi
 
-  # If the host path is absolute, assume local remote.
-  if [ "${remote_url_or_path#/}" != "${remote_url_or_path}" ]; then
+  if [ -z "${3+x}" ]; then
+    git_host_user="${MR_GIT_HOST_USER}"
+  fi
+
+  # ***
+
+  # If URL begins with https://github.com/, substitute ${git_host_origin}.
+  # - Any other URL, and any git@ URL, will be left alone.
+  # - This also precludes altering /-prefixed local file paths.
+  local url_subdir="${remote_url_or_path}"
+  if true \
+    && [ "${remote_url_or_path#/}" = "${remote_url_or_path}" ] \
+    && echo "${remote_url_or_path}" | grep -q -e "^https\?://github.com/" \
+  ; then
+    # This strips any https:// or git@ prefix, but we know it's
+    # either https://github.com or http://github.com.
+    url_subdir="$( \
+      echo "${remote_url_or_path}" \
+      | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
+    )"
+
+    # Replace Git host user/org name if specified.
+    if [ -n "${git_host_user}" ]; then
+      url_subdir="${git_host_user}/$(echo "${url_subdir}" | cut -d'/' -f2-)"
+    fi
+  else
     git_host_origin=""
   fi
 
