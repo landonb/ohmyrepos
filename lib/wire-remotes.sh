@@ -34,27 +34,27 @@ wire_remotes () {
       exit 1
     fi
   }
-  #
+
   eval "set -- ${MR_REPO_REMOTES}"
-  #
+
   exit_if_arg_missing "$1"
-  #
+
   local processed_first=false
-  #
+  
   while [ -n "$1" ]; do
     local remote_name="$1"
     local remote_url_or_path="$2"
-    #
+
     exit_if_arg_missing "${remote_url_or_path}"
     shift 2
-    #
+
     # Ignore the dest. dir (only used on 'checkout').
     if ! ${processed_first} && [ "${1%/}" != "${1}" ]; then
       shift
     fi
-    #
+
     remote_add "${remote_name}" "${remote_url_or_path}"
-    #
+
     processed_first=true
   done
 }
