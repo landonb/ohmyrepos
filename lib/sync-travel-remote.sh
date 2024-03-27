@@ -50,7 +50,7 @@ GIT_BARE_REPO='--bare'
 #   MR_REMOTE_HOME=${MR_REMOTE_HOME}
 #
 #   MR_NO_CHECKOUT=${MR_NO_CHECKOUT:-false}
-#   MR_NO_RESET_HARD=${MR_NO_RESET_HARD:-true}
+#   MR_NO_RESET_HARD=${MR_NO_RESET_HARD:-false}
 #   MR_REFLOG_SCAN_MAXDEPTH=${MR_REFLOG_SCAN_MAXDEPTH:-10}
 #   MR_GIT_DIFF_STAT_GRAPH_WIDTH=${MR_GIT_DIFF_STAT_GRAPH_WIDTH:-40}
 #
@@ -1338,7 +1338,7 @@ git_move_local_branch_if_safe () {
       print_mergefail_msg_localahead "${target_repo}"
     else
       if ( \
-        ${MR_NO_RESET_HARD:-true} \
+        ${MR_NO_RESET_HARD:-false} \
         || ! _git_merge_reset_hard_if_local_unchanged "${target_repo}" "${to_commit}"
       ); then
         # Branches diverged. If MR_NO_RESET_HARD=true, means there's likely
