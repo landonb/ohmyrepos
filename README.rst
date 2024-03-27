@@ -428,10 +428,10 @@ Here's how the ``.mrconfig`` might look::
 
   [${HOME}/.dotfiles]
   lib = remote_set_private
-    autocommit =
-      # Sort the spell file, for easy diff'ing, or merging/meld'ing.
-      # - The .vimrc startup file will remake the .spl file when you restart Vim.
-      sort_file_then_commit 'home/.vim/spell/en.utf-8.add'
+  autocommit =
+    # Sort the spell file, for easy diff'ing, or merging/meld'ing.
+    # - The .vimrc startup file will remake the .spl file when you restart Vim.
+    sort_file_then_commit 'home/.vim/spell/en.utf-8.add'
 
 If I also symlink the ``.dotfiles/home`` directory to ``~/.mrinfuse``,
 e.g.,::
