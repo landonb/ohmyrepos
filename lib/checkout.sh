@@ -32,7 +32,7 @@ mr_repo_checkout () {
     dest_dir="$3"
   fi
 
-  # Note this uses `_git_url_according_to_user` to make appropriate URL.
+  # Note this uses `_github_url_according_to_user` to make appropriate URL.
   git_clone_giturl -o "${remote_name}" "${remote_url_or_path}" "${dest_dir}"
 }
 

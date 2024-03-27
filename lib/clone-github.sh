@@ -152,7 +152,7 @@ git_clone_giturl () {
     && return 1 || true
 
   local git_url
-  git_url="$(_git_url_according_to_user "${remote_url_or_path}")"
+  git_url="$(_github_url_according_to_user "${remote_url_or_path}")"
 
   echo "git clone -o \"${remote_name}\" \"${git_url}\" ${config_name_vals}\"${target_dir}\""
 
@@ -170,7 +170,7 @@ git_clone_giturl () {
 
 # DEFIN: Protocol (or Scheme) plus Host (plus Port) is called the *Origin*
 #   https://www.rfc-editor.org/rfc/rfc6454#section-5
-_git_url_according_to_user () {
+_github_url_according_to_user () {
   local remote_url_or_path="$1"
   local git_host_origin="$2"
   local git_host_user="$3"
