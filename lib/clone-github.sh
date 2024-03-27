@@ -4,6 +4,8 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # This git-clone shim lets users dynamically set the GitHub URL
 # depending on, say, what host they're on.
 #
@@ -13,7 +15,7 @@
 # setup on all my hosts (like @biz client machines, I don't bother
 # setting up my personal GH keys).
 
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # OVIEW: This file defines a function, `git_clone_giturl` that the
 #        user is unlikely to call directly if they use `remote_set`.
@@ -164,7 +166,7 @@ git_clone_giturl () {
   fi
 }
 
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # DEFIN: Protocol (or Scheme) plus Host (plus Port) is called the *Origin*
 #   https://www.rfc-editor.org/rfc/rfc6454#section-5
