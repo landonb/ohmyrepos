@@ -100,9 +100,13 @@ _sh_logger_log_msg () {
 
   # Verify LOG_LEVEL is an integer. Note the -eq spews when it fails, e.g.:
   #   bash: [: <foo>: integer expression expected
-  ! [ "${LOG_LEVEL}" -eq "${LOG_LEVEL}" ] \
-    && >&2 echo "WARNING: Resetting LOG_LEVEL, not an integer" \
-    && export LOG_LEVEL=
+  if [ -n "${LOG_LEVEL}" ] \
+    && ! [ "${LOG_LEVEL}" -eq "${LOG_LEVEL}" ] 2>/dev/null \
+  ; then
+    >&2 echo "WARNING: Resetting LOG_LEVEL, not an integer"
+
+    export LOG_LEVEL=
+  fi
 
   if [ ${FCN_LEVEL} -ge ${LOG_LEVEL:-${LOG_LEVEL_ERROR}} ]; then
     local RIGHT_NOW
@@ -111,7 +115,7 @@ _sh_logger_log_msg () {
     [ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ] && bold_maybe=$(attr_bold)
     local invert_maybe=''
     [ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ] && invert_maybe=$(bg_maroon)
-    [ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ] && invert_maybe=$(bg_hotpink)
+    [ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ] && invert_maybe=$(bg_red)
     local prefix
     prefix="${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}"
     (
@@ -144,7 +148,7 @@ critical () {
 # LOG_LEVEL_ERROR=40
 error () {
   # Same style as critical
-  _sh_logger_log_msg "${LOG_LEVEL_CRITICAL}" "$(bg_pink)$(fg_black)$(attr_bold)" ERRR "$@"
+  _sh_logger_log_msg "${LOG_LEVEL_CRITICAL}" "$(bg_red)$(fg_white)$(attr_bold)" ERRR "$@"
 }
 
 # ***
