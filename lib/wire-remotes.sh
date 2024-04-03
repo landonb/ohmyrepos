@@ -122,7 +122,7 @@ report_remotes () {
 
   # ***
 
-  local tmp_file=$(mktemp)
+  local tmp_file="$(mktemp --tmpdir "omr-report-remotes-XXXXXXX")"
 
   trap "command rm -- \"${tmp_file}\"" EXIT
 
