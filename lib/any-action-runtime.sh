@@ -61,10 +61,20 @@ simple_bc_elapsed () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_any_action_started () {
+  # DEBUG: Uncomment to trace setup and teardown calls:
+  #
+  #  _trace_ps_heritage "STAND-UP"
+
+  remove_old_temp_files
+
   print_nanos_now > "${OMR_RUNTIME_TEMPFILE}"
 }
 
 git_any_action_stopped () {
+  # DEBUG: Uncomment to trace setup and teardown calls:
+  #
+  #  _trace_ps_heritage "TEARDOWN"
+
   local setup_time_0
   setup_time_0="$(cat "${OMR_RUNTIME_TEMPFILE}")"
 
@@ -91,6 +101,54 @@ git_any_action_stopped () {
   # multiple runtime temp files in use.
   command rm -- "${OMR_RUNTIME_TEMPFILE}"
 }
+
+# ***
+
+# Cleanup old temp files abandoned on previous runs.
+# - This scenario happens when uses <Ctrl-c>'s an `mr` command.
+# - Note there's no way to use `trap` effectively, because `mr`
+#   calls `setup_dispatch_append` and `teardown_dispatch_append`
+#   in separate processes.
+#   - So we cannot just set a trap when the temp file is created.
+# - But we can infer when `mr` runs us for the first time:
+#   - The very first time `mr` calls `setup_dispatch_append`,
+#     and the last time it calls `teardown_dispatch_append`,
+#     it does so with the user's shell as its parent process.
+#   - In all cases, this process is a `sh -c` command, and
+#     the parent is `perl mr`.
+#     - Except on the first call, the grandparent is another
+#       `sh -c` command.
+#       - But on the first call, the g/p is the user's shell.
+# - Note this means there might always be one stray temp file
+#   that won't get cleaned up until user runs OMR again (or
+#   logsout).
+remove_old_temp_files () {
+  # E.g.,
+  #   if [ "/home/user/.local/bin/bash" = "$( \
+  #     ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ')
+  #   )" ]; then
+  if ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ') \
+    | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' - \
+  ; then
+    # DEBUG: Uncomment to trace setup and teardown calls:
+    #
+    #  _trace_ps_heritage "CLEAN-UP"
+
+    command rm -f -- "${OMR_RUNTIME_TEMPFILE_BASE}"*
+  fi
+}
+
+# DEBUG: You can uncomment calls to this function to see what's going on.
+_trace_ps_heritage () {
+  >&2 echo "$1: $$ / $PPID / $(ps -o ppid= ${PPID} | tr -d ' ')"
+
+  # Print the command namesa:
+  ps -ocommand= -p $$ | head -c 40 >&2
+  ps -ocommand= -p $PPID | head -c 40 >&2
+  ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ') | head -c 40 >&2
+}
+
+# ***
 
 mr_is_quieted () {
   for switch in ${MR_SWITCHES}; do
