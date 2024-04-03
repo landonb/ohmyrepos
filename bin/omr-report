@@ -205,9 +205,10 @@ cache_termimal_width () {
 
 clear_line () {
   if ! stdout_isatty; then
+
     return 0
   fi
-  
+
   printf "\r"
 
   if [ ${TERM_WIDTH} -gt 0 ]; then
