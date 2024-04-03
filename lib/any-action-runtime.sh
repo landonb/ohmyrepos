@@ -89,8 +89,7 @@ git_any_action_stopped () {
   # User can call `mr` from an `mr` action, so only remove the file
   # associated with the current process, because there might be
   # multiple runtime temp files in use.
-  #  command rm -f "${OMR_RUNTIME_TEMPFILE_BASE}-"*
-  command rm "${OMR_RUNTIME_TEMPFILE}"
+  command rm -- "${OMR_RUNTIME_TEMPFILE}"
 }
 
 mr_is_quieted () {
