@@ -124,14 +124,16 @@ scan_for_projects () {
         let "SKP_CNT += 1"
       fi
 
-      if [ ${TERM_WIDTH} -gt 0 ]; then
-        if ${OMR_PROGGER:-true} && stdout_isatty; then
-          local progger_char=${progger_set:${progger_curr}:${progger_width}}
+      if ! ${OMR_VERBOSE:-false} \
+        && ${OMR_PROGGER:-true} \
+        && stdout_isatty \
+        && [ ${TERM_WIDTH} -gt 0 ] \
+      ; then
+        local progger_char=${progger_set:${progger_curr}:${progger_width}}
 
-          printf "${progger_char}"
+        printf "${progger_char}"
 
-          let "dot_cnt += ${progger_width}"
-        fi
+        let "dot_cnt += ${progger_width}"
       fi
 
       progger_curr=$(((${progger_curr} + ${progger_width}) % ${progger_len}))
@@ -205,6 +207,11 @@ cache_termimal_width () {
 
 clear_line () {
   if ! stdout_isatty; then
+
+    return 0
+  fi
+
+  if ${OMR_VERBOSE:-false}; then
 
     return 0
   fi
