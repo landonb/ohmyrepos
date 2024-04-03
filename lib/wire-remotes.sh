@@ -124,8 +124,6 @@ report_remotes () {
 
   local tmp_file="$(mktemp --tmpdir "omr-report-remotes-XXXXXXX")"
 
-  trap "command rm -- \"${tmp_file}\"" EXIT
-
   echo "${known_remotes}$(echo "${MR_KNOWN_REMOTES}" | tr ' ' '\n')" \
     | sed '/^$/d' | LC_COLLATE=C sort >${tmp_file}
 
@@ -139,5 +137,7 @@ report_remotes () {
     warn "ALERT: Working dir remote(s) not registered in mrconfig:" \
       "$(echo "${diff_remotes}" | sed -z 's/\n/, /g' | sed 's/, $//')"
   fi
+
+  command rm -- "${tmp_file}"
 }
 
