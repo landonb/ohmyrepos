@@ -234,6 +234,7 @@ omr_is_registered () {
 
   # Use --force in case current directory is not registered, but parent is
   # registered but skipped.
+  # GRIPE/2024-04-03: This is slow. `mr` startup is slow. 10m on 500 proj.
   if ! cmd_mr_repo_force="$( \
     mr -d "${proj_path}" -n --force run sh -c 'echo "${MR_REPO}"' 2> /dev/null
   )"; then
