@@ -255,7 +255,7 @@ omr_is_registered () {
 
   if [ -z "${mr_repo_path}" ]; then
     # Unreachable path.
-    >&2 echo "✗ unexpectedly, \`mr\` ok, ! mr_repo: ${proj_path}"
+    >&2 echo "✗ unexpectedly, \`mr\` ok, but no output! mr_repo: ${proj_path}"
 
     return 1
   fi
