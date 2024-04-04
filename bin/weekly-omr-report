@@ -141,7 +141,20 @@ process_report () {
 
   command ln -sf -- "${CACHE_CAPTURE}" "${CACHE_CAPTURE_LOCALHOST}"
 
-  diff -q "${CAPTURE_PATH}" "${CACHE_CAPTURE}" > /dev/null
+  diff -q \
+    <(scrub_count_lines "${CAPTURE_PATH}") \
+    <(scrub_count_lines "${CACHE_CAPTURE}") \
+    > /dev/null
+}
+
+# Exclude the final one or two lines that include the registered
+# and skipped counts, and unregistered count. Otherwise user would
+# be troubled with maintaining the reference file whenever that add
+# or remove OMR project config.
+scrub_count_lines () {
+  local file="$1"
+
+  cat -- "${file}" | grep -v "^\(- \)\?Number of "
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
