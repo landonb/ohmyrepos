@@ -75,9 +75,12 @@ omr_report () {
   echo "Number of registered OMR projects: ${REG_CNT} (${SKP_CNT} skipped)"
 
   if [ ${UNK_CNT} -ne 0 ]; then
-    >&2 echo "ERROR: OMR missing this many gits: ${UNK_CNT}"
-
-    return 1
+    # But is it, though?
+    #
+    #  >&2 echo "ERROR: OMR missing this many gits: ${UNK_CNT}"
+    #
+    #  return 1
+    echo "- Number of unregistered projects: ${UNK_CNT}"
   fi
 }
 
