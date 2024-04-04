@@ -121,7 +121,13 @@ omr_report_check_known_knowns () {
     exit_1
   fi
 
-  OMR_VERBOSE=false omr-report > "${CAPTURE_PATH}" 2>&1
+  # If DRY_RUN unset, cannot use before VAR=val, e.g.,
+  #   OMR_VERBOSE=false: command not found
+  if [ -z "${DRY_RUN}" ]; then
+    OMR_VERBOSE=false omr-report > "${CAPTURE_PATH}" 2>&1
+  else
+    ${DRY_RUN} "OMR_VERBOSE=false omr-report > \"${CAPTURE_PATH}\" 2>&1"
+  fi
 }
 
 process_report () {
@@ -217,7 +223,7 @@ email_report () {
 
   local report_time_0=$(date +%s.%N)
 
-  ${DRY_RUN} mailx \
+  mailx \
     -r "${SEND_EMAIL_FROM}" \
     -s "${subject}" \
     -a 'Content-Type: text/html' \
