@@ -1,0 +1,316 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/ohmyrepos#😤
+# License: MIT
+
+# USAGE: If diff fails, update the cache reference: CXREF:
+#
+#   ~/.local/share/weekly-omr-report/omr-report--localhost
+#   # Aka:
+#   ~/.local/share/weekly-omr-report/omr-report-$(hostname)
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Send to local user, and rely on ~/.forward to relay accordingly.
+# CXREF: For notes on setting up postfix server, see:
+#   ~/.kit/py/birdseye/lib/daily-books-update.sh
+#     https://github.com/befinance/birdseye#🐦👁️
+SEND_EMAIL_TO="${SEND_EMAIL_TO:-${LOGNAME}@$(hostname)}"
+
+SEND_EMAIL_FROM="${SEND_EMAIL_FROM:-Weekly-OMR-Report <$(basename -- "$0")@$(hostname)>}"
+
+# Enable if you always want an email report.
+ALWAYS_EMAIL=${ALWAYS_EMAIL:-false}
+# TRNON/2024-04-03 18:56: Turning on. It's just weekly.
+# - And because how would you know if it stopped running?
+#   - Like, how are the monitors monitored?
+# - This also lets user see the repo count periodically.
+ALWAYS_EMAIL=true
+
+DRY_RUN=${DRY_RUN:-}
+# DRY_RUN=echo
+
+# So that omr-report's `mr` command works.
+PATH="${PATH}:${HOME}/.local/bin"
+
+# CPYST/2024-04-03: Test running like it's the cron env:
+#
+#   ~/.depoxy/ambers/bin/test-as-cron ~/.kit/git/ohmyrepos/bin/omr-report
+#
+# - CXREF: https://github.com/DepoXy/depoxy#🍯
+#
+# Which sets up a very limited environment (e.g., hence PATH update).
+#
+# ALTLY: Test running via anacron:
+#
+# - Run the next time anacron runs (per `crontab -l`):
+#
+#     echo '20141201' > ~/.anacron/spool/cron.weekly 
+#
+#   - If you don't want to wait, -force anancron to run -now:
+#
+#       anacron -n -f \
+#         -t ${HOME}/.anacron/anacrontab \
+#         -S ${HOME}/.anacron/spool \
+#         cron.weekly
+#
+#   - TRICK: Add -d for -don't fork in bg, helpful for troubleshooting.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+source_deps () {
+  insist_cmd 'mailx' '- E.g., `apt install bsd-mailx`'
+}
+
+insist_cmd () {
+  local cmd_name="$1"
+  local install_hint="$2"
+
+  command -v "${cmd_name}" > /dev/null && return || true
+
+  >&2 echo "ERROR: Missing system command ‘${cmd_name}’"
+  if [ -n "${install_hint}" ]; then
+    >&2 echo "${install_hint}"
+  fi
+
+  exit_1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# CXREF: ~/.local/share/weekly-omr-report/omr-report--localhost
+CACHE_CAPTURE_DIR="${HOME}/.local/share/weekly-omr-report"
+CACHE_CAPTURE_LOCALHOST="${CACHE_CAPTURE_DIR}/omr-report--localhost"
+CACHE_CAPTURE="${CACHE_CAPTURE_DIR}/omr-report-$(hostname)"
+
+weekly_omr_report () {
+  local CAPTURE_PATH=""
+  local ELAPSED_TIME_0="0.0"
+  begin_capture
+
+  ensure_cache_capture_dir
+
+  local REPORT_FAILED=false
+  omr_report_check_known_knowns \
+    || REPORT_FAILED=true
+
+  local CACHE_FRESHENED=false
+  local DIFF_FAILED=false
+  process_report \
+    || DIFF_FAILED=true
+
+  email_capture
+
+  cleanup_capture
+
+  if stdout_isatty; then
+    notify-send -i face-wink "Complete!" "OMR says hi 🙋"
+  fi
+}
+
+# CXREF: ~/.kit/git/ohmyrepos/bin/omr-report
+omr_report_check_known_knowns () {
+  if ! command -v omr-report > /dev/null; then
+    PATH="${PATH}:$(realpath -- "$(dirname -- "$0")")"
+  fi
+
+  if ! command -v omr-report > /dev/null; then
+    >&2 echo "ERROR: Cannot find \`omr-report\`"
+
+    exit_1
+  fi
+
+  OMR_VERBOSE=false omr-report > "${CAPTURE_PATH}" 2>&1
+}
+
+process_report () {
+  if [ ! -f "${CACHE_CAPTURE}" ]; then
+    command cp -- "${CAPTURE_PATH}" "${CACHE_CAPTURE}"
+
+    CACHE_FRESHENED=true
+
+    return 0
+  fi
+
+  command ln -sf -- "${CACHE_CAPTURE}" "${CACHE_CAPTURE_LOCALHOST}"
+
+  diff -q "${CAPTURE_PATH}" "${CACHE_CAPTURE}" > /dev/null
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+ensure_cache_capture_dir () {
+  local cache_capture_dir="$(dirname -- "${CACHE_CAPTURE}")"
+
+  if [ ! -e "${cache_capture_dir}" ]; then
+    mkdir -p -- "${cache_capture_dir}"
+  fi
+
+  [ -d "${cache_capture_dir}" ]
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+begin_capture () {
+  ELAPSED_TIME_0=$(date +%s.%N)
+
+  # SAVVY: Need --tmpdir when specifying TEMPLATE-XXX so file goes to /tmp, not $(pwd).
+  CAPTURE_PATH="$(mktemp --suffix=".out" --tmpdir "weekly-omr-report-XXXXXXX")"
+
+  touch -- "${CAPTURE_PATH}"
+}
+
+cleanup_capture () {
+  if [ -f "${CAPTURE_PATH}" ]; then
+    command rm -- "${CAPTURE_PATH}"
+  fi
+
+  unset -v CAPTURE_PATH
+}
+
+set_elapsed_time () {
+  local elapsed_time_1=$(date +%s.%N)
+
+  ELAPSED_MINUTES=$(
+    printf "%.2F" $(echo "($elapsed_time_1 - $ELAPSED_TIME_0) / 60.0" | bc -l)
+  )
+}
+
+echo_elapsed () {
+  echo "Your task took <em>${ELAPSED_MINUTES} mins.</em>"
+}
+
+print_elapsed_mins () {
+  local setup_time_0=$1
+  local setup_time_n=${2:-$(date +%s.%N)}
+
+  echo "($setup_time_n - $setup_time_0) / 60" | bc -l | xargs printf "%.2f"
+}
+
+# ***
+
+# Remember that [ -t 1 ] is false when called in a $(subprocess).
+stdout_isatty () {
+  [ -t 1 ]
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+email_capture () {
+  local ELAPSED_MINUTES="0.0"
+  set_elapsed_time
+
+  if ${REPORT_FAILED} \
+    || ${CACHE_FRESHENED} \
+    || ${DIFF_FAILED} \
+    || ${ALWAYS_EMAIL} \
+  ; then
+    email_report
+  fi
+}
+
+email_report () {
+  local subject="OMR says hi 🙋"
+
+  local pre_style="style=\"font-family: 'Hack', 'DejaVu Sans Mono', 'monospace'; font-size: 13px;\"";
+
+  local report_time_0=$(date +%s.%N)
+
+  ${DRY_RUN} mailx \
+    -r "${SEND_EMAIL_FROM}" \
+    -s "${subject}" \
+    -a 'Content-Type: text/html' \
+    "${SEND_EMAIL_TO}" <<EOF
+<p style="color:black">
+$(echo_elapsed)
+</p>
+
+<p style="color:black">
+
+$(${REPORT_FAILED} && echo "<p>The \`omr-report\` command itself failed!</p>" || true)
+
+$(${CACHE_FRESHENED} && echo "<p>Generated new cache file: ${CACHE_CAPTURE}</p>" || true)
+
+$( (! ${DIFF_FAILED} || ${CACHE_FRESHENED}) && echo " \
+$(${CACHE_FRESHENED} || echo "<p>Diff passed!</p>")
+<p>Summary:</p>
+<p><pre ${pre_style}>
+$(cat "${CAPTURE_PATH}" | grep "Number of")
+</pre></p>
+" || true)
+
+$(${ALWAYS_EMAIL} && echo "<p>If you don't always want this email, set ALWAYS_EMAIL=false</p>" || true)
+
+$(${DIFF_FAILED} && echo " \
+<p>Diff failed!</p>
+<p>Please update the reference file:</p>
+<p><pre ${pre_style}>${CACHE_CAPTURE}</pre></p>
+<p>Here's what's the diff:</p>
+<p><pre ${pre_style}>
+$(diff "${CAPTURE_PATH}" "${CACHE_CAPTURE}")
+</pre></p>" || true)
+
+<p style="color:black">
+<p>Here's the full report:</p>
+<pre ${pre_style}>$(cat ${CAPTURE_PATH})</pre>
+</p>
+
+<p style="color:black; font-style: italic">
+[This report took $(print_elapsed_mins "${report_time_0}") mins.]
+</p>
+EOF
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+PROG_NAME_FRIENDLY="weekly-omr-report"
+
+_NORMAL_EXIT=false
+
+exit_1 () { _NORMAL_EXIT=true; exit 1; }
+exit_0 () { _NORMAL_EXIT=true; exit 0; }
+
+exit_cleanup () {
+  if ! ${_NORMAL_EXIT}; then
+    # USAGE: Alert on unexpected error path, so you can add happy path.
+    >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
+    >&2 echo "- Hint: Enable \`set -x\` and run again..."
+  fi
+
+  cleanup_capture
+
+  trap - EXIT
+
+  ${_NORMAL_EXIT} && exit 0 || exit 1
+}
+
+# ***
+
+main () {
+  set -e
+
+  trap -- exit_cleanup EXIT
+
+  source_deps
+
+  weekly_omr_report "$@"
+
+  # Unhook traps.
+  trap - EXIT
+}
+
+# Run the command unless being sourced.
+if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME_FRIENDLY}" ]; then
+  main "$@"
+else
+  source_deps
+fi
+
+_NORMAL_EXIT=true
+
+unset -f main
+unset -f source_deps
+
+${_NORMAL_EXIT}
+
