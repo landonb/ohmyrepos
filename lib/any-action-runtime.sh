@@ -76,11 +76,16 @@ git_any_action_stopped () {
   #  _trace_ps_heritage "TEARDOWN"
 
   local setup_time_0
-  setup_time_0="$(cat "${OMR_RUNTIME_TEMPFILE}")"
+  setup_time_0="$(cat -- "${OMR_RUNTIME_TEMPFILE}" 2> /dev/null)" \
+    || true
 
   if [ -z "${setup_time_0}" ]; then
     # Unreachable.
     >&2 error "ERROR: Missing start time: Is \`git_any_cache_setup\` working?"
+
+    printf %s "$(attr_emphasis)(Unk. secs.)$(attr_reset) "
+
+    return 0
   fi
 
   local setup_time_n="$(print_nanos_now)"
@@ -99,7 +104,13 @@ git_any_action_stopped () {
   # User can call `mr` from an `mr` action, so only remove the file
   # associated with the current process, because there might be
   # multiple runtime temp files in use.
-  command rm -- "${OMR_RUNTIME_TEMPFILE}"
+  # - DUNNO/2024-04-04: I got "rm: cannot remove" error here, but
+  #   the `cat` above (before I added 2> /dev/null) worked fine.
+  #   - So was the file was removed between the two? Literally unbelievable.
+  #   - I added remove_old_temp_files hours ago, so smells related.
+  #     - Though now the cat 2> above, and rm -f inhibit stderr's;
+  #       but user should see "(Unk. secs.)" as indicator.
+  command rm -f -- "${OMR_RUNTIME_TEMPFILE}"
 }
 
 # ***
