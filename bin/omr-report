@@ -250,9 +250,10 @@ omr_is_registered () {
 
   # Remove second line, the timing/finished message:
   #   (0 secs.) mr run: finished (1 ok)
-  cmd_mr_repo_force="$(echo "${cmd_mr_repo_force}" | head -1)"
+  local mr_repo_path
+  mr_repo_path="$(echo "${cmd_mr_repo_force}" | head -1)"
 
-  if [ -z "${cmd_mr_repo_force}" ]; then
+  if [ -z "${mr_repo_path}" ]; then
     # Unreachable path.
     >&2 echo "✗ unexpectedly, \`mr\` ok, ! mr_repo: ${proj_path}"
 
@@ -260,7 +261,7 @@ omr_is_registered () {
   fi
 
   local omr_path_matches=false
-  if _omr_realpath_cmp "${cmd_mr_repo_force}" "${proj_path}"; then
+  if _omr_realpath_cmp "${mr_repo_path}" "${proj_path}"; then
     omr_path_matches=true
   fi
 
@@ -272,7 +273,7 @@ omr_is_registered () {
   if echo "${cmd_mr_repo_normal}" | grep -q " mr run: finished (1 skipped)$"; then
     if ! "${omr_path_matches}"; then
       clear_line
-      >&2 echo "✗ unregistered, has a skipped parent: ${proj_path} (${cmd_mr_repo_force})"
+      >&2 echo "✗ unregistered, has a skipped parent: ${proj_path} (${mr_repo_path})"
 
       return 1
     fi
@@ -287,14 +288,14 @@ omr_is_registered () {
 
   if ! "${omr_path_matches}"; then
     clear_line
-    >&2 echo "✗ unregistered, but has known parent: ${proj_path} (${cmd_mr_repo_force})"
+    >&2 echo "✗ unregistered, but has known parent: ${proj_path} (${mr_repo_path})"
 
     return 1
   fi
 
   if ${OMR_VERBOSE:-false} || ${OMR_VERBOSE_NOT_SKIPPED:-false}; then
     clear_line
-    echo "✓ yes, yes it is, happily registered: ${cmd_mr_repo_force}"
+    echo "✓ yes, yes it is, happily registered: ${mr_repo_path}"
   fi
 
   return 0
