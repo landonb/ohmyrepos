@@ -104,6 +104,7 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/wire-remotes"
 # ------------------------------------------------------------------------
 
 [DEFAULT]
+lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/line-in-file.sh"
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-set.sh"
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-set-private.sh"
 
