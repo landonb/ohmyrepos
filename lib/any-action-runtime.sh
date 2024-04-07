@@ -110,7 +110,14 @@ git_any_action_stopped () {
   #   - I added remove_old_temp_files hours ago, so smells related.
   #     - Though now the cat 2> above, and rm -f inhibit stderr's;
   #       but user should see "(Unk. secs.)" as indicator.
-  command rm -f -- "${OMR_RUNTIME_TEMPFILE}"
+  #
+  # KLUGE/2024-04-07: Sometimes (not often) this fcn. (git_any_action_stopped)
+  # runs and returns "(Unk. secs.)" because the temp file is missing...
+  # - Though I only ever see this fcn called once for any particular
+  #   "${OMR_RUNTIME_TEMPFILE}" so not sure this kludge will work...
+  #
+  #  command rm -f -- "${OMR_RUNTIME_TEMPFILE}"
+  ( sleep 1 && command rm -f -- "${OMR_RUNTIME_TEMPFILE}" ) &
 }
 
 # ***
