@@ -1395,7 +1395,8 @@ _git_merge_ff_only_safe_and_complicated () {
   #        git-merge says:
   #          merge: host/ - not something we can merge
   #        but don't make a rule for that text: git-fetch fails first.
-  local culled="$(printf %s "${git_resp}" \
+  local culled
+  culled="$(printf %s "${git_resp}" \
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
     | grep -v "^Fast-forward$" \
@@ -1416,7 +1417,7 @@ _git_merge_ff_only_safe_and_complicated () {
     | grep -v "^fatal: Not possible to fast-forward, aborting.$" \
     # OMITD: See note above:
     #  | grep -v "^merge: [-a-z0-9]+/ - not something we can merge$"
-  )"
+  )" || true
 
   _git_echo_long_op_finis
 
