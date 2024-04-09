@@ -955,6 +955,28 @@ git_remote_delete_head () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# *** Re: grep pipeline below: Ignore uninteresting git-fetch messages:
+#
+# - SAVVY/2024-04-09: Re: --no-show-forced-updates. Potentially better performance
+#   (though performance not necessarily a top concern with OMR); also something we
+#   don't care about (the author rebases their private work often, and doesn't
+#   care if local Git, during fetch, notices that a remote branch has diverged);
+#   but most importantly (to this fcn) generates a warning, e.g.,:
+#
+#     warning: it took 64.93 seconds to check forced updates; you can use
+#     '--no-show-forced-updates' or run 'git config fetch.showForcedUpdates false'
+#     to avoid this check
+#
+#   Albeit if you use '--no-show-forced-updates', then Git always (and
+#   regardless of '--quiet') spews a different warning:
+#
+#     warning: fetch normally indicates which branches had a forced update,
+#     but that check has been disabled; to re-enable, use '--show-forced-updates'
+#     flag or run 'git config fetch.showForcedUpdates true'
+#
+#   So either way will need grep pipeline matches below to squash whatever
+#   message from leaking through to stdout.
+
 git_fetch_remote_travel () {
   local target_repo="${1:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
@@ -1031,6 +1053,10 @@ git_fetch_remote_travel () {
     | grep -v '^fatal: Could not read from remote repository.$' \
     | grep -v '^Please make sure you have the correct access rights$' \
     | grep -v '^and the repository exists.$' \
+    \
+    | grep -v "^warning: it took .* seconds to check forced updates; you can use$" \
+    | grep -v "^'--no-show-forced-updates' or run 'git config fetch.showForcedUpdates false'$" \
+    | grep -v "^to avoid this check$" \
   )"
 
   if [ -n "${culled}" ]; then
