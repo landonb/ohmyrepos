@@ -1399,6 +1399,7 @@ _git_merge_ff_only_safe_and_complicated () {
   culled="$(printf %s "${git_resp}" \
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
+    | grep -P -v "^Updating files: 100% \(\d+/\d+\), done\.$" \
     | grep -v "^Fast-forward$" \
     | grep -P -v "^Checking out files: " \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
