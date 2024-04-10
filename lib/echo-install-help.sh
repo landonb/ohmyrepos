@@ -34,6 +34,7 @@ echoInstallHelp () {
 "
 }
 
+# Some checkboxes, checkmarks, and cross marks: ✅ ☑  ✔  ✔️  ❌ ❎
 echoInstallHelpWidget () {
   local which_os="${1:-os_all}"
   local dxy_scope="${2:-dxy_all}"
