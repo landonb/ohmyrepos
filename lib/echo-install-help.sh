@@ -11,6 +11,7 @@ echoInstallHelp () {
   local which_os="${1:-os_all}"
   local dxy_scope="${2:-dxy_all}"
   local addendum="$3"
+  local alt_name="$4"
 
   # if ! ${SLATHER_DEFAULTS_ENABLE:-false}; then
   #   return 0
@@ -22,14 +23,14 @@ echoInstallHelp () {
 
   local checkbox="$(echoInstallHelpWidget "${which_os}" "${dxy_scope}")"
 
-  local app_name="$(basename -- "${MR_REPO}")"
+  local app_name="\`$(basename -- "${MR_REPO}")\`"
 
   local addendum_txt=""
   if [ -n "${addendum}" ]; then
     addendum_txt=" (${addendum})"
   fi
 
-  echo "${checkbox} DepoXy: Install \`${app_name}\` from source${addendum_txt}::
+  echo "${checkbox} DepoXy: Install ${alt_name:-${app_name}} from source${addendum_txt}::
    mr -d \"${MR_REPO}\" -n install
 "
 }
