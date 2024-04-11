@@ -1426,6 +1426,8 @@ _git_merge_ff_only_safe_and_complicated () {
     | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
     | grep -P -v "^Updating files: 100% \(\d+/\d+\), done\.$" \
     | grep -v "^Fast-forward$" \
+    | grep -v "^Auto packing the repository in background for optimum performance.$" \
+    | grep -v '^See "git help gc" for manual housekeeping.$' \
     | grep -P -v "^Checking out files: " \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\)$" \
