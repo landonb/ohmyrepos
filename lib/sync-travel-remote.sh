@@ -1919,7 +1919,7 @@ print_path_for_remote_user () {
 git_merge_ffonly_ssh_mirror () {
   set -e
 
-  _travel_reveal_biz_vars
+  sync_travel_remote_setup
 
   git_merge_check_env_remote
   git_merge_check_env_repo
@@ -1967,7 +1967,7 @@ realpath_m () {
 git_update_device_fetch_from_local () {
   set -e
 
-  _travel_reveal_biz_vars
+  sync_travel_remote_setup
 
   MR_REMOTE=${MR_REMOTE:-$(hostname)}
 
@@ -1981,7 +1981,7 @@ git_update_device_fetch_from_local () {
 git_update_local_fetch_from_device () {
   set -e
 
-  _travel_reveal_biz_vars
+  sync_travel_remote_setup
 
   git_merge_check_env_remote
   git_update_ensure_ready
@@ -2059,7 +2059,10 @@ main () {
   #   will fail and prove us wrong).
   [ -z "${MR_REPO}" ] || return 0
 
-  sync_travel_remote_setup
+  # ISOFF/2024-04-13: See the commit for this change: Defer sourcing
+  # until/if a travel command is run.
+  #
+  #  sync_travel_remote_setup
 }
 
 main "$@"
