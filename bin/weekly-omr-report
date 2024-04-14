@@ -31,9 +31,6 @@ ALWAYS_EMAIL=true
 DRY_RUN=${DRY_RUN:-}
 # DRY_RUN=echo
 
-# So that omr-report's `mr` command works.
-PATH="${PATH}:${HOME}/.local/bin"
-
 # CPYST/2024-04-03: Test running like it's the cron env:
 #
 #   ~/.depoxy/ambers/bin/test-as-cron ~/.kit/git/ohmyrepos/bin/omr-report
@@ -61,6 +58,8 @@ PATH="${PATH}:${HOME}/.local/bin"
 
 source_deps () {
   insist_cmd 'mailx' '- E.g., `apt install bsd-mailx`'
+
+  insist_find_mr_and_append_path
 }
 
 insist_cmd () {
@@ -75,6 +74,33 @@ insist_cmd () {
   fi
 
   exit_1
+}
+
+# So that omr-report's `mr` command works.
+insist_find_mr_and_append_path () {
+  local found_path=""
+
+  local try_path
+  for try_path in \
+    "${HOME}/.local/bin" \
+    "${GITMYREPOSPATH:-${GITREPOSPATH:-${HOME}/.kit/git}/myrepos}" \
+  ; do
+    if [ -x "${try_path}/mr" ]; then
+      found_path="${try_path}"
+
+      break;
+    fi
+  done
+
+  if [ -n "${found_path}" ]; then
+    PATH="${PATH}:${found_path}"
+  else
+    >&2 echo "ERROR: Where's \`mr\`?"
+    >&2 echo "- Hint: Symlink from ~/.local/bin, or set"
+    >&2 echo "        GITMYREPOSPATH to its parent directory"
+
+    exit_1
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
