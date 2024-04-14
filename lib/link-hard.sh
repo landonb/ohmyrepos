@@ -10,6 +10,9 @@ source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
   . logger.sh
+
+  # Load: print_unresolved_path/realpath_s
+  . print-unresolved-path.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -63,7 +66,7 @@ link_hard () {
     if [ "${local_inode}" = "${canon_inode}" ]; then
       # Same inode; already at the desired state.
       info " Hard link $(font_emphasize inode) same" \
-        "$(font_highlight "$(realpath -s -- "${local_file}")")"
+        "$(font_highlight "$(print_unresolved_path "${local_file}")")"
 
       return 0
     elif ! diff -q "${local_file}" "${canon_file}" > /dev/null; then
@@ -96,7 +99,7 @@ link_hard () {
   ln -f "${canon_file}" "${local_file}"
 
   info " ${msg_action} $(font_emphasize "hard link")" \
-    "$(font_highlight "$(realpath -s -- "${local_file}")")"
+    "$(font_highlight "$(print_unresolved_path "${local_file}")")"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

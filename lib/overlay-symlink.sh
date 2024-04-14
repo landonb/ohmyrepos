@@ -14,6 +14,9 @@ source_deps () {
   # - This also implicitly loads the colors.sh library.
   # - Note that .mrconfig-omr sets PATH so OMR's deps/ copy found.
   . logger.sh
+
+  # Load: print_unresolved_path/realpath_s
+  . print-unresolved-path.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -344,7 +347,7 @@ makelink_update_informative () {
       # that the user specified -f/--force; or else the code didn't care to
       # ask. See:
       #   safely_backup_or_die_if_not_forced.
-      info_msg=" Clobbered file with ${link_type} $(font_highlight $(realpath -s -- "${targetp}"))"
+      info_msg=" Clobbered file with ${link_type} $(font_highlight $(realpath_s "${targetp}"))"
     else
       info_msg="$(symlink_get_msg_informative \
         "$(font_info_checked "Checked")" "${srctype}" "${targetp}" "${symlink}" \
@@ -368,7 +371,7 @@ makelink_update_informative () {
   command rm -- "${targetp}"
 
   eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'" || (
-    error "Failed to replace symlink at: $(realpath -s -- "${targetp}")"
+    error "Failed to replace symlink at: $(realpath_s "${targetp}")"
 
     exit 1
   )
@@ -397,7 +400,7 @@ symlink_get_msg_informative () {
   info_msg=" ${what} $( \
     font_emphasize ${srctype}) ${link_type} $(\
       font_highlight $( \
-        realpath -s -- "${targetp}"
+        realpath_s "${targetp}"
       )${targetd}
     )"
 
