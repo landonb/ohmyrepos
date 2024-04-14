@@ -195,9 +195,11 @@ _github_url_according_to_user () {
   ; then
     # This strips any https:// or git@ prefix, but we know it's
     # either https://github.com or http://github.com.
+    # - macOS sed doesn't like that which works with GNU sed:
+    #   | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
     url_subdir="$( \
       echo "${remote_url_or_path}" \
-      | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
+      | sed -E 's#(https?://|git@)([^:/]+)[:/](.*)#\3#' \
     )"
 
     # Replace Git host user/org name if specified.
