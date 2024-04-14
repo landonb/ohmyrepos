@@ -66,6 +66,9 @@ _travel_source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
   . logger.sh
+
+  # Load: print_homebrew_prefix
+  . print-homebrew-prefix.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1939,9 +1942,25 @@ git_update_dev_path () {
   # add a path postfix to the repo path.
   #   local dev_path=$(realpath -m -- "${MR_TRAVEL}/${MR_REPO}")
   local git_name='_0.git'
-  local dev_path=$(realpath -m -- "${MR_TRAVEL}/${MR_REPO}/${git_name}")
+  local dev_path
+  dev_path=$(realpath_m -- "${MR_TRAVEL}/${MR_REPO}/${git_name}")
 
   printf %s "${dev_path}"
+}
+
+# Guard against Homebrew missing from PATH (macOS), or coreutils not installed (Debian).
+realpath_m () {
+  if ! realpath -m "$@" 2> /dev/null; then
+    local grealpath
+    # Side-effect: Triggers errexit if print_homebrew_prefix cannot suss.
+    grealpath="$(print_homebrew_prefix)/bin/grealpath"
+
+    if ! ${grealpath} -m "$@" 2> /dev/null; then
+      >&2 error "ERROR: \`realpath -m\` failed: Is GNU coreutils installed/on PATH?"
+
+      exit 1
+    fi
+  fi
 }
 
 # The `mr travel` action.

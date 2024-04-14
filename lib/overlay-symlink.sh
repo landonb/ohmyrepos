@@ -708,8 +708,8 @@ mrinfuse_findup_canonic () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
   local dirpath mr_root
-  dirpath="$(dirname -- "$(realpath -m -- "$(pwd)")")"
-  mr_root="$(dirname -- "$(realpath -m -- "${MR_CONFIG}")")"
+  dirpath="$(dirname -- "$(realpath -- "$(pwd)")")"
+  mr_root="$(dirname -- "$(realpath -- "${MR_CONFIG}")")"
   while [ "${dirpath}" != '/' ]; do
     local trypath="${dirpath}/${MRT_INFUSE_DIR:-.mrinfuse}"
     if [ -d "${trypath}" ]; then
@@ -729,7 +729,7 @@ mrinfuse_findup () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
   local dirpath=""
-  while [ -z "${dirpath}" ] || [ "$(realpath -m -- "${dirpath}")" != '/' ]; do
+  while [ -z "${dirpath}" ] || [ "$(realpath -- "${dirpath}")" != '/' ]; do
     if [ -d "${dirpath}${MRT_INFUSE_DIR:-.mrinfuse}" ]; then
       echo "${dirpath}"
 
@@ -777,16 +777,16 @@ path_to_mrinfuse_resolve () {
     )
 
     if [ -n "${mrinfuse_root}" ]; then
-      mrinfuse_full=$(realpath -m -- "${mrinfuse_root}")
+      mrinfuse_full=$(realpath -- "${mrinfuse_root}")
     else
-      mrinfuse_full=$(realpath -m -- '.')
+      mrinfuse_full=$(realpath -- '.')
     fi
 
     relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
     mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR:-.mrinfuse}/${relative_path}${fpath}"
 
     # MAYBE/2020-01-23: Option to return full path?
-    #                     canonicalized=$(realpath -m -- "${mrinfuse_path}")
+    #                     canonicalized=$(realpath -- "${mrinfuse_path}")
     #                   - I like the shorter relative path.
     canonicalized="${mrinfuse_path}"
     # _info_path_resolve "${relative_path}" "${mrinfuse_path}" "${canonicalized}"
