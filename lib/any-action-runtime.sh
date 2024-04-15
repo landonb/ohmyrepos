@@ -160,7 +160,7 @@ remove_old_temp_files () {
 _trace_ps_heritage () {
   >&2 echo "$1: $$ / $PPID / $(ps -o ppid= ${PPID} | tr -d ' ')"
 
-  # Print the command namesa:
+  # Print the command names:
   ps -ocommand= -p $$ | head -c 40 >&2
   ps -ocommand= -p $PPID | head -c 40 >&2
   ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ') | head -c 40 >&2
