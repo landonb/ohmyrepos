@@ -141,10 +141,13 @@ git_any_action_stopped () {
 #   that won't get cleaned up until user runs OMR again (or
 #   logsout).
 remove_old_temp_files () {
-  # E.g.,
-  #   if [ "/home/user/.local/bin/bash" = "$( \
-  #     ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ')
-  #   )" ]; then
+  # If parent is the shell, assume this is the main `mr`
+  # process running setup_dispatch_append for the first
+  # time.
+  # - E.g.,
+  #     if [ "/home/user/.local/bin/bash" = "$( \
+  #       ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ')
+  #     )" ]; then
   if ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ') \
     | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' - \
   ; then
