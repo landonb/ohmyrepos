@@ -80,8 +80,11 @@ git_any_action_stopped () {
     || true
 
   if [ -z "${setup_time_0}" ]; then
-    # Unreachable.
-    >&2 error "ERROR: Missing start time: Is \`git_any_cache_setup\` working?"
+    # BUGGY: This path happens occasionally, because some race condition
+    # the author has yet to explain.
+    # - KLUGE: See `find -mmin -delete` below: Now hopefully this path
+    #   is unreachable, because cleanup lets young temp files live.
+    >&2 warn "GAFFE: Missing start time: Is \`git_any_cache_setup\` working?"
 
     printf %s "$(attr_emphasis)(Unk. secs.)$(attr_reset) "
 
@@ -155,7 +158,25 @@ remove_old_temp_files () {
     #
     #  _trace_ps_heritage "CLEAN-UP"
 
-    command rm -f -- "${OMR_RUNTIME_TEMPFILE_BASE}"*
+    # BWARE/2024-04-15: There's a race condition where sometimes
+    # the tempfile is missing on final git_any_action_stopped
+    # time_elapsed report. The author isn't quite sure what's
+    # up, I'd guess something with `mr -j 10` usage, but all
+    # the tracing in the world hasn't shown me the fault.
+    # - KLUGE: So instead, try this: rather than *assume*
+    #   that we're safe to delete all runtime temp files,
+    #   delete only those older than 10 minutes.
+    #   - How could this not work around the race condition?
+    #   - So not this:
+    #
+    #       command rm -f -- "${OMR_RUNTIME_TEMPFILE_BASE}"*
+
+    find "$(dirname -- "${OMR_RUNTIME_TEMPFILE_BASE}")" \
+      -maxdepth 1 \
+      -name "$(basename -- "${OMR_RUNTIME_TEMPFILE_BASE}")*" \
+      -type f \
+      -mmin +${_ten_minutes_ago:-10} \
+      -delete
   fi
 }
 
