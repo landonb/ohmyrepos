@@ -3,8 +3,6 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-# CXREF/2023-05-14: ~/.bash_completion is sourced by /etc/base_completion
-#   /etc/bash_completion -> /usr/share/bash-completion/bash_completion
 line_in_file () {
   local add_line="$1"
   local target_path="$2"
