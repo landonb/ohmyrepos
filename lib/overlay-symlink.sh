@@ -65,12 +65,12 @@ params_register_switches () {
         ;;
       -m)
         shift
-        MR_GIT_AUTO_COMMIT_MSG="${1}"
+        MR_GIT_AUTO_COMMIT_MSG="$1"
         shift
         ;;
       --message)
         shift
-        MR_GIT_AUTO_COMMIT_MSG="${1}"
+        MR_GIT_AUTO_COMMIT_MSG="$1"
         shift
         ;;
       *)
@@ -89,7 +89,7 @@ params_register_switches () {
 
 myrepostravel_opts_parse () {
   params_register_defaults
-  params_register_switches "${@}"
+  params_register_switches "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -137,7 +137,7 @@ infuser_prepare () {
 
   infuser_set_envs "${repodir}"
   info "Infusing $(repo_highlight ${repodir}) [for ‘$(basename -- "$0")’]"
-  myrepostravel_opts_parse "${@}"
+  myrepostravel_opts_parse "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -181,11 +181,11 @@ is_relative_path () {
 }
 
 file_exists_and_not_symlink () {
-  [ -e "${1}" ] && [ ! -h "${1}" ]
+  [ -e "$1" ] && [ ! -h "$1" ]
 }
 
 file_exists_and_not_linked_to_source () {
-  [ -e "${1}" ] && ! [ "${1}" -ef "${2}" ]
+  [ -e "$1" ] && ! [ "$1" -ef "$2" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -595,11 +595,11 @@ symlink_overlay_typed () {
 }
 
 symlink_overlay_file () {
-  symlink_overlay_typed 'file' "${@}"
+  symlink_overlay_typed 'file' "$@"
 }
 
 symlink_overlay_dir () {
-  symlink_overlay_typed 'dir' "${@}"
+  symlink_overlay_typed 'dir' "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -631,7 +631,7 @@ hardlink_overlay_typed () {
 #     --safe, but I'm also pretty sure we don't need those.
 #
 #  hardlink_overlay_file () {
-#    hardlink_overlay_typed 'file' "${@}"
+#    hardlink_overlay_typed 'file' "$@"
 #  }
 
   makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}"
@@ -639,7 +639,7 @@ hardlink_overlay_typed () {
 
 # SAVVY/2022-10-10: This fcn. is not used by any of the author's projects.
 hardlink_overlay_dir () {
-  hardlink_overlay_typed 'dir' "${@}"
+  hardlink_overlay_typed 'dir' "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -652,7 +652,7 @@ symlink_overlay_file_first_handler () {
   local found_one=false
 
   local sourcep
-  for sourcep in "${@}"; do
+  for sourcep in "$@"; do
     if [ -e ${sourcep} ]; then
       symlink_overlay_file "${sourcep}" "${targetp}"
       found_one=true
@@ -669,11 +669,11 @@ symlink_overlay_file_first_handler () {
 }
 
 symlink_overlay_file_first () {
-  symlink_overlay_file_first_handler '0' "${@}"
+  symlink_overlay_file_first_handler '0' "$@"
 }
 
 symlink_overlay_file_first_optional () {
-  symlink_overlay_file_first_handler '1' "${@}"
+  symlink_overlay_file_first_handler '1' "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -831,15 +831,15 @@ symlink_mrinfuse_typed () {
 # ***
 
 symlink_mrinfuse_file () {
-  symlink_mrinfuse_typed 'file' '0' "${@}"
+  symlink_mrinfuse_typed 'file' '0' "$@"
 }
 
 symlink_mrinfuse_file_optional () {
-  symlink_mrinfuse_typed 'file' '1' "${@}"
+  symlink_mrinfuse_typed 'file' '1' "$@"
 }
 
 symlink_mrinfuse_dir () {
-  symlink_mrinfuse_typed 'dir' 0 "${@}"
+  symlink_mrinfuse_typed 'dir' 0 "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -852,7 +852,7 @@ symlink_mrinfuse_file_first_handler () {
   local found_one=false
 
   local lnkpath
-  for lnkpath in "${@}"; do
+  for lnkpath in "$@"; do
     local sourcep
     sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
     if [ -e "${sourcep}" ]; then
@@ -871,11 +871,11 @@ symlink_mrinfuse_file_first_handler () {
 }
 
 symlink_mrinfuse_file_first () {
-  symlink_mrinfuse_file_first_handler '0' "${@}"
+  symlink_mrinfuse_file_first_handler '0' "$@"
 }
 
 symlink_mrinfuse_file_first_optional () {
-  symlink_mrinfuse_file_first_handler '1' "${@}"
+  symlink_mrinfuse_file_first_handler '1' "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
