@@ -45,6 +45,8 @@ git_auto_commit_parse_args () {
   MR_GIT_AUTO_COMMIT_STAGE_COUNT=0
   # This tracks the names of committed files to help craft the --message.
   MR_GIT_AUTO_COMMIT_FILES_ADDED=""
+
+  MR_GIT_AUTO_COMMIT_FIXUP=""
 }
 
 git_auto_commit_cd_mrrepo () {
@@ -76,6 +78,50 @@ git_auto_commit_one () {
 
   git_auto_commit_parse_args "$@"
   if ! git_auto_commit_process_rest "git_auto_commit_path_one" "$@"; then
+    fatal "ERROR: Expecting a path to git_auto_commit_one."
+
+    exit 1
+  fi
+
+  git_auto_commit_cd_return
+}
+
+# UCASE: Use fixup auto-commit when you don't care about an item's change
+# history, or if it changes often and you don't want to suffer a noisy
+# log, or maybe it's a binary item and you don't want to waste a lot of
+# disk space tracking object states you don't care about.
+git_auto_fixup_one () {
+  local repo_file="$1"
+  local fixup_msg="$2"
+
+  if [ -z "${fixup_msg}" ]; then
+    error "ERROR: Missing commit message:" \
+      "\`git_auto_fixup_one \"${repo_file}\" \"<commit-msg>\"\`"
+
+    exit 1
+  fi
+
+  shift 2
+
+  # ***
+
+  # Similar to: git_auto_commit_one "${repo_file}" "$@"
+  # - Except setting MR_GIT_AUTO_COMMIT_FIXUP after parsing args
+  #   (because git_auto_commit_parse_args clears that environ).
+
+  must_git_nothing_staged
+  git_auto_commit_cd_mrrepo
+
+  git_auto_commit_parse_args "${repo_file}" "$@"
+
+  # 2024-04-21: This mechanism is very much an after-thought (as in, plumbed
+  # in years after the original features without too much consideration how
+  # best to do it). There might be a more elegant way to do this. For now,
+  # piggy-backing on existing git_auto_commit_path_one and jamming in fixup
+  # option via environ.
+  MR_GIT_AUTO_COMMIT_FIXUP="${fixup_msg}"
+
+  if ! git_auto_commit_process_rest "git_auto_commit_path_one" "${repo_file}" "$@"; then
     fatal "ERROR: Expecting a path to git_auto_commit_one."
 
     exit 1
@@ -172,9 +218,35 @@ git_auto_commit_path_one_or_many () {
     exit 1
   fi
 
-  if ! git commit -m "${commit_msg}" >/dev/null 2>&1; then
+  # ***
+
+  git_auto_commit_resolve_fixup_commit () {
+    if [ -z "${MR_GIT_AUTO_COMMIT_FIXUP}" ]; then
+      return 0
+
+    fi
+
+    git --no-pager log -1 --format=%H ":/^${MR_GIT_AUTO_COMMIT_FIXUP}\$" 2> /dev/null \
+      || true
+  }
+
+  local commit_opts=""
+  commit_opts="$(git_auto_commit_resolve_fixup_commit)"
+
+  if [ -z "${commit_opts}" ]; then
+    if [ -n "${MR_GIT_AUTO_COMMIT_FIXUP}" ]; then
+      commit_msg="${MR_GIT_AUTO_COMMIT_FIXUP}"
+    fi
+
+    commit_opts="-m \"${MR_GIT_AUTO_COMMIT_FIXUP:-${commit_msg}}\""
+  fi
+
+  # ***
+
+  if ! eval git commit ${commit_opts} >/dev/null 2>&1; then
     error "Commit failed:"
-    git commit -m "${commit_msg}" 2>&1 \
+
+    eval git commit ${commit_opts} 2>&1 \
       | while IFS= read -r line; do
         error "  ${line}"
       done
