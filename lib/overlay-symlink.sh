@@ -735,6 +735,7 @@ mrinfuse_findup () {
 
       return 0
     fi
+
     dirpath="${dirpath}../"
   done
 
@@ -743,7 +744,7 @@ mrinfuse_findup () {
 
 # CONVENTION: Store private files under a directory named .mrinfuse,
 # located in the same directory as the .mrconfig file whose repo config
-# calls this function, or located along the oath between the root and repo.
+# calls this function, or located along the path between the root and repo.
 # Under the .mrinfuse directory, mimic the directory alongside the .mrconfig
 # file. For instance, suppose you had a config file at:
 #   /my/work/projects/.mrconfig
@@ -751,13 +752,14 @@ mrinfuse_findup () {
 #   /my/work/projects/cool/product/
 # you would store your private .ignore file at:
 #   /my/work/projects/.mrinfuse/cool/product/.ignore
-# then your infuse function would be specified in your .mrconfig as:
+# and then the infuse function would be specified in your .mrconfig as:
 #   [cool/product]
 #   symlink_mrinfuse_file '.ignore'
 #
 # Note this fcn. prints the path to stdout, so errors should go to stderr.
 path_to_mrinfuse_resolve () {
   local fpath="$1"
+
   local canonicalized
 
   if is_relative_path "${fpath}"; then
