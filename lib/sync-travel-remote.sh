@@ -1450,7 +1450,7 @@ _git_merge_ff_only_safe_and_complicated () {
   #          merge: host/ - not something we can merge
   #        but don't make a rule for that text: git-fetch fails first.
   local culled
-  culled="$(printf %s "${git_resp}" \
+  culled="$(printf "%s" "${git_resp}" \
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
     | grep -E -v "^Updating files: 100% \([[:digit:]]+/[[:digit:]]+\), done\.$" \
