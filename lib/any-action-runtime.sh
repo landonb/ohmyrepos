@@ -65,9 +65,13 @@ git_any_action_started () {
   #
   #  _trace_ps_heritage "STAND-UP"
 
+  local ppid_count
+  ppid_count="$(read_ppid_count_from_tempfile)"
+  ppid_count=$((${ppid_count} + 1))
   remove_old_temp_files
 
   print_nanos_now > "${OMR_RUNTIME_TEMPFILE}"
+  echo "${ppid_count}" >> "${OMR_RUNTIME_TEMPFILE}"
 }
 
 git_any_action_stopped () {
@@ -76,7 +80,7 @@ git_any_action_stopped () {
   #  _trace_ps_heritage "TEARDOWN"
 
   local setup_time_0
-  setup_time_0="$(cat -- "${OMR_RUNTIME_TEMPFILE}" 2> /dev/null)" \
+  setup_time_0="$(head -n 1 -- "${OMR_RUNTIME_TEMPFILE}" 2> /dev/null)" \
     || true
 
   if [ -z "${setup_time_0}" ]; then
@@ -104,18 +108,31 @@ git_any_action_stopped () {
     printf %s "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
   fi
 
-  # User can call `mr` from an `mr` action, so only remove the file
-  # associated with the current process, because there might be
-  # multiple runtime temp files in use.
-  # - BWARE: Use `rm -f`: Sometimes file is absent (b/c race condition?).
-  #
-  # KLUGE/2024-04-07: Sometimes (not often) this fcn. (git_any_action_stopped)
-  # runs and returns "(Unk. secs.)" because the temp file is missing...
-  # - Though I only ever see this fcn called once for any particular
-  #   "${OMR_RUNTIME_TEMPFILE}" so not sure this kludge will work...
-  #
-  #  command rm -f -- "${OMR_RUNTIME_TEMPFILE}"
-  ( sleep 1 && command rm -f -- "${OMR_RUNTIME_TEMPFILE}" ) &
+  update_or_remove_tempfile
+}
+
+# ***
+
+# User can call `mr` from an `mr` action, so only remove the file
+# associated with the current process, because there might be
+# multiple runtime temp files in use.
+update_or_remove_tempfile () {
+  local ppid_count
+  ppid_count="$(read_ppid_count_from_tempfile)"
+  ppid_count=$((${ppid_count} - 1))
+
+  if [ ${ppid_count} -gt 0 ]; then
+    head -n 1 -- "${OMR_RUNTIME_TEMPFILE}" \
+      | tee -- "${OMR_RUNTIME_TEMPFILE}" > /dev/null
+    echo "${ppid_count}" >> "${OMR_RUNTIME_TEMPFILE}"
+  else
+    ( sleep 1 && command rm -f -- "${OMR_RUNTIME_TEMPFILE}" ) &
+  fi
+}
+
+read_ppid_count_from_tempfile () {
+  tail -n +2 "${OMR_RUNTIME_TEMPFILE}" 2> /dev/null \
+    || echo "0"
 }
 
 # ***
