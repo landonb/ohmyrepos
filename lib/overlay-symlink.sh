@@ -704,25 +704,27 @@ _info_path_resolve () {
 # ***
 
 # NOTE: Orphan function (not called but this project, or any of author's).
-mrinfuse_findup_canonic () {
-  # Search from parent of this directory (which is probably $MR_REPO)
-  # up to the .mrconfig-containing directory looking for .mrinfuse/.
-  local dirpath mr_root
-  dirpath="$(dirname -- "$(realpath -- "$(pwd)")")"
-  mr_root="$(dirname -- "$(realpath -- "${MR_CONFIG}")")"
-  while [ "${dirpath}" != '/' ]; do
-    local trypath="${dirpath}/${MRT_INFUSE_DIR:-.mrinfuse}"
-    if [ -d "${trypath}" ]; then
-      echo "${dirpath}"
+if false; then
+  mrinfuse_findup_canonic () {
+    # Search from parent of this directory (which is probably $MR_REPO)
+    # up to the .mrconfig-containing directory looking for .mrinfuse/.
+    local dirpath mr_root
+    dirpath="$(dirname -- "$(realpath -- "$(pwd)")")"
+    mr_root="$(dirname -- "$(realpath -- "${MR_CONFIG}")")"
+    while [ "${dirpath}" != '/' ]; do
+      local trypath="${dirpath}/${MRT_INFUSE_DIR:-.mrinfuse}"
+      if [ -d "${trypath}" ]; then
+        echo "${dirpath}"
 
-      break
-    elif [ "${dirpath}" = "${mr_root}" ]; then
+        break
+      elif [ "${dirpath}" = "${mr_root}" ]; then
 
-      break
-    fi
-    dirpath="$(dirname -- "${dirpath}")"
-  done
-}
+        break
+      fi
+      dirpath="$(dirname -- "${dirpath}")"
+    done
+  }
+fi
 
 # Note this fcn. prints the path to stdout, so errors should go to stderr.
 mrinfuse_findup () {
