@@ -319,7 +319,7 @@ $(${DIFF_FAILED} && echo " \
 <p>Please update the reference file:</p>
 <p><pre ${pre_style}>${CACHE_CAPTURE}</pre></p>
 <p>Here's the meld incantation:</p>
-<p><pre ${pre_style}>meld \"${CACHE_CAPTURE}\" \"${CAPTURE_PATH}\" &</pre></p>
+<p><pre ${pre_style}>meld \"${CACHE_CAPTURE}\" <(cat \"${CAPTURE_PATH}\") &</pre></p>
 <p>Here's what's the diff (new ↔ old):</p>
 <p><pre ${pre_style}>$(diff "${CAPTURE_PATH}" "${CACHE_CAPTURE}")</pre></p>" || true)
 
