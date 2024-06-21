@@ -154,6 +154,7 @@ capture_omr_report () {
   fi
 
   # If DRY_RUN unset, cannot use before VAR=val, e.g.,
+  #   $ ${DRY_RUN} OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report ...
   #   OMR_VERBOSE=false: command not found
   if [ -z "${DRY_RUN}" ]; then
     # CXREF: ~/.kit/git/ohmyrepos/bin/omr-report
