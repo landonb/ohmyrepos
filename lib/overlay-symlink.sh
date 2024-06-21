@@ -728,12 +728,20 @@ fi
 
 # Note this fcn. prints the path to stdout, so errors should go to stderr.
 mrinfuse_findup () {
+  local start_dir="$1"
+
+  if [ -n "${start_dir}" ]; then
+    start_dir="${start_dir%%/}/"
+
+    cd "${start_dir}"
+  fi
+
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
   local dirpath=""
   while [ -z "${dirpath}" ] || [ "$(realpath -- "${dirpath}")" != '/' ]; do
     if [ -d "${dirpath}${MRT_INFUSE_DIR:-.mrinfuse}" ]; then
-      echo "${dirpath}"
+      echo "${start_dir}${dirpath}"
 
       return 0
     fi
@@ -764,15 +772,22 @@ path_to_mrinfuse_resolve () {
 
   local canonicalized
 
-  if is_relative_path "${fpath}"; then
-    local relative_path
-    local mrinfuse_root
-    local mrinfuse_path
-    local repo_path_n_sep
+  if ! is_relative_path "${fpath}"; then
+    canonicalized="${fpath}"
+  else
+    # Produce a relative symlink path.
+    local mrinfuse_path=""
+    local first_path=""
 
+    if [ -z "${MR_REPO}" ]; then
+      >&2 echo "ERROR: Expecting MR_REPO"
+    fi
+
+    local repo_path_n_sep
     repo_path_n_sep="${MR_REPO}/"
 
-    mrinfuse_root="$(mrinfuse_findup)" || (
+    local found_mrinfuse
+    found_mrinfuse="$(mrinfuse_findup)" || (
       >&2 error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
       >&2 error "- start: $(pwd)"
       >&2 error "- target: ${MRT_INFUSE_DIR:-.mrinfuse}/.*/$(basename -- "$(pwd)")/${fpath}"
@@ -780,22 +795,48 @@ path_to_mrinfuse_resolve () {
       exit 1
     )
 
-    if [ -n "${mrinfuse_root}" ]; then
-      mrinfuse_full=$(realpath -- "${mrinfuse_root}")
-    else
-      mrinfuse_full=$(realpath -- '.')
-    fi
+    set_mrinfuse_path () {
+      local mrinfuse_root="$1"
 
-    relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
-    mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR:-.mrinfuse}/${relative_path}${fpath}"
+      if [ -n "${mrinfuse_root}" ]; then
+        mrinfuse_full=$(realpath -- "${mrinfuse_root}")
+      else
+        mrinfuse_full=$(realpath -- '.')
+      fi
 
-    # MAYBE/2020-01-23: Option to return full path?
-    #                     canonicalized=$(realpath -- "${mrinfuse_path}")
-    #                   - I like the shorter relative path.
-    canonicalized="${mrinfuse_path}"
-    # _info_path_resolve "${relative_path}" "${mrinfuse_path}" "${canonicalized}"
-  else
-    canonicalized="${fpath}"
+      local relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
+
+      mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR:-.mrinfuse}/${relative_path}${fpath}"
+    }
+
+    while true; do
+      set_mrinfuse_path "${found_mrinfuse}"
+
+      if [ -e "${mrinfuse_path}" ]; then
+        # MAYBE/2020-01-23: Option to return full path?
+        #                     canonicalized=$(realpath -- "${mrinfuse_path}")
+        #                   - I like the shorter relative path.
+        canonicalized="${mrinfuse_path}"
+        # _info_path_resolve "${relative_path}" "${mrinfuse_path}" "${canonicalized}"
+
+        break
+      fi
+
+      if [ -z "${first_path}" ]; then
+        first_path="${mrinfuse_path}"
+      fi
+
+      # mrinfuse_path is like '../' or '../../', so add one more level.
+      local mrinfuse_parent="${found_mrinfuse}../"
+      if ! found_mrinfuse="$(mrinfuse_findup "${mrinfuse_parent}")"; then
+        # "Return" path using first .mrinfuse/ found (path doesn't
+        # exist, but ${optional} might be enabled).
+        canonicalized="${first_path}"
+
+        break
+      fi
+      # else, keep looking.
+    done
   fi
 
   echo "${canonicalized}"
