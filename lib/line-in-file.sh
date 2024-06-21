@@ -7,6 +7,12 @@ line_in_file () {
   local add_line="$1"
   local target_path="$2"
 
+  if [ -z "${add_line}" ] || [ -z "${target_path}" ]; then
+    >&2 echo "GAFFE: Missing add_line and/or target_path"
+
+    return 1
+  fi
+
   local friendly_path="$( \
     echo "${target_path}" | sed -E "s@^${HOME}(/|$)@~\1@"
   )"
