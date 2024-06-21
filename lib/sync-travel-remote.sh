@@ -1074,6 +1074,32 @@ git_fetch_remote_travel () {
   fi
 
   if ${remote_name_invalid} || ${remote_path_invalid}; then
+    if ${MR_REMOTE_PATH_ABSENCE_EXCUSED:-false}; then
+      # - Remote is reachable but has no such project. 🤷
+      #   - User's OMR config enabled the environ,
+      #     MR_REMOTE_PATH_ABSENCE_EXCUSED, which
+      #     indicates that this is not a failure.
+      # - Use 'fg_mediumgrey' to match 'up-2-date', and
+      #   to avoid grabbing the user's attention.
+      # - 7-letter synonyms .................... rubbish
+      #                                          hogwash
+      #                                          garbage
+      #                                          twaddle
+      #                                          blarney
+      #                                          blether
+      #                                          flannel
+      #                                          crapola
+      #                                          dribble
+      #                                          bologna
+      #                                          boloney
+      #                                          baloney
+      debug "  $(fg_mediumgrey)$(attr_emphasis)✗ missing  $(attr_reset)" \
+        "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
+
+      # Yuck.
+      exit 0
+    fi
+
     print_fetchfail_msg "${target_repo}" "${source_repo}" "${rel_repo}" \
       ${remote_name_invalid} ${remote_path_invalid}
 
