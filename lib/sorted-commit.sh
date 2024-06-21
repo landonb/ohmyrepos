@@ -27,12 +27,12 @@ sort_file_then_commit () {
   local targetf="$1"
   shift
 
-  # If `mr` run from a subdir, top-level .mrconfig found, but still run some subdir.
+  # If `mr` run from a subdir, top-level .mrconfig found, but still run from subdir.
   local before_cd="$(pwd -L)"
   cd "${MR_REPO}"
 
   if [ -f "${targetf}" ]; then
-    # NOTE: cat'ing and sort'ing to the cat'ed file results in a 0-size file!?
+    # NOTE: cat'ing and sort'ing to the cat'ed file results in a 0-size file.
     #   So we use an intermediate file.
     local sortedf
     sortedf="$(mktemp --suffix='.ohmyrepos')"
