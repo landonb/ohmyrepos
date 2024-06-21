@@ -256,7 +256,7 @@ email_capture () {
 }
 
 email_report () {
-  local subject="OMR says hi 🙋"
+  local subject="OMR says hi 🙋 from $(hostname)"
 
   local pre_style="style=\"font-family: 'Hack', 'DejaVu Sans Mono', 'monospace'; font-size: 13px;\"";
 
