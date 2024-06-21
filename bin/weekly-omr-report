@@ -46,14 +46,18 @@ DRY_RUN=${DRY_RUN:-}
 #
 # - Run the next time anacron runs (per `crontab -l`):
 #
-#     echo '20141201' > ~/.anacron/spool/cron.weekly 
+#     echo '19991231' > ~/.anacron/spool/cron.weekly 
+#
+#   Or if you've wired it to run monthly instead:
+#
+#     echo '19991231' > ~/.anacron/spool/cron.monthly
 #
 #   - If you don't want to wait, -force anancron to run -now:
 #
 #       anacron -n -f \
 #         -t ${HOME}/.anacron/anacrontab \
 #         -S ${HOME}/.anacron/spool \
-#         cron.weekly
+#         cron.weekly  # Or cron.monthly, perhaps
 #
 #   - TRICK: Add -d for -don't fork in bg, helpful for troubleshooting.
 
