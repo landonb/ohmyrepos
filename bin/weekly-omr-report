@@ -167,6 +167,12 @@ capture_omr_report () {
 }
 
 normalize_omr_report () {
+  # Set this for testing; not intended for normal use.
+  if ${OMR_NO_NORMALIZE:-false}; then
+
+    return 0
+  fi
+
   ${DRY_RUN} sed -i '/^base_dir: /d' "${CAPTURE_PATH}"
 
   local summary="$(${DRY_RUN} tail -2 "${CAPTURE_PATH}")"
