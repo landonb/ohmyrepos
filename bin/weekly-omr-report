@@ -121,7 +121,7 @@ weekly_omr_report () {
   ensure_cache_capture_dir
 
   local REPORT_FAILED=false
-  omr_report_check_known_knowns \
+  capture_omr_report \
     || REPORT_FAILED=true
 
   local CACHE_FRESHENED=false
@@ -138,7 +138,7 @@ weekly_omr_report () {
   fi
 }
 
-omr_report_check_known_knowns () {
+capture_omr_report () {
   if ! command -v omr-report > /dev/null; then
     PATH="${PATH}:$(realpath -- "$(dirname -- "$0")")"
   fi
