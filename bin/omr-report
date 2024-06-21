@@ -18,8 +18,14 @@ __USAGE__='
 OMR_PROGGER=${OMR_PROGGER:-true}
 OMR_TRACE_CMD=${OMR_TRACE_CMD:-false}
 OMR_VERBOSE=${OMR_VERBOSE:-false}
-OMR_VERBOSE_SKIPPED=${OMR_VERBOSE_SKIPPED:-false}
-OMR_VERBOSE_NOT_SKIPPED=${OMR_VERBOSE_NOT_SKIPPED:-false}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+source_deps () {
+  # Load: _vendorfs_path_stints_basedir_print
+  # CXREF: /kit/working/git/ohmyrepos/bin/omr-is-registered
+  . "$(dirname -- "$(realpath -- "$0")")/omr-is-registered"
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -187,130 +193,11 @@ trace_cmd () {
   echo "${the_cmd}"
 }
 
-# ***
-
-TERM_WIDTH=0
-
-# Remember that [ -t 1 ] is false when called in a $(subprocess).
-stdout_isatty () {
-  [ -t 1 ]
-}
-
-cache_termimal_width () {
-  TERM_WIDTH=0
-
-  if ! stdout_isatty; then
-    return 0
-  fi
-  
-  local terminal=/dev/pts/1
-
-  TERM_WIDTH=$(stty -a <"${terminal}" | grep -Po '(?<=columns )\d+')
-}
-
-clear_line () {
-  if ! stdout_isatty; then
-
-    return 0
-  fi
-
-  if ${OMR_VERBOSE:-false}; then
-
-    return 0
-  fi
-
-  printf "\r"
-
-  if [ ${TERM_WIDTH} -gt 0 ]; then
-    printf " %.0s" $(eval echo {1..${TERM_WIDTH}})
-  fi
-
-  printf "\r"
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-omr_is_registered () {
-  local proj_path="${1:-$(pwd)}"
-
-  local cmd_mr_repo_force
-
-  # Use --force in case current directory is not registered, but parent is
-  # registered but skipped.
-  # GRIPE/2024-04-03: This is slow. `mr` startup is slow. 10m on 500 proj.
-  if ! cmd_mr_repo_force="$( \
-    mr -d "${proj_path}" -n --force run sh -c 'echo "${MR_REPO}"' 2> /dev/null
-  )"; then
-    # E.g., OUTPUT:
-    #   (0 secs.) mr run: no repositories found to work on
-    >&2 echo "✗ unregistered, parentless directory: ${proj_path}"
-
-    return 1
-  fi
-
-  # Remove second line, the timing/finished message:
-  #   (0 secs.) mr run: finished (1 ok)
-  local mr_repo_path
-  mr_repo_path="$(echo "${cmd_mr_repo_force}" | head -1)"
-
-  if [ -z "${mr_repo_path}" ]; then
-    # Unreachable path.
-    >&2 echo "✗ unexpectedly, \`mr\` ok, but no output! mr_repo: ${proj_path}"
-
-    return 1
-  fi
-
-  local omr_path_matches=false
-  if _omr_realpath_cmp "${mr_repo_path}" "${proj_path}"; then
-    omr_path_matches=true
-  fi
-
-  local cmd_mr_repo_normal
-  cmd_mr_repo_normal="$(mr -d "${proj_path}" -n run sh -c 'echo "${MR_REPO}"')"
-  # Remove timing/finished message.
-  cmd_mr_repo_normal="$(echo "${cmd_mr_repo_normal}" | head -1)"
-
-  if echo "${cmd_mr_repo_normal}" | grep -q " mr run: finished (1 skipped)$"; then
-    if ! "${omr_path_matches}"; then
-      clear_line
-      >&2 echo "✗ unregistered, has a skipped parent: ${proj_path} (${mr_repo_path})"
-
-      return 1
-    fi
-
-    if ${OMR_VERBOSE:-false} || ${OMR_VERBOSE_SKIPPED:-false}; then
-      clear_line
-      echo "✓ happily registered, but skiparooed: ${proj_path}"
-    fi
-
-    return 99
-  fi
-
-  if ! "${omr_path_matches}"; then
-    clear_line
-    >&2 echo "✗ unregistered, but has known parent: ${proj_path} (${mr_repo_path})"
-
-    return 1
-  fi
-
-  if ${OMR_VERBOSE:-false} || ${OMR_VERBOSE_NOT_SKIPPED:-false}; then
-    clear_line
-    echo "✓ yes, yes it is, happily registered: ${mr_repo_path}"
-  fi
-
-  return 0
-}
-
-_omr_realpath_cmp () {
-  local lhs_path="$1"
-  local rhs_path="$2"
-
-  [ "$(realpath -- "${lhs_path}")" = "$(realpath -- "${rhs_path}")" ]
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  source_deps
+
   omr_report "$@"
 }
 
