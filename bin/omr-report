@@ -118,7 +118,7 @@ scan_for_projects () {
   # ***
 
   while read git_dir; do
-    local TERM_WIDTH
+    local TERM_WIDTH=0
     cache_termimal_width
 
     local reg_code=0
