@@ -1594,7 +1594,7 @@ _git_merge_reset_hard_if_local_unchanged () {
     local reflog_ref="${to_commit}@{${reflog_depth}}"
 
     local reflog_id
-    if ! reflog_id="$(git_commit_object_name "${reflog_ref}")"; then
+    if ! reflog_id="$(git_commit_object_name "${reflog_ref}" 2> /dev/null)"; then
       # No more reflog entries.
       break
     fi
