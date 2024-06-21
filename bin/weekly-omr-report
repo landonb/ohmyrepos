@@ -312,7 +312,7 @@ EOF
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-PROG_NAME_FRIENDLY="weekly-omr-report"
+PROG_NAME="weekly-omr-report"
 
 app_cleanup () {
   cleanup_capture
@@ -372,7 +372,7 @@ main () {
 }
 
 # Run the command unless being sourced.
-if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME_FRIENDLY}" ]; then
+if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME}" ]; then
   main "$@"
 else
   source_deps

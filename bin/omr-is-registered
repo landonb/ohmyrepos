@@ -138,7 +138,7 @@ _omr_realpath_cmp () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-PROG_NAME_FRIENDLY="${PROG_NAME_FRIENDLY:-omr-is-registered}"
+PROG_NAME="${PROG_NAME:-omr-is-registered}"
 
 clear_traps () {
   trap - EXIT INT
@@ -195,7 +195,7 @@ main () {
 }
 
 # Run the command unless being sourced.
-if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME_FRIENDLY}" ]; then
+if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME}" ]; then
   main "$@"
 fi
 

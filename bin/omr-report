@@ -197,7 +197,8 @@ trace_cmd () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Used by exit_cleanup
-PROG_NAME_FRIENDLY="${PROG_NAME_FRIENDLY:-omr-report}"
+# - CXREF: ~/.kit/git/ohmyrepos/bin/omr-is-registered
+PROG_NAME="${PROG_NAME:-omr-report}"
 
 # ***
 
