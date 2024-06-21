@@ -1960,6 +1960,13 @@ git_merge_check_env_travel () {
 print_path_for_remote_user () {
   local local_repo="$1"
 
+  if [ -n "${MR_REMOTE_PATH}" ]; then
+    # User override.
+    printf "%s" "${MR_REMOTE_PATH}"
+
+    return 0
+  fi
+
   if [ -z "${local_repo}" ]; then
     # 2024-04-16: MR_REPO_RAW new from `mr`.
     local_repo="${MR_REPO_RAW}"
@@ -2002,12 +2009,13 @@ git_update_ensure_ready () {
 }
 
 git_update_dev_path () {
+  local rem_repo="$(print_path_for_remote_user)"
   # 2019-10-30: To avoid mixing git-dir subdirectories and my subdirs,
   # add a path postfix to the repo path.
   #   local dev_path=$(realpath -m -- "${MR_TRAVEL}/${MR_REPO}")
   local git_name='_0.git'
   local dev_path
-  dev_path=$(realpath_m -- "${MR_TRAVEL}/${MR_REPO}/${git_name}")
+  dev_path=$(realpath_m -- "${MR_TRAVEL}/${rem_repo}/${git_name}")
 
   printf %s "${dev_path}"
 }
