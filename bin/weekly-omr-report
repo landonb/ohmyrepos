@@ -281,8 +281,8 @@ $(${REPORT_FAILED} && echo "<p>The \`omr-report\` command itself failed!</p>" ||
 $(${CACHE_FRESHENED} && echo "<p>Generated new cache file: ${CACHE_CAPTURE}</p>" || true)
 
 $( (! ${DIFF_FAILED} || ${CACHE_FRESHENED}) && echo " \
-$(${CACHE_FRESHENED} || echo "<p>Diff passed!</p>")
-<p>Summary:</p>
+$(${CACHE_FRESHENED} || echo "<p>Diff passed</p>")
+<p>Summary on @$(hostname):</p>
 <p><pre ${pre_style}>
 $(cat "${CAPTURE_PATH}" | grep "Number of")
 </pre></p>
@@ -291,7 +291,7 @@ $(cat "${CAPTURE_PATH}" | grep "Number of")
 $(${ALWAYS_EMAIL} && echo "<p>If you don't always want this email, set ALWAYS_EMAIL=false</p>" || true)
 
 $(${DIFF_FAILED} && echo " \
-<p>Diff failed!</p>
+<p>Diff failed on @$(hostname)!</p>
 <p>Please update the reference file:</p>
 <p><pre ${pre_style}>${CACHE_CAPTURE}</pre></p>
 <p>Here's what's the diff:</p>
