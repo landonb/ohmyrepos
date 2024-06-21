@@ -43,10 +43,11 @@ sort_file_then_commit () {
 
     git_auto_commit_one "${targetf}" "$@"
   else
-    warn
-    warn 'WARNING: No file to sort and commit found at:'
-    warn "  ${targetf}"
-    warn
+    >&2 warn
+    >&2 warn 'WARNING: No file to sort and commit found at:'
+    >&2 warn "  ${targetf}"
+    >&2 warn
+
     return 1
   fi
 
