@@ -172,16 +172,15 @@ git_auto_commit_path_one_or_many () {
     exit 1
   fi
 
-  # FIXME/2017-04-13: Handle errors better (and maybe don't send to /dev/null).
-  # E.g., I saw errors on uncommitted changes here years ago:
-  #   U	path/to/my.file
-  #   error: Committing is not possible because you have unmerged files.
-  #   hint: Fix them up in the work tree, and then use 'git add/rm <file>'
-  #   hint: as appropriate to mark resolution and make a commit.
-  #   fatal: Exiting because of an unresolved conflict.
-  # (but it could be that the code won't make it here anymore on
-  # those conditions, e.g., maybe merge conflicts are seen earlier).
-  git commit -m "${commit_msg}" >/dev/null 2>&1
+  if ! git commit -m "${commit_msg}" >/dev/null 2>&1; then
+    error "Commit failed:"
+    git commit -m "${commit_msg}" 2>&1 \
+      | while IFS= read -r line; do
+        error "  ${line}"
+      done
+
+    exit 1
+  fi
 
   if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
     echo 'Committed!'
