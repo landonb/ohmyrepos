@@ -1041,8 +1041,8 @@ git_fetch_remote_travel () {
     | grep -v "^Fetching " \
     | grep -v "^From " \
     | grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" \
-    | grep -v -P '\* \[new branch\] +.* -> .*' \
-    | grep -v -P '\* \[new tag\] +.* -> .*' \
+    | grep -v -E '\* \[new branch\] +.* -> .*' \
+    | grep -v -E '\* \[new tag\] +.* -> .*' \
     | grep -v "^ \?- \[deleted\] \+(none) \+-> .*" \
     | grep -v "^Auto packing the repository in background for optimum performance.$" \
     | grep -v '^See "git help gc" for manual housekeeping.$' \
@@ -1339,7 +1339,7 @@ git_move_local_branch_if_safe () {
 
     # MEH/2019-11-21 03:12: We could get around detached HEAD by using SHA, e.g.,:
     #   # Remote is non-local (ssh) and detached head ((unknown)). Get HEAD's SHA.
-    #   to_commit=$(git ls-remote ${MR_REMOTE} | grep -P "\tHEAD$" | cut -f1)
+    #   to_commit=$(git ls-remote ${MR_REMOTE} | grep -E "\tHEAD$" | cut -f1)
     # but the use case for detached HEAD is slim (so far just my ~/.vim repo which
     # has submodules, as far as I'm aware), so I'd rather do nothing/skip merge on
     # detached HEAD repos.
@@ -1427,24 +1427,24 @@ _git_merge_ff_only_safe_and_complicated () {
   culled="$(printf %s "${git_resp}" \
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
-    | grep -P -v "^Updating files: 100% \(\d+/\d+\), done\.$" \
+    | grep -E -v "^Updating files: 100% \([[:digit:]]+/[[:digit:]]+\), done\.$" \
     | grep -v "^Fast-forward$" \
     | grep -v "^Auto packing the repository in background for optimum performance.$" \
     | grep -v '^See "git help gc" for manual housekeeping.$' \
-    | grep -P -v "^Checking out files: " \
-    | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
-    | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\)$" \
-    | grep -P -v "^ \d+ files? changed, \d+ deletions?\(-\)$" \
-    | grep -P -v "^ \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
-    | grep -P -v "^ \d+ files? changed$" \
-    | grep -P -v " rename .* \(\d+%\)$" \
-    | grep -P -v " create mode \d+ \S+" \
-    | grep -P -v " delete mode \d+ \S+" \
-    | grep -P -v " mode change \d+ => \d+ \S+" \
-    | grep -P -v "^ \d+ insertions?\(\+\)$" \
-    | grep -P -v "^ \d+ deletions?\(-\)$" \
-    | grep -P -v "${PATTERN_TXT}" \
-    | grep -P -v "${PATTERN_BIN}" \
+    | grep -E -v "^Checking out files: " \
+    | grep -E -v "^ [[:digit:]]+ files? changed, [[:digit:]]+ insertions?\(\+\), [[:digit:]]+ deletions?\(-\)$" \
+    | grep -E -v "^ [[:digit:]]+ files? changed, [[:digit:]]+ insertions?\(\+\)$" \
+    | grep -E -v "^ [[:digit:]]+ files? changed, [[:digit:]]+ deletions?\(-\)$" \
+    | grep -E -v "^ [[:digit:]]+ insertions?\(\+\), [[:digit:]]+ deletions?\(-\)$" \
+    | grep -E -v "^ [[:digit:]]+ files? changed$" \
+    | grep -E -v " rename .* \([[:digit:]]+%\)$" \
+    | grep -E -v " create mode [[:digit:]]+ \S+" \
+    | grep -E -v " delete mode [[:digit:]]+ \S+" \
+    | grep -E -v " mode change [[:digit:]]+ => [[:digit:]]+ \S+" \
+    | grep -E -v "^ [[:digit:]]+ insertions?\(\+\)$" \
+    | grep -E -v "^ [[:digit:]]+ deletions?\(-\)$" \
+    | grep -E -v "${PATTERN_TXT}" \
+    | grep -E -v "${PATTERN_BIN}" \
     | grep -v "^fatal: Not possible to fast-forward, aborting.$" \
     # OMITD: See note above:
     #  | grep -v "^merge: [-a-z0-9]+/ - not something we can merge$"
@@ -1501,14 +1501,14 @@ _git_merge_ff_only_safe_and_complicated () {
 
 # ***
 
-PATTERN_TXT='^ [^\|]+\| +\d+ ?[+-]*$'
-PATTERN_BIN='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
+PATTERN_TXT='^ [^\|]+\| +[[:digit:]]+ ?[+-]*$'
+PATTERN_BIN='^ [^\|]+\| +Bin( [[:digit:]]+ -> [[:digit:]]+ bytes)?$'
 
-# NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
+# NOTE: The grep -E option only works on one pattern grep, so cannot use -e, eh?
 # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
 # but subsequent lines have changed background color to end of line, seems weird:
-#   local changes_txt="$(printf %s "${git_resp}" | grep -P "${PATTERN_TXT}")"
-#   local changes_bin="$(printf %s "${git_resp}" | grep -P "${PATTERN_BIN}")"
+#   local changes_txt="$(printf %s "${git_resp}" | grep -E "${PATTERN_TXT}")"
+#   local changes_bin="$(printf %s "${git_resp}" | grep -E "${PATTERN_BIN}")"
 # So use sed to sandwich each line with color changes.
 # - Be sure color is enabled, lest:
 #     /usr/bin/env sed: -e expression #1, char 7: unterminated `s' command
@@ -1534,10 +1534,10 @@ colorize_diff () {
   fi
 
   if ! ${MR_DIFF_REPORT_MULTIPLE_TRACE:-true}; then
-    printf %s "${git_resp}" | grep -P "${pattern}" | head -1 | eval "${sub_colorize_head}"
-    printf %s "${git_resp}" | grep -P "${pattern}" | tail +2 | eval "${sub_colorize_tails}"
+    printf %s "${git_resp}" | grep -E "${pattern}" | head -1 | eval "${sub_colorize_head}"
+    printf %s "${git_resp}" | grep -E "${pattern}" | tail +2 | eval "${sub_colorize_tails}"
   else
-    printf %s "${git_resp}" | grep -P "${pattern}" | eval "${sub_colorize_head}"
+    printf %s "${git_resp}" | grep -E "${pattern}" | eval "${sub_colorize_head}"
   fi
 }
 
