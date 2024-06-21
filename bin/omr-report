@@ -101,10 +101,10 @@ scan_for_projects () {
 
   echo "base_dir: ${base_dir}"
 
-  local cmd_find_git_dirs
-  cmd_find_git_dirs="$(print_cmd_find_git_dirs "${base_dir}" "${prune_opts}")"
+  local cmd_find_git_projs
+  cmd_find_git_projs="$(print_cmd_find_git_projs "${base_dir}" "${prune_opts}")"
 
-  trace_cmd "${cmd_find_git_dirs}"
+  trace_cmd "${cmd_find_git_projs}"
 
   # ***
 
@@ -154,7 +154,7 @@ scan_for_projects () {
       clear_line
       dot_cnt=0
     fi
-  done < <(eval "${cmd_find_git_dirs}");
+  done < <(eval "${cmd_find_git_projs}");
 }
 
 # ***
@@ -173,7 +173,7 @@ scan_for_projects () {
 #     -print \
 #   );
 
-print_cmd_find_git_dirs () {
+print_cmd_find_git_projs () {
   local base_dir="$1"
   local prune_opts="$2"
 
