@@ -1615,7 +1615,7 @@ _git_merge_reset_hard_if_local_unchanged () {
         # Cut off the final summary line (which merge doesn't report, either).
         local git_diff="$( \
           git $(print_graph_width_cfg) diff --compact-summary ${head_sha}..HEAD \
-          | head -n -1
+          | $(command -v ghead || command -v head) -n -1
         )"
         local pattern=""
 
