@@ -214,7 +214,7 @@ begin_capture () {
 }
 
 cleanup_capture () {
-  if [ -f "${CAPTURE_PATH}" ]; then
+  if ! ${DIFF_FAILED} && [ -f "${CAPTURE_PATH}" ]; then
     command rm -- "${CAPTURE_PATH}"
   fi
 
@@ -298,10 +298,10 @@ $(${DIFF_FAILED} && echo " \
 <p>Diff failed on @$(hostname)!</p>
 <p>Please update the reference file:</p>
 <p><pre ${pre_style}>${CACHE_CAPTURE}</pre></p>
+<p>Here's the meld incantation:</p>
+<p><pre ${pre_style}>meld \"${CACHE_CAPTURE}\" \"${CAPTURE_PATH}\" &</pre></p>
 <p>Here's what's the diff (new ↔ old):</p>
-<p><pre ${pre_style}>
-$(diff "${CAPTURE_PATH}" "${CACHE_CAPTURE}")
-</pre></p>" || true)
+<p><pre ${pre_style}>$(diff "${CAPTURE_PATH}" "${CACHE_CAPTURE}")</pre></p>" || true)
 
 <p style="color:black">
 <p>Here's the full report:</p>
