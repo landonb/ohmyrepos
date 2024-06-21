@@ -42,7 +42,7 @@ link_hard () {
       return 1
     fi
 
-    file_inode=$(ls -i "${file_path}" | cut -d' ' -f1 2> /dev/null)
+    file_inode=$(command ls -i "${file_path}" | cut -d' ' -f1 2> /dev/null)
     if [ $? -ne 0 ] || [ -z "${file_inode}" ]; then
       >&2 error "No file index for: ${file_path}"
 
