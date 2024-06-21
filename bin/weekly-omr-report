@@ -138,7 +138,6 @@ weekly_omr_report () {
   fi
 }
 
-# CXREF: ~/.kit/git/ohmyrepos/bin/omr-report
 omr_report_check_known_knowns () {
   if ! command -v omr-report > /dev/null; then
     PATH="${PATH}:$(realpath -- "$(dirname -- "$0")")"
@@ -153,6 +152,7 @@ omr_report_check_known_knowns () {
   # If DRY_RUN unset, cannot use before VAR=val, e.g.,
   #   OMR_VERBOSE=false: command not found
   if [ -z "${DRY_RUN}" ]; then
+    # CXREF: ~/.kit/git/ohmyrepos/bin/omr-report
     OMR_VERBOSE=false omr-report > "${CAPTURE_PATH}" 2>&1
   else
     ${DRY_RUN} "OMR_VERBOSE=false omr-report > \"${CAPTURE_PATH}\" 2>&1"
