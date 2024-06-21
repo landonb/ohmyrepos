@@ -1949,7 +1949,7 @@ git_merge_check_env_travel () {
   [ -z "${MR_TRAVEL}" ] && error 'You must set MR_TRAVEL!' && exit 1 || true
 }
 
-# 2023-04-30: Let user specify different /user/home on remote,
+# 2023-04-30: Let user specify different /home/user on remote,
 # i.e., sync two hosts with different usernames.
 # - Alternatively: Symlink /home/host1_user -> /home/host2_user on @host2,
 #                      and /home/host2_user -> /home/host1_user on @host1.
