@@ -47,11 +47,11 @@ echoInstallHelpWidget () {
       checkbox="❌"
     fi
   elif [ "${which_os}" = "os_macos" ]; then
-    if [ "$(uname)" != 'Darmin' ]; then
+    if [ "$(uname)" != 'Darwin' ]; then
       checkbox="❌"
     fi
   elif [ "${which_os}" = "os_macos_maybe" ]; then
-    if [ "$(uname)" = 'Darmin' ]; then
+    if [ "$(uname)" = 'Darwin' ]; then
       checkbox="❓"
     fi
   elif [ "${which_os}" = "os_maybe" ]; then
