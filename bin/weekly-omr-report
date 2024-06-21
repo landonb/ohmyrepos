@@ -128,6 +128,8 @@ weekly_omr_report () {
   capture_omr_report \
     || REPORT_FAILED=true
 
+  normalize_omr_report
+
   local CACHE_FRESHENED=false
   local DIFF_FAILED=false
   process_report \
@@ -162,6 +164,17 @@ capture_omr_report () {
   else
     ${DRY_RUN} "OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report > \"${CAPTURE_PATH}\" 2>&1"
   fi
+}
+
+normalize_omr_report () {
+  ${DRY_RUN} sed -i '/^base_dir: /d' "${CAPTURE_PATH}"
+
+  local summary="$(${DRY_RUN} tail -2 "${CAPTURE_PATH}")"
+
+  ${DRY_RUN} head -n -2 "${CAPTURE_PATH}" \
+    | ${DRY_RUN} sort -k1,1 -t' ' -o "${CAPTURE_PATH}"
+
+  ${DRY_RUN} echo "${summary}" >> "${CAPTURE_PATH}"
 }
 
 process_report () {
