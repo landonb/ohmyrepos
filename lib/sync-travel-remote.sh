@@ -1813,7 +1813,7 @@ print_mergefail_msg_localahead () {
   warn " $(fg_lightorange)$(attr_underline)✗ localchg$(res_underline) $(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${target_repo}$(attr_reset)"
 
-  local rem_repo="$(print_path_for_remote_user "${MR_REPO}")"
+  local rem_repo="$(print_path_for_remote_user)"
   local mr_repo="$(print_path_for_remote_user "$(command -v mr)")"
 
   echo \
@@ -1960,6 +1960,17 @@ git_merge_check_env_travel () {
 print_path_for_remote_user () {
   local local_repo="$1"
 
+  if [ -z "${local_repo}" ]; then
+    # 2024-04-16: MR_REPO_RAW new from `mr`.
+    local_repo="${MR_REPO_RAW}"
+  fi
+
+  if [ -z "${local_repo}" ]; then
+    local_repo="${MR_REPO}"
+  fi
+
+  # ***
+
   if [ -z "${MR_REMOTE_HOME}" ]; then
     printf "%s" "${local_repo}"
   else
@@ -1976,7 +1987,7 @@ git_merge_ffonly_ssh_mirror () {
 
   git_merge_check_env_remote
   git_merge_check_env_repo
-  local rem_repo="$(print_path_for_remote_user "${MR_REPO}")"
+  local rem_repo="$(print_path_for_remote_user)"
   local rel_repo="$(lchop_sep "${rem_repo}")"
   local ssh_path="ssh://${MR_REMOTE}/${rel_repo}"
   # rel_repo only used for error message.
