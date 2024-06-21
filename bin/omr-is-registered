@@ -78,7 +78,8 @@ omr_is_registered () {
     if echo "${cmd_mr_repo_force}" \
       | grep -q " mr run: no repositories found to work on$" \
     ; then
-      >&2 echo "✗ unregistered, parentless directory: ${proj_path}"
+      >&2 _omr_log_analysis "${proj_path}" "(unregistered)" \
+        "✗ unregistered, parentless directory"
 
       return 1
     elif echo "${cmd_mr_repo_force}" \
@@ -123,14 +124,17 @@ omr_is_registered () {
   if echo "${cmd_mr_repo_normal}" | grep -q " mr run: finished (1 skipped)$"; then
     if ! "${omr_path_matches}"; then
       clear_line
-      >&2 echo "✗ unregistered, has a skipped parent: ${proj_path} (${mr_repo_path})"
+      >&2 _omr_log_analysis "${proj_path}" "(unregistered)" \
+        "✗ unregistered, has a skipped parent" \
+        "(${mr_repo_path})"
 
       return 1
     fi
 
     if ${OMR_VERBOSE:-false} || ${OMR_VERBOSE_SKIPPED:-false}; then
       clear_line
-      echo "✓ happily registered, but skiparooed: ${proj_path}"
+      _omr_log_analysis "${proj_path}" "(skipped)" \
+        "✓ happily registered, but skiparooed"
     fi
 
     return 99
@@ -138,17 +142,38 @@ omr_is_registered () {
 
   if ! "${omr_path_matches}"; then
     clear_line
-    >&2 echo "✗ unregistered, but has known parent: ${proj_path} (${mr_repo_path})"
+    >&2 _omr_log_analysis "${proj_path}" "(unregistered)" \
+      "✗ unregistered, but has known parent" \
+      "(${mr_repo_path})"
 
     return 1
   fi
 
   if ${OMR_VERBOSE:-false} || ${OMR_VERBOSE_NOT_SKIPPED:-false}; then
     clear_line
-    echo "✓ yes, yes it is, happily registered: ${mr_repo_path}"
+    _omr_log_analysis "${mr_repo_path}" "(registered)" \
+      "✓ yes, yes it is, happily registered"
   fi
 
   return 0
+}
+
+_omr_log_analysis () {
+  local repo_path="$1"
+  local more_simply="$2"
+  local analysis="$3"
+  local addendum="$4"
+
+  local addendum_spaced=""
+  if [ -n "${addendum}" ]; then
+    addendum_spaced=" ${addendum}"
+  fi
+
+  if ${OMR_FORMAT_CONCISE:-false}; then
+    echo "${repo_path} ${more_simply}"
+  else
+    echo "${analysis}: ${repo_path}${addendum_spaced}"
+  fi
 }
 
 _omr_realpath_cmp () {
