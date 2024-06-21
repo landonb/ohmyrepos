@@ -108,7 +108,6 @@ _debug_spew_and_die () {
   testing=true
   if $testing; then
     >&2 echo "MR_REPO=${MR_REPO}"
-    >&2 echo "MR_CONFIG=${MR_CONFIG}"
     >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
     >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
     >&2 echo "current dir: $(pwd -L)"
@@ -123,11 +122,6 @@ infuser_set_envs () {
   # Ensure MR_REPO set so script can be called manually,
   # outside context of myrepos.
   export MR_REPO="${repodir}"
-
-  # Note that if '.vim/.mrconfig' is absent, myrepos will have most likely set
-  # MR_CONFIG=~/.mrconfig; but if it's present, then MR_CONFIG=~/.vim/.mrconfig.
-  # So that the rest of the script works properly, force the MR_CONFIG value.
-  export MR_CONFIG="${MR_CONFIG:-"${MR_REPO}/.mrconfig"}"
 }
 
 # 2019-10-26: This does not belong here. But all my infusers at least
@@ -787,7 +781,6 @@ _info_path_resolve () {
   # testing=true
   if $testing; then
     >&2 echo "MR_REPO=${MR_REPO}"
-    >&2 echo "MR_CONFIG=${MR_CONFIG}"
     >&2 echo "relative_path=${relative_path}"
     >&2 echo "mrinfuse_path=${mrinfuse_path}"
     >&2 echo "canonicalized=${canonicalized}"
