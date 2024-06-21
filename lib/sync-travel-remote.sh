@@ -1518,9 +1518,30 @@ _git_merge_ff_only_safe_and_complicated () {
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
   elif [ -z "${changes_txt}" ] && [ -z "${changes_bin}" ]; then
-    # A ✗ warning, so you can update the grep above and recognize this output.
-    warn " $(fg_mintgreen)$(attr_emphasis)!familiar $(attr_reset)  " \
-      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+    # Probably means no diff, e.g.:
+    #     Updating 70380da..48ae52a
+    #     Fast-forward
+    # - UCASE: E.g., user adds one commit, then reverts it in the next.
+    # - SAVVY/2024-05-14: All this grep logic (here and above) is pretty
+    #   meaningless, or at least it's served its purpose.
+    #   - It was useful early in development to catch corner cases
+    #     and to inform development. But recently it's mostly tech debt
+    #     (and tightly coupled to the git-merge output; albeit that's
+    #     unlikely to change, and if it did, we could rip out the grep
+    #     logic and not worry about it).
+    #     - But until we decide otherwise, here's another robust grep
+    #       check to ensure we recognize every line of output.
+    local culled_check
+    culled_check="$(printf "%s" "${git_resp}" \
+      | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
+      | grep -v "^Fast-forward$" \
+    )" || true
+    if [ -n "${culled_check}" ]; then
+      # A ✗ warning, so you can update the grep above and recognize this output.
+      warn " $(fg_mintgreen)$(attr_emphasis)!familiar $(attr_reset)  " \
+        "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+      warn "- Full git merge output:\n${git_resp}"
+    fi
   # else, ${merge_retcode} is 0/true, and either/or changes_txt/_bin,
   # and we've already printed multiple info statements, nothing more
   # to say.
