@@ -294,7 +294,7 @@ $(${DIFF_FAILED} && echo " \
 <p>Diff failed on @$(hostname)!</p>
 <p>Please update the reference file:</p>
 <p><pre ${pre_style}>${CACHE_CAPTURE}</pre></p>
-<p>Here's what's the diff:</p>
+<p>Here's what's the diff (new ↔ old):</p>
 <p><pre ${pre_style}>
 $(diff "${CAPTURE_PATH}" "${CACHE_CAPTURE}")
 </pre></p>" || true)
