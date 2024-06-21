@@ -22,8 +22,9 @@ OMR_VERBOSE=${OMR_VERBOSE:-false}
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  # Load: _vendorfs_path_stints_basedir_print
-  # CXREF: /kit/working/git/ohmyrepos/bin/omr-is-registered
+  # Load: cache_termimal_width, clear_line, omr_is_registered,
+  #       _vendorfs_path_stints_basedir_print
+  # CXREF: ~/.kit/git/ohmyrepos/bin/omr-is-registered
   . "$(dirname -- "$(realpath -- "$0")")/omr-is-registered"
 }
 
