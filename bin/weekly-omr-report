@@ -172,7 +172,7 @@ process_report () {
     return 0
   fi
 
-  command ln -sf -- "${CACHE_CAPTURE}" "${CACHE_CAPTURE_LOCALHOST}"
+  command ln -sfn -- "$(basename -- "${CACHE_CAPTURE}")" "${CACHE_CAPTURE_LOCALHOST}"
 
   diff -q \
     <(scrub_count_lines "${CAPTURE_PATH}") \
