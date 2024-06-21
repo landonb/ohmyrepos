@@ -21,6 +21,7 @@ line_in_file () {
       info "Updating $(fg_lightorange)${friendly_path}$(attr_reset)"
     fi
 
+    # If creating, assigns 644 permissions.
     echo "${add_line}" >> "${target_path}"
   fi
 }
