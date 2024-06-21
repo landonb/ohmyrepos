@@ -1545,11 +1545,11 @@ debug_mline () {
   local changes="$1"
 
   if ! ${MR_DIFF_REPORT_MULTIPLE_TRACE:-true}; then
-    debug "$line"
+    debug "${line}"
   else
     # Note that `done <<< "${changes}"` is not POSIX, so piping instead.
     echo "${changes}" | while IFS= read -r line; do
-      debug "$line"
+      debug "${line}"
     done
   fi
 }
