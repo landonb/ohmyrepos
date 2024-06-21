@@ -195,10 +195,37 @@ trace_cmd () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+_NORMAL_EXIT=false
+
+exit_1 () { _NORMAL_EXIT=true; exit 1; }
+exit_0 () { _NORMAL_EXIT=true; exit 0; }
+
+exit_cleanup () {
+  if ! ${_NORMAL_EXIT}; then
+    # USAGE: Alert on unexpected error path, so you can add happy path.
+    >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
+    >&2 echo "- Hint: Enable \`set -x\` and run again..."
+  fi
+
+  cleanup_capture
+
+  trap - EXIT
+
+  ${_NORMAL_EXIT} && exit 0 || exit 1
+}
+
+# ***
+
 main () {
+  set -e
+
+  trap -- exit_cleanup EXIT
+  
   source_deps
 
   omr_report "$@"
+
+  trap - EXIT
 }
 
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
