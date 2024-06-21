@@ -157,9 +157,9 @@ capture_omr_report () {
   #   OMR_VERBOSE=false: command not found
   if [ -z "${DRY_RUN}" ]; then
     # CXREF: ~/.kit/git/ohmyrepos/bin/omr-report
-    OMR_VERBOSE=false omr-report > "${CAPTURE_PATH}" 2>&1
+    OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report > "${CAPTURE_PATH}" 2>&1
   else
-    ${DRY_RUN} "OMR_VERBOSE=false omr-report > \"${CAPTURE_PATH}\" 2>&1"
+    ${DRY_RUN} "OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report > \"${CAPTURE_PATH}\" 2>&1"
   fi
 }
 
