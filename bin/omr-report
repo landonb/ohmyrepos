@@ -170,8 +170,7 @@ scan_for_projects () {
 #     \) -prune -o \
 #     -type d \
 #     -name ".git" \
-#     -print \
-#   );
+#     -print
 
 print_cmd_find_git_projs () {
   local base_dir="$1"
