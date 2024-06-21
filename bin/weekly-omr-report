@@ -18,6 +18,9 @@
 #     https://github.com/befinance/birdseye#🐦👁️
 SEND_EMAIL_TO="${SEND_EMAIL_TO:-${LOGNAME}@$(hostname)}"
 
+# SAVVY: When local machine forwards to Gmail, you'll see this as buried header, e.g.,
+#   X-Google-Original-From: Weekly-OMR-Report <weekly-omr-report@host>
+# but email in your inbox will show <org@gmail.com> it was forwarded through.
 SEND_EMAIL_FROM="${SEND_EMAIL_FROM:-Weekly-OMR-Report <$(basename -- "$0")@$(hostname)>}"
 
 # Enable if you always want an email report.
