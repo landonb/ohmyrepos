@@ -31,7 +31,7 @@ echoInstallHelp() {
     addendum_txt=" (${addendum})"
   fi
 
-  echo "${checkbox} DepoXy: Install ${alt_name:-${app_name}} from source${addendum_txt}::
+  echo "${checkbox} DepoXy [${MR_ORDER}]: Install ${alt_name:-${app_name}} from source${addendum_txt}::
    mr -d \"${MR_REPO}\" -n install
 "
 }
