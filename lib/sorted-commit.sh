@@ -41,7 +41,7 @@ sort_file_then_commit () {
     cat "${targetf}" | LC_ALL='C' sort -d > "${sortedf}"
     command mv -f -- "${sortedf}" "${targetf}"
 
-    git_auto_commit_one "${targetf}" "${@}"
+    git_auto_commit_one "${targetf}" "$@"
   else
     warn
     warn 'WARNING: No file to sort and commit found at:'
