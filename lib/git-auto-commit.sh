@@ -460,9 +460,8 @@ git_auto_commit_path_new () {
       printf '%s' "Add *untracked* paths therein? [y/n] "
       read yorn
     else
-      local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_reset)"
-      notice "$(fg_mintgreen)$(attr_emphasis)autocommit new$(attr_reset)" \
-        "$(fg_lavender)${pretty_path}$(attr_reset)"
+      debug "$(fg_mintgreen)$(attr_emphasis)autocommit new$(attr_reset)" \
+        "$(fg_lavender)${MR_REPO}/${add_path}$(attr_reset)"
       yorn="Y"
     fi
 
