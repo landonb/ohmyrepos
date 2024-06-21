@@ -117,12 +117,12 @@ scan_for_projects () {
 
   # ***
 
-  while read git_dir; do
+  while read proj_dir; do
     local TERM_WIDTH=0
     cache_termimal_width
 
     local reg_code=0
-    omr_is_registered "$(dirname -- "${git_dir}")" \
+    omr_is_registered "${proj_dir}" \
       || reg_code=$?
 
     if [ ${reg_code} -eq 1 ]; then
@@ -181,7 +181,9 @@ print_cmd_find_git_projs () {
     ${prune_opts} \\
     -type d \\
     -name \".git\" \\
-    -print"
+    -print \\
+    | xargs dirname \\
+    | sort"
 }
 
 trace_cmd () {
