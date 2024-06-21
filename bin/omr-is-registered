@@ -140,23 +140,41 @@ _omr_realpath_cmp () {
 
 PROG_NAME_FRIENDLY="${PROG_NAME_FRIENDLY:-omr-is-registered}"
 
-_NORMAL_EXIT=false
+clear_traps () {
+  trap - EXIT INT
+}
 
-exit_1 () { _NORMAL_EXIT=true; exit 1; }
-exit_0 () { _NORMAL_EXIT=true; exit 0; }
+set_traps () {
+  trap -- trap_exit EXIT
+  trap -- trap_int INT
+}
 
-exit_cleanup () {
-  if ! ${_NORMAL_EXIT}; then
-    # USAGE: Alert on unexpected error path, so you can add happy path.
-    >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
-    >&2 echo "- Hint: Enable \`set -x\` and run again..."
-  fi
+exit_0 () {
+  clear_traps
 
-  cleanup_capture
+  exit 0
+}
 
-  trap - EXIT
+exit_1 () {
+  clear_traps
 
-  ${_NORMAL_EXIT} && exit 0 || exit 1
+  exit 1
+}
+
+trap_exit () {
+  clear_traps
+
+  # USAGE: Alert on unexpected error path, so you can add happy path.
+  >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
+  >&2 echo "- Hint: Enable \`set -x\` and run again..."
+
+  exit 2
+}
+
+trap_int () {
+  clear_traps
+
+  exit 3
 }
 
 # ***
@@ -164,11 +182,16 @@ exit_cleanup () {
 main () {
   set -e
 
-  trap -- exit_cleanup EXIT
+  set_traps
 
-  omr_is_registered "$@"
+  local ret_code=0
 
-  trap - EXIT
+  omr_is_registered "$@" \
+    || ret_code=$?
+
+  clear_traps
+
+  return ${ret_code}
 }
 
 # Run the command unless being sourced.

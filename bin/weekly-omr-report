@@ -314,23 +314,47 @@ EOF
 
 PROG_NAME_FRIENDLY="weekly-omr-report"
 
-_NORMAL_EXIT=false
-
-exit_1 () { _NORMAL_EXIT=true; exit 1; }
-exit_0 () { _NORMAL_EXIT=true; exit 0; }
-
-exit_cleanup () {
-  if ! ${_NORMAL_EXIT}; then
-    # USAGE: Alert on unexpected error path, so you can add happy path.
-    >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
-    >&2 echo "- Hint: Enable \`set -x\` and run again..."
-  fi
-
+app_cleanup () {
   cleanup_capture
 
-  trap - EXIT
+  clear_traps
+}
 
-  ${_NORMAL_EXIT} && exit 0 || exit 1
+clear_traps () {
+  trap - EXIT INT
+}
+
+set_traps () {
+  trap -- trap_exit EXIT
+  trap -- trap_int INT
+}
+
+exit_0 () {
+  app_cleanup
+
+  exit 0
+}
+
+exit_1 () {
+  app_cleanup
+
+  exit 1
+}
+
+trap_exit () {
+  app_cleanup
+
+  # USAGE: Alert on unexpected error path, so you can add happy path.
+  >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
+  >&2 echo "- Hint: Enable \`set -x\` and run again..."
+
+  exit 2
+}
+
+trap_int () {
+  app_cleanup
+
+  exit 3
 }
 
 # ***
@@ -338,14 +362,13 @@ exit_cleanup () {
 main () {
   set -e
 
-  trap -- exit_cleanup EXIT
+  set_traps
 
   source_deps
 
   weekly_omr_report "$@"
 
-  # Unhook traps.
-  trap - EXIT
+  clear_traps
 }
 
 # Run the command unless being sourced.
@@ -355,10 +378,6 @@ else
   source_deps
 fi
 
-_NORMAL_EXIT=true
-
 unset -f main
 unset -f source_deps
-
-${_NORMAL_EXIT}
 

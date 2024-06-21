@@ -204,13 +204,13 @@ PROG_NAME_FRIENDLY="${PROG_NAME_FRIENDLY:-omr-report}"
 main () {
   set -e
 
-  trap -- exit_cleanup EXIT
+  set_traps
   
   source_deps
 
   omr_report "$@"
 
-  trap - EXIT
+  clear_traps
 }
 
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
