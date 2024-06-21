@@ -138,7 +138,7 @@ _omr_realpath_cmp () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-PROG_NAME_FRIENDLY="omr-is-registered"
+PROG_NAME_FRIENDLY="${PROG_NAME_FRIENDLY:-omr-is-registered}"
 
 _NORMAL_EXIT=false
 
