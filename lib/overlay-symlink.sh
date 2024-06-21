@@ -38,7 +38,7 @@ params_register_switches () {
 
       break
     fi
-    case $1 in
+    case "$1" in
       -f)
         MRT_LINK_FORCE=0
         shift
@@ -811,9 +811,9 @@ symlink_mrinfuse_typed () {
   cd "${MR_REPO}"
 
   local sourcep
-  sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
+  sourcep="$(path_to_mrinfuse_resolve "${lnkpath}")"
 
-  if [ ! -e ${sourcep} ]; then
+  if [ ! -e "${sourcep}" ]; then
     if [ "${optional}" -eq 0 ]; then
       warn "Non-optional symlink source not found: ${sourcep} [relative to ${MR_REPO}]"
 
@@ -855,7 +855,7 @@ symlink_mrinfuse_file_first_handler () {
   for lnkpath in "${@}"; do
     local sourcep
     sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
-    if [ -e ${sourcep} ]; then
+    if [ -e "${sourcep}" ]; then
       symlink_overlay_file "${sourcep}" "${targetp}"
       found_one=true
 
