@@ -116,7 +116,7 @@ omr_is_registered () {
   fi
 
   local cmd_mr_repo_normal
-  cmd_mr_repo_normal="$(mr -d "${proj_path}" -n run sh -c 'echo "${MR_REPO}"')"
+  cmd_mr_repo_normal="$(mr -d "${proj_path}" -n run sh -c 'echo "${MR_REPO}"' 2> /dev/null)"
   # Remove timing/finished message.
   cmd_mr_repo_normal="$(echo "${cmd_mr_repo_normal}" | head -1)"
 
