@@ -1429,7 +1429,7 @@ _git_merge_ff_only_safe_and_complicated () {
 
   local extcd=0
   local git_resp
-  git_resp=$(git $(print_graph_width_cfg) merge --ff-only ${to_commit} 2>&1) || extcd=$?
+  git_resp=$(git $(print_graph_width_cfg) merge --ff-only --no-progress ${to_commit} 2>&1) || extcd=$?
   local merge_retcode=${extcd}
 
   # ***
@@ -1449,11 +1449,17 @@ _git_merge_ff_only_safe_and_complicated () {
   #        git-merge says:
   #          merge: host/ - not something we can merge
   #        but don't make a rule for that text: git-fetch fails first.
+  # ISOFF: The progress line sometimes slips through the grep exclude, e.g.,
+  #          Updating files: 100% (11/11), done.
+  #        is reported as unrecognized.
+  #        - Author suspects because ANSI Cursor Back sequences ("\\033[1D")
+  #          or Carriage Returns ("\r") to rewrite the percentage and count.
+  #        - Remove --no-progress and restore this rule to see for yourself:
+  #           | grep -E -v "^Updating files: 100% \([[:digit:]]+/[[:digit:]]+\), done\.$" \
   local culled
   culled="$(printf "%s" "${git_resp}" \
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
-    | grep -E -v "^Updating files: 100% \([[:digit:]]+/[[:digit:]]+\), done\.$" \
     | grep -v "^Fast-forward$" \
     | grep -v "^Auto packing the repository in background for optimum performance.$" \
     | grep -v '^See "git help gc" for manual housekeeping.$' \
