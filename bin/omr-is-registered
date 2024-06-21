@@ -61,25 +61,47 @@ clear_line () {
 omr_is_registered () {
   local proj_path="${1:-$(pwd)}"
 
+  local mr_repo_path=""
+
   local cmd_mr_repo_force
 
   # Use --force in case current directory is not registered, but parent is
   # registered but skipped.
   # GRIPE/2024-04-03: This is slow. `mr` startup is slow. 10m on 500 repos.
   if ! cmd_mr_repo_force="$( \
-    mr -d "${proj_path}" -n --force run sh -c 'echo "${MR_REPO}"' 2> /dev/null
+    mr -d "${proj_path}" -n --force run sh -c 'echo "${MR_REPO}"' 2>&1
   )"; then
     # E.g., OUTPUT:
     #   (0 secs.) mr run: no repositories found to work on
-    >&2 echo "✗ unregistered, parentless directory: ${proj_path}"
+    # Or perhaps:
+    #   (0 secs.) mr run: FAILED: Cannot run action from subdir when -n/--no-recurse
+    if echo "${cmd_mr_repo_force}" \
+      | grep -q " mr run: no repositories found to work on$" \
+    ; then
+      >&2 echo "✗ unregistered, parentless directory: ${proj_path}"
 
-    return 1
+      return 1
+    elif echo "${cmd_mr_repo_force}" \
+      | grep -q "mr run: Cannot run action from subdir when -n/--no-recurse$" \
+    ; then
+      mr_repo_path="$( \
+        echo "${cmd_mr_repo_force}" \
+        | grep "Project root detected at:" \
+        | sed 's/.*Project root detected at: //'
+      )"
+    else
+      >&2 echo "GAFFE: \`mr --force run\` failed, but *for reasons unknown*"
+      >&2 echo "  mr -d \"${proj_path}\" -n --force run sh -c 'echo \"\${MR_REPO}\"'"
+
+      return 1
+    fi
   fi
 
   # Remove second line, the timing/finished message:
   #   (0 secs.) mr run: finished (1 ok)
-  local mr_repo_path
-  mr_repo_path="$(echo "${cmd_mr_repo_force}" | head -1)"
+  if [ -z "${mr_repo_path}" ]; then
+    mr_repo_path="$(echo "${cmd_mr_repo_force}" | head -n 1)"
+  fi
 
   if [ -z "${mr_repo_path}" ]; then
     # Unreachable path.
