@@ -63,7 +63,8 @@ pull_latest () {
     fi
   fi
 
-  local install_branch="${remote_name}/${install_version}"
+  local prefix="_"
+  local install_branch="${prefix}${remote_name}/${install_version}"
 
   git checkout -b ${install_branch} ${install_version} 2> /dev/null || true
   git checkout ${install_branch}
