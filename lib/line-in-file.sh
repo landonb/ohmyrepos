@@ -8,7 +8,7 @@ line_in_file () {
   local target_path="$2"
 
   local friendly_path="$( \
-    echo "${target_path}" | sed -E "s#^${HOME}(/|$)#~\1#"
+    echo "${target_path}" | sed -E "s@^${HOME}(/|$)@~\1@"
   )"
 
   # SAVVY: -q quiet, -x match the whole line, -F pattern is a plain string
