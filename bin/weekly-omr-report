@@ -312,67 +312,27 @@ EOF
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-PROG_NAME="weekly-omr-report"
-
-app_cleanup () {
-  cleanup_capture
-
-  clear_traps
-}
-
-clear_traps () {
-  trap - EXIT INT
-}
-
-set_traps () {
-  trap -- trap_exit EXIT
-  trap -- trap_int INT
-}
-
-exit_0 () {
-  app_cleanup
-
-  exit 0
-}
-
-exit_1 () {
-  app_cleanup
-
-  exit 1
-}
-
-trap_exit () {
-  app_cleanup
-
-  # USAGE: Alert on unexpected error path, so you can add happy path.
-  >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
-  >&2 echo "- Hint: Enable \`set -x\` and run again..."
-
-  exit 2
-}
-
-trap_int () {
-  app_cleanup
-
-  exit 3
-}
-
-# ***
-
 main () {
   set -e
+
+  # Load: set_traps, clear_traps, exit_0, exit_1, os_is_macos.
+  . "$(dirname -- "$(realpath -- "$0")")/../deps/sh-err-trap/lib/err-trap.sh"
 
   set_traps
 
   source_deps
 
+  # ***
+
   weekly_omr_report "$@"
+
+  # ***
 
   clear_traps
 }
 
 # Run the command unless being sourced.
-if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME}" ]; then
+if [ -n "${BASH_SOURCE}" ] && [ "$0" = "${BASH_SOURCE[0]}" ]; then
   main "$@"
 else
   source_deps
