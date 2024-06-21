@@ -265,9 +265,14 @@ git_auto_commit_many () {
 
   git_auto_commit_parse_args "$@"
   if ! git_auto_commit_process_rest "git_auto_commit_path_many" "$@"; then
-    fatal "ERROR: Expecting a path(s) to git_auto_commit_many."
+    # ISOFF/2024-04-29: Zero counts as many, doesn't it?
+    if false; then
+      fatal "ERROR: Expecting a path(s) to git_auto_commit_many."
 
-    exit 1
+      exit 1
+    else
+      return 0
+    fi
   fi
 
   if [ ${MR_GIT_AUTO_COMMIT_STAGE_COUNT} -gt 0 ]; then
