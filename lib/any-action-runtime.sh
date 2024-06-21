@@ -107,12 +107,7 @@ git_any_action_stopped () {
   # User can call `mr` from an `mr` action, so only remove the file
   # associated with the current process, because there might be
   # multiple runtime temp files in use.
-  # - DUNNO/2024-04-04: I got "rm: cannot remove" error here, but
-  #   the `cat` above (before I added 2> /dev/null) worked fine.
-  #   - So was the file was removed between the two? Literally unbelievable.
-  #   - I added remove_old_temp_files hours ago, so smells related.
-  #     - Though now the cat 2> above, and rm -f inhibit stderr's;
-  #       but user should see "(Unk. secs.)" as indicator.
+  # - BWARE: Use `rm -f`: Sometimes file is absent (b/c race condition?).
   #
   # KLUGE/2024-04-07: Sometimes (not often) this fcn. (git_any_action_stopped)
   # runs and returns "(Unk. secs.)" because the temp file is missing...
