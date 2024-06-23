@@ -26,6 +26,11 @@ set_traps () {
   trap -- trap_int INT
 }
 
+set_traps_safe () {
+  trap -- trap_exit_safe EXIT
+  trap -- trap_int INT
+}
+
 exit_0 () {
   clear_traps
 
@@ -46,6 +51,14 @@ trap_exit () {
   >&2 echo "- Hint: Enable \`set -x\` and run again..."
 
   exit 2
+}
+
+trap_exit_safe () {
+  >&2 echo "ALERT: "$(basename -- "$0")" tossed an error!"
+  >&2 echo "- Hint: Enable \`set -x\` and run again..."
+  >&2 echo "- But this script is playing it safe, and will keep going!"
+
+  return 0
 }
 
 trap_int () {
