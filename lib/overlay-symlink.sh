@@ -446,7 +446,7 @@ symlink_adjust_source_relative () {
   local targetp="$3"
 
   if ! is_relative_path "${sourcep}"; then
-    echo "${sourcep}"
+    printf "%s" "${sourcep}"
 
     return 0
   fi
@@ -707,7 +707,7 @@ mrinfuse_findup () {
   local dirpath=""
   while [ -z "${dirpath}" ] || [ "$(realpath -- "${dirpath}")" != '/' ]; do
     if [ -d "${dirpath}${MRT_INFUSE_DIR:-.mrinfuse}" ]; then
-      echo "${start_dir}${dirpath}"
+      printf "%s" "${start_dir}${dirpath}"
 
       return 0
     fi
