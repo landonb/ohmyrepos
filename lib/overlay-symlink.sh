@@ -693,7 +693,7 @@ _info_path_resolve () {
 
 # ***
 
-# Note this fcn. prints the path to stdout, so errors should go to stderr.
+# Prints relative path to .mrinfuse/ dir found in or above start_dir.
 mrinfuse_findup () {
   local start_dir="$1"
 
@@ -703,8 +703,7 @@ mrinfuse_findup () {
     cd "${start_dir}"
   fi
 
-  # Search from parent of this directory (which is probably $MR_REPO)
-  # up to the .mrconfig-containing directory looking for .mrinfuse/.
+  # Search from this directory upwards looking for .mrinfuse/ dir.
   local dirpath=""
   while [ -z "${dirpath}" ] || [ "$(realpath -- "${dirpath}")" != '/' ]; do
     if [ -d "${dirpath}${MRT_INFUSE_DIR:-.mrinfuse}" ]; then
