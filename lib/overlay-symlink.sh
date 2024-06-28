@@ -194,26 +194,29 @@ file_exists_and_not_linked_to_source () {
 symlink_verify_source () {
   local sourcep="$1"
   local srctype="$2"
+  local targetp="$3"
+
+  emit_error_and_exit () {
+    local type_name="$1"
+
+    error "mrt: Cannot create symbolic link:"
+    error "- Did not find linkable source ${type_name} at:"
+    error "    ${sourcep}"
+    error "- From the directory:"
+    error "    $(pwd -L)"
+    error "- For the target:"
+    error "    ${targetp}"
+
+    exit 1
+  }
 
   if [ "${srctype}" = 'file' ]; then
     if [ ! -f "${sourcep}" ]; then
-      error "mrt: Failed to create symbolic link!"
-      error "  Did not find linkable source file at:"
-      error "    ${sourcep}"
-      error "  From our perch at:"
-      error "    $(pwd -L)"
-
-      exit 1
+      emit_error_and_exit "file"
     fi
   elif [ "${srctype}" = 'dir' ]; then
     if [ ! -d "${sourcep}" ]; then
-      error "mrt: Failed to create symbolic link!"
-      error "  Did not find linkable source directory at:"
-      error "    ${sourcep}"
-      error "  From our perch at:"
-      error "    $(pwd -L)"
-
-      exit 1
+      emit_error_and_exit "directory"
     fi
   else
     fatal "Not a real srctype: ${srctype}"
@@ -526,7 +529,7 @@ makelink_clobber_typed () {
 
   # Check that the source file or directory exists.
   # - This may interrupt the flow if errexit.
-  symlink_verify_source "${sourcep}" "${srctype}"
+  symlink_verify_source "${sourcep}" "${srctype}" "${targetp}"
 
   local origp="${sourcep}"
   sourcep="$(symlink_adjust_source_relative "${srctype}" "${sourcep}" "${targetp}")"
