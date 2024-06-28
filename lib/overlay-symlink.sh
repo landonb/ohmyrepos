@@ -106,7 +106,7 @@ _debug_spew_and_die () {
     >&2 echo "MR_CONFIG=${MR_CONFIG}"
     >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
     >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
-    >&2 echo "current dir: $(pwd)"
+    >&2 echo "current dir: $(pwd -L)"
 
     exit 1
   fi
@@ -201,7 +201,7 @@ symlink_verify_source () {
       error "  Did not find linkable source file at:"
       error "    ${sourcep}"
       error "  From our perch at:"
-      error "    $(pwd)"
+      error "    $(pwd -L)"
 
       exit 1
     fi
@@ -211,7 +211,7 @@ symlink_verify_source () {
       error "  Did not find linkable source directory at:"
       error "    ${sourcep}"
       error "  From our perch at:"
-      error "    $(pwd)"
+      error "    $(pwd -L)"
 
       exit 1
     fi
@@ -245,7 +245,7 @@ fail_target_exists_not_link () {
   error "  Please examine the file:"
   error "    ${targetp}"
   error "  Relative to:"
-  error "    $(pwd)"
+  error "    $(pwd -L)"
   error "Use -f/--force, or -s/--safe, or remove the file," \
     "and try again, or stop trying."
 
@@ -683,7 +683,7 @@ _info_path_resolve () {
     >&2 echo "relative_path=${relative_path}"
     >&2 echo "mrinfuse_path=${mrinfuse_path}"
     >&2 echo "canonicalized=${canonicalized}"
-    >&2 echo "current dir: $(pwd)"
+    >&2 echo "current dir: $(pwd -L)"
     >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
     >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
 
@@ -779,7 +779,7 @@ path_to_mrinfuse_resolve () {
     local found_mrinfuse
     found_mrinfuse="$(mrinfuse_findup)" || (
       >&2 error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
-      >&2 error "- start: $(pwd)"
+      >&2 error "- start: $(pwd -L)"
       >&2 error "- target: ${MRT_INFUSE_DIR:-.mrinfuse}/.*/$(basename -- "$(pwd)")/${fpath}"
 
       exit 1
