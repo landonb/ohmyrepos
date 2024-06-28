@@ -222,16 +222,6 @@ symlink_verify_source () {
   fi
 }
 
-# NOTE: Orphan function (not called but this project, or any of author's).
-ensure_source_file_exists () {
-  symlink_verify_source "$1" 'file'
-}
-
-# NOTE: Orphan function (not called but this project, or any of author's).
-ensure_source_dir_exists () {
-  symlink_verify_source "$1" 'dir'
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # Target verification.
 
