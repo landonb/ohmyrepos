@@ -7,16 +7,21 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  # Load the logger library, from github.com/landonb/sh-logger.
-  # - The .mrconfig-omr file uses SHLOGGER_BIN to update PATH.
-  #   - Or if your script sources this file directly, just be
-  #     sure the sh-logger/bin is on PATH.
-  # - This also implicitly loads the colors.sh library.
-  # - Note that .mrconfig-omr sets PATH so OMR's deps/ copy found.
-  . logger.sh
+  # Use fallback paths to support sourcing into user's Bash shell
+  # (assumes BASH_SOURCE); otherwise being sourced by OMR (and
+  # /bin/sh) and .mrconfig-omr put the libs on PATH.
 
-  # Load: print_unresolved_path/realpath_s
-  . print-unresolved-path.sh
+  # Load the logger library, from github.com/landonb/sh-logger.
+  # - Note that .mrconfig-omr adds deps/... path to PATH.
+  # - This also implicitly loads the colors.sh library.
+  if ! . logger.sh 2> /dev/null; then
+    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
+  fi
+
+  # Load: print_unresolved_path, realpath_s
+  if ! . print-unresolved-path.sh 2> /dev/null; then
+    . "$(dirname -- "${BASH_SOURCE[0]}")/print-unresolved-path.sh"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
