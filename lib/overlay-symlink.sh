@@ -740,6 +740,66 @@ symlink_overlay_dir () {
   symlink_overlay_path 'dir' "$@"
 }
 
+# ***
+
+# USAGE: Use full paths but create relative symlink.
+#
+# - E.g., calling
+#
+#     symlink_overlay_path_rel "${HOME}/path/to/foo" "${HOME}/foo"
+#
+#   creates the symlink
+#
+#     /Users/user/foo -> path/to/foo
+#
+# This lets us keep the convention that the regular
+# symlink_overlay_file and symlink_overlay_dir do
+# not modify sourcep or targetp if a full path.
+#
+# - The previous alternative to this function was to `cd` first,
+#   e.g.,
+#
+#     ( cd && symlink_overlay_path_rel "path/to/foo" "foo" )
+
+symlink_overlay_path_rel () {
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="${3:-$(basename -- "${sourcep}")}"
+
+  params_register_defaults
+
+  if is_relative_path "${sourcep}"; then
+    sourcep="$(realpath -- "${sourcep}")"
+  fi
+
+  if is_relative_path "${targetp}"; then
+    targetp="$(realpath -- "${targetp}")"
+  fi
+
+  local common_prefix
+  common_prefix="$(print_common_path_prefix "${sourcep}" "${targetp}")"
+  sourcep="${sourcep#${common_prefix}}"
+  targetp="${targetp#${common_prefix}}"
+
+  local before_cd="$(pwd -L)"
+
+  cd "${common_prefix}"
+
+  symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
+
+  cd "${before_cd}"
+}
+
+symlink_overlay_file_rel () {
+  symlink_overlay_path_rel 'file' "$@"
+}
+
+symlink_overlay_dir_rel () {
+  symlink_overlay_path_rel 'dir' "$@"
+}
+
+# ***
+
 # CXREF: For hard-linking, see link_hard:
 #   ~/.kit/git/ohmyrepos/lib/link-hard.sh
 
