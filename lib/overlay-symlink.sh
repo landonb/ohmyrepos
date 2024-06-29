@@ -871,7 +871,7 @@ path_to_mrinfuse_resolve () {
     if ! found_mrinfuse="$(mrinfuse_findup)"; then
       >&2 error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
       >&2 error "- start: $(pwd -L)"
-      >&2 error "- target: ${MRT_INFUSE_DIR:-.mrinfuse}/.*/$(basename -- "$(pwd)")/${fpath}"
+      >&2 error "- target: ${MRT_INFUSE_DIR:-.mrinfuse}/.../$(basename -- "$(pwd)")/${fpath}"
 
       return 1
     fi
