@@ -447,8 +447,7 @@ symlink_get_msg_informative () {
 #       With:
 #         symlink_mrinfuse_file some-file /path/to/target/some-file
 #
-# Note this fcn. prints the path to stdout, so errors should go to stderr.
-symlink_adjust_source_relative () {
+print_sourcep_relative_targetp () {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
@@ -516,7 +515,7 @@ symlink_adjust_source_relative () {
 
 symlink_adjusted_source_verify_target () {
   local targetp="$1"
-  # Double-check that symlink_adjust_source_relative worked!
+  # Double-check that print_sourcep_relative_targetp worked!
   if [ ! -e "${targetp}" ]; then
     error "The target symlink is broken at: ${targetp}"
 
@@ -537,7 +536,7 @@ makelink_clobber_typed () {
   symlink_verify_source "${sourcep}" "${srctype}" "${targetp}"
 
   local origp="${sourcep}"
-  sourcep="$(symlink_adjust_source_relative "${srctype}" "${sourcep}" "${targetp}")"
+  sourcep="$(print_sourcep_relative_targetp "${srctype}" "${sourcep}" "${targetp}")"
 
   local errcode
   # Check if target does not exist (and be sure not broken symlink).
