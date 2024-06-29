@@ -10,8 +10,10 @@ remote_set () {
 
   if [ -n "${MR_REPO_REMOTES}" ]; then
     if [ -n "${dst_path}" ]; then
-      # Stop on errexit.
-      >&2 fatal "ERROR: Only the first remote_set may contain a destination directory"
+      >&2 error "ERROR: Only the first remote_set may contain a destination directory"
+
+      # Stop OMR on errexit (or return falsey to user's shell).
+      return 1
     fi
 
     MR_REPO_REMOTES="${MR_REPO_REMOTES} "

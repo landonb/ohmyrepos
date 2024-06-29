@@ -690,7 +690,7 @@ symlink_overlay_typed () {
   local sourcep="$2"
   local targetp="${3:-$(basename -- "${sourcep}")}"
 
-  # Caller cd'ed us to "${MR_REPO}".
+  # When called by OMR, we're usally cd'ed to "${MR_REPO}".
 
   # Uses CLI params to check -s/--safe or -f/--force.
   ensure_symlink_target_overwritable "${targetp}"
@@ -857,21 +857,24 @@ path_to_mrinfuse_resolve () {
     local mrinfuse_path=""
     local first_path=""
 
-    if [ -z "${MR_REPO}" ]; then
-      >&2 echo "ERROR: Expecting MR_REPO"
+    local repo_path_n_sep
+    if [ -n "${MR_REPO}" ]; then
+      repo_path_n_sep="${MR_REPO}/"
+    else
+      # So dev can source this script and call its fcns directly.
+      >&2 warn "ALERT: No MR_REPO specified (assuming local directory)"
+
+      repo_path_n_sep="$(pwd -L)/"
     fi
 
-    local repo_path_n_sep
-    repo_path_n_sep="${MR_REPO}/"
-
     local found_mrinfuse
-    found_mrinfuse="$(mrinfuse_findup)" || (
+    if ! found_mrinfuse="$(mrinfuse_findup)"; then
       >&2 error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
       >&2 error "- start: $(pwd -L)"
       >&2 error "- target: ${MRT_INFUSE_DIR:-.mrinfuse}/.*/$(basename -- "$(pwd)")/${fpath}"
 
-      exit 1
-    )
+      return 1
+    fi
 
     set_mrinfuse_path () {
       local mrinfuse_root="$1"
@@ -931,16 +934,19 @@ symlink_mrinfuse_typed () {
   params_register_defaults
 
   local before_cd="$(pwd -L)"
-  cd "${MR_REPO}"
+  cd "${MR_REPO:-.}"
 
   local sourcep
-  sourcep="$(path_to_mrinfuse_resolve "${lnkpath}")"
+  if ! sourcep="$(path_to_mrinfuse_resolve "${lnkpath}")"; then
+
+    return 1
+  fi
 
   if [ ! -e "${sourcep}" ]; then
     if [ "${optional}" -eq 0 ]; then
-      warn "Non-optional symlink source not found: ${sourcep} [relative to ${MR_REPO}]"
+      warn "Non-optional symlink source not found: ${sourcep} [relative to ${MR_REPO:-.}]"
 
-      exit 1
+      return 1
     fi
 
     return 0
@@ -977,7 +983,11 @@ symlink_mrinfuse_file_first_handler () {
   local lnkpath
   for lnkpath in "$@"; do
     local sourcep
-    sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
+    if ! sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"; then
+
+      return 1
+    fi
+
     if [ -e "${sourcep}" ]; then
       symlink_overlay_file "${sourcep}" "${targetp}"
       found_one=true
@@ -989,7 +999,7 @@ symlink_mrinfuse_file_first_handler () {
   if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
     warn "Did not find existing source file to symlink as: ${targetp}"
 
-    exit 1
+    return 1
   fi
 }
 
