@@ -407,56 +407,130 @@ symlink_get_msg_informative () {
 
 # ***
 
-# WONKY, SORRY: If source is relative, we verified source exists from the
-# current directory ($(pwd)), but the symlink being created might exist in
-# a subdirectory of this directory, i.e., the relative path for the symlink
-# is different than the one the user specified (because the user specified
-# the path relative to the project directory, not to the target's directory).
+# Prints the shortest relative path from targetp to sourcep,
+# when both sourcep and targetp are relative paths.
 #
-# If the target is also relative, we can count how many subdirectories away
-# it is and prefix the source path accordingly.
+# - Otherwise, when either or both is a full path,
+#   prints sourcep unaltered.
 #
-# - For example, suppose user's ~/.vim/.mrconfig infuser specifices
-#         symlink_mrinfuse_file 'spell/en.utf-8.add'
-#   Then this function is called from ~/.vim with
-#          source=.mrinfuse/spell/en.utf-8.add
-#   and with
-#          target=spell/en.utf-8.add,
-#   which is accurate from the current ~/.vim directory's perspective.
-#   But the actual symlink that's placed either needs to be fully
-#   resolved, or it needs to be relative to the target directory, e.g.,
-#          ~/.vim/spell/en.utf-8.add → ../.mrinfuse/spell/en.utf-8.add
-#       or ~/.vim/spell/en.utf-8.add → ~/.vim/.mrinfuse/spell/en.utf-8.add
+# Note that when both paths are relative, they're relative to the
+# currect working directory (which is often the project root, i.e.,
+# MR_REPO).
 #
-# This is not too hard (a little wonky, IMHO, but makes the .mrconfig
-# more readable, I suppose).
-#   - ALTLY/2024-03-03: The caller now resolves relative source when
-#     target is absolute. This lets user call symlink_mrinfuse_file
-#     with a relative source path and an absolute target path... and
-#     I cannot think of a use case where this would be undesirable.
-#     - This allows user to simplify, e.g.,
-#         symlink_overlay_file \
-#           $(realpath -- "${MR_REPO}/../.mrinfuse/some-file") \
-#           /path/to/target/some-file
-#       With:
-#         symlink_mrinfuse_file some-file /path/to/target/some-file
+# - E.g., calling:
+#     symlink_overlay_dir "path/to/a/subdir" "path/elsewhere/subdir"
+#   will create the symlink:
+#     path/elsewhere/subdir -> ../to/a/subdir
+#   (in the current working directory, e.g., MR_REPO).
 #
+# - But when sourcep is relative and targetp is a full path, the
+#   sourcep path is specified relative to targetp base directory.
+#
+#   - This lets the user make a symlink at any arbitrary destination
+#     without needed to `cd` first, and they can choose if they want
+#     a relative link or full path link, e.g.,:
+#       symlink_overlay_dir "path/to/subdir" "${HOME}/subdir"
+#     will create the symlink:
+#       /Users/user/subdir -> path/to/subdir
+#     Whereas:
+#       symlink_overlay_dir "${HOME}/path/to/subdir" "${HOME}/subdir"
+#     will create the symlink:
+#       /Users/user/subdir -> /Users/user/path/to/subdir
+#
+# The author realizes this might not be the most intuitive approach,
+# because it varies what the link is relative to.
+# - Perhaps when both path are relative, sourcep *should* be relative
+#   to targetp, for parity, but they you end up with less readable
+#   code, IMHO, e.g.:
+#     symlink_overlay_dir "../to/a/subdir" "path/elsewhere/subdir"
+# - And changing the call when sourcep is relative but targetp is
+#   a full path doesn't make sense, because then what is sourcep
+#   relative to? If it's relative to the current working directory,
+#   that could also make for less readable code, e.g.,
+#     # Assume `pwd` is /Users/user/some/other/path/completely,
+#     # then the previous example could either be written like this:
+#     symlink_overlay_dir "../../../../path/to/subdir" "${HOME}/subdir"
+#     # Or like this:
+#     ( cd ~ && symlink_overlay_dir "path/to/subdir" "${HOME}/subdir" )
+#     # Neither or which is very appealing.
+#
+# Some more notes:
+#
+# - When sourcep is relative, we verified the path from the current
+#   directory ($(pwd)), but the symlink being created might exist in
+#   a subdirectory of this directory, i.e., the relative path for the
+#   symlink is different than the one the user specified (because the
+#   user specified the path relative to the project directory, not to
+#   the target's directory).
+#
+#   When the target is also relative, we can remove the common path
+#   prefix, and then replace uncommon directories with '../' to
+#   remake the sourcep path relative to targetp.
+#
+#   - For example, suppose user's ~/.vim mrconfig 'infuse' specifies
+#       symlink_mrinfuse_file 'spell/en.utf-8.add'
+#     And assume ~/.vim/.mrinfuse/spell/en.utf-8.add exists.
+#     Then this function is called from ~/.vim with
+#        sourcep=.mrinfuse/spell/en.utf-8.add
+#        targetp=spell/en.utf-8.add
+#     which is accurate from the current ~/.vim directory's perspective.
+#     But the actual symlink that's created needs to be relative to the
+#     target directory, e.g.,
+#        ~/.vim/spell/en.utf-8.add -> ../.mrinfuse/spell/en.utf-8.add
+#
+# - Here's another example, because I had it:
+#
+#   - When both paths are relative, this function removes the common
+#     prefix from both paths and prints the shortest relative path
+#     from targetp to sourcep.
+#     - E.g., if:
+#         sourcep=path/to/a/subdir
+#         targetp=path/subdir
+#       Then this function prints:
+#         $ print_sourcep_relative_targetp file path/to/a/subdir path/subdir
+#         to/a/subdir
+#       Such that the symlink will be:
+#         path/subdir -> to/a/subdir
+#     - Similarly, e.g., if:
+#         sourcep=foo/bar/baz
+#         targetp=foo/bat/qux/quux
+#       Then this function prints:
+#         $ print_sourcep_relative_targetp file foo/bar/baz foo/bat/qux/quux
+#         ../../bar/baz
+#       Such that the symlink will be:
+#         foo/bat/qux/quux -> ../../bar/baz
+
 print_sourcep_relative_targetp () {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
 
   if ! is_relative_path "${sourcep}"; then
+    # User specified full path, which we won't override.
+    # - Note this is generally symlink_overlay_file|_dir only, and not
+    #   symlink_mrinfuse_file|_dir, for which user would usually use a
+    #   a relative sourcep (though it's not required, it's just unheard
+    #   of not to).
     printf "%s" "${sourcep}"
 
     return 0
   fi
 
   if ! is_relative_path "${targetp}"; then
-    realpath -- "${sourcep}"
+    # Note that caller has already cd'd to targetp base dir and called
+    # `symlink_verify_source`, so we know sourcep exists relative to
+    # targetp base dir.
+    printf "%s" "${sourcep}"
 
     return 0
   fi
+
+  # Both paths are relative. Remove common prefix from both paths
+  # and print shortest relative path from targetp to sourcep.
+  # - See examples above.
+
+  local common_prefix
+  common_prefix="$(print_common_path_prefix "${sourcep}" "${targetp}")"
 
   # "Walk off" the release target path, directory by directory, ignoring
   # any '.' current directory in the path, and complaining on '..'
@@ -466,9 +540,9 @@ print_sourcep_relative_targetp () {
   # sourcep as specified by the user, which we need to modify here).
 
   local walk_off
-  walk_off="${targetp}"
+  walk_off="${targetp#${common_prefix}}"
   if [ "${srctype}" = 'file' ]; then
-    walk_off="$(dirname -- "${targetp}")"
+    walk_off="$(dirname -- "${walk_off}")"
   fi
 
   local prent_walk
@@ -494,9 +568,64 @@ print_sourcep_relative_targetp () {
     prent_walk="${prent_walk#../}"
   fi
 
-  sourcep="${prent_walk}${sourcep}"
+  sourcep="${prent_walk}${sourcep#${common_prefix}}"
 
   echo "${sourcep}"
+}
+
+# SAVVY: S/O article gives following regex to find commone prefix:
+#     printf ... | sed 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/'
+# - THANX: https://stackoverflow.com/a/6973268
+# - REFER: From `man sed`/`man gsed` and https://gnu.org:
+#   H   Append a newline character followed by the contents
+#       of the pattern space to the hold space
+#   $   Select the last line of input
+#   !   Apply the function only to the lines that are not
+#       selected by the address(es)
+#         (so apply `d` to all but the last line)
+#   d   Delete the pattern space and start the next cycle
+#         (delete all but the last line)
+#   g   Replace the contents of the pattern space with the
+#       contents of the hold space
+#         (a newline plus the original printf)
+#   s/.../
+#       \`  Matches at the beginning of a buffer for multi-line
+#           pattern (like ^ matches start of input line)
+#           https://www.gnu.org/software/sed/manual/html_node/Regexp-Addresses.html#Regexp-Addresses
+#           - The S/O articles uses this, but I think it only
+#             works for s/<regexp>/M multi-line mode,
+#             and doesn't seem to break if we remove it.
+#             Though neither does replacing it with `^` change
+#             the behavior.
+#       .   The first dot matches the newline from `H`
+#       \(.*\/\).*\x0\1.*/\1
+#           Find and emit the largest common prefix
+# - SAVVY: The simplest sed would typically always work for you:
+#     sed 's/\(.*\/\).*\x0\1.*/\1/'
+#   but the more complicated pattern handles newlines (not that
+#   you really want newlines in your paths, but whatever, we
+#   won't yuck your yum... and it shows off our `sed` skills,
+#   even though this author is not quite clear on the `H;$!d;g`
+#   though I think it assembles what would be separate lines
+#   (because of possible newlines in the inputs) into a single
+#   sed input).
+# - ALTLY: Without the null byte trick, we could use newlines,
+#   and the `N` sed command which appends (newline plus content)
+#   the next line of input, i.e., combine sourcep and targetp
+#   into single input:
+#     printf "%s\n%s\n" "${sourcep}" "${targetp}" \
+#       | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/'
+
+print_common_path_prefix () {
+  local sourcep="$1"
+  local targetp="$2"
+
+  gnu_sed () {
+    command -v gsed || command -v sed
+  }
+
+  printf '%s\x0%s\n' "${sourcep}" "${targetp}" \
+    | $(gnu_sed) 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/'
 }
 
 symlink_adjusted_source_verify_target () {
@@ -567,8 +696,6 @@ symlink_overlay_typed () {
   local sourcep="$2"
   local targetp="${3:-$(basename -- "${sourcep}")}"
 
-  params_register_defaults
-
   # Caller cd'ed us to "${MR_REPO}".
 
   # Uses CLI params to check -s/--safe or -f/--force.
@@ -577,12 +704,37 @@ symlink_overlay_typed () {
   makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}" '-s'
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+symlink_overlay_path () {
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="${3:-$(basename -- "${sourcep}")}"
+
+  params_register_defaults
+
+  # Caller cd'ed us to "${MR_REPO}".
+  # - But cd again to target base dir if relative sourcep, but
+  #   absoluete target, so we can truly verify if sourcep exists.
+  # - See comments atop print_sourcep_relative_targetp for more.
+  local before_cd="$(pwd -L)"
+  if is_relative_path "${sourcep}" \
+    && ! is_relative_path "${targetp}"; then
+    # So that relative sourcep works.
+    cd "$(dirname -- "${targetp}")"
+  fi
+
+  symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
+
+  cd "${before_cd}"
+}
+
 symlink_overlay_file () {
-  symlink_overlay_typed 'file' "$@"
+  symlink_overlay_path 'file' "$@"
 }
 
 symlink_overlay_dir () {
-  symlink_overlay_typed 'dir' "$@"
+  symlink_overlay_path 'dir' "$@"
 }
 
 # CXREF: For hard-linking, see link_hard:
