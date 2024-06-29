@@ -609,6 +609,13 @@ print_sourcep_relative_targetp () {
 #   into single input:
 #     printf "%s\n%s\n" "${sourcep}" "${targetp}" \
 #       | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/'
+# - TRYME: Add this to fcn. for runtime CPYST:
+#       >&2 cat <<EOF
+#     printf '%s\\x0%s\\n' "${sourcep}" "${targetp}" \
+#     | $(gnu_sed) 'H;\$!d;g;s/\\\`.\\(.*\\/\\).*\\x0\\1.*/\\1/' \
+#     | head -n 1 \
+#     | tr -d '\\n'
+#     EOF
 
 print_common_path_prefix () {
   local sourcep="$1"
