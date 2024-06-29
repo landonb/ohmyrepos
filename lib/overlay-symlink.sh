@@ -410,7 +410,7 @@ symlink_get_msg_informative () {
 # WONKY, SORRY: If source is relative, we verified source exists from the
 # current directory ($(pwd)), but the symlink being created might exist in
 # a subdirectory of this directory, i.e., the relative path for the symlink
-# is different that the one the user specified (because the user specified
+# is different than the one the user specified (because the user specified
 # the path relative to the project directory, not to the target's directory).
 #
 # If the target is also relative, we can count how many subdirectories away
