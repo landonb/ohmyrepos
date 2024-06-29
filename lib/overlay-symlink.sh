@@ -812,12 +812,23 @@ mrinfuse_findup () {
   fi
 
   # Search from this directory upwards looking for .mrinfuse/ dir.
+  # - We could technically walk up until root ('/') but for we also
+  #   don't want to suggest that the user should put a '.mrinfuse/'
+  #   directory at '/.mrinfuse' or under '/home' (or '/Users'), so
+  #   we won't. (Though we still check root in case this function
+  #   not run from under user home.)
   local dirpath=""
   while [ -z "${dirpath}" ] || [ "$(realpath -- "${dirpath}")" != '/' ]; do
     if [ -d "${dirpath}${MRT_INFUSE_DIR:-.mrinfuse}" ]; then
       printf "%s" "${start_dir}${dirpath}"
 
       return 0
+    fi
+
+    if [ -n "${dirpath}" ] && [ "$(realpath -- "${dirpath}")" = "${HOME}" ]; then
+      # Not found at ~/.mrinfuse, and not walking up further.
+
+      return 1
     fi
 
     dirpath="${dirpath}../"
