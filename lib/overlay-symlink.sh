@@ -626,7 +626,9 @@ print_common_path_prefix () {
   }
 
   printf '%s\x0%s\n' "${sourcep}" "${targetp}" \
-    | $(gnu_sed) 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/'
+    | $(gnu_sed) 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/' \
+    | head -n 1 \
+    | tr -d '\n'
 }
 
 symlink_adjusted_source_verify_target () {
