@@ -430,12 +430,6 @@ symlink_get_msg_informative () {
 #
 # This is not too hard (a little wonky, IMHO, but makes the .mrconfig
 # more readable, I suppose).
-# - (lb): But if target path is absolute, I did not go to the trouble of
-#         accommodating that (other than to raise an error-issue).
-#         (There's not much of a use case for handling relative source
-#         but specifying an absolute target; if the target needs to be
-#         an absolute path, there's no reason not to also specify an
-#         absolute path for the source.)
 #   - ALTLY/2024-03-03: The caller now resolves relative source when
 #     target is absolute. This lets user call symlink_mrinfuse_file
 #     with a relative source path and an absolute target path... and
@@ -459,14 +453,6 @@ print_sourcep_relative_targetp () {
   fi
 
   if ! is_relative_path "${targetp}"; then
-    # ISOFF/2024-03-03: See comment above. We can allow this.
-    # 
-    #  >&2 error "Cannot link absolute target using a relative source path"
-    #  >&2 error "- source: ${sourcep}"
-    #  >&2 error "- target: ${targetp}"
-    #
-    #  exit 1
-
     realpath -- "${sourcep}"
 
     return 0
