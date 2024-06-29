@@ -936,8 +936,8 @@ path_to_mrinfuse_resolve () {
       repo_path_n_sep="$(pwd -L)/"
     fi
 
-    local found_mrinfuse
-    if ! found_mrinfuse="$(mrinfuse_findup)"; then
+    local curr_mrinfuse_root
+    if ! curr_mrinfuse_root="$(mrinfuse_findup)"; then
       >&2 error "Cannot symlink_mrinfuse_* because .mrinfuse/ not found up path"
       >&2 error "- start: $(pwd -L)"
       >&2 error "- target: ${MRT_INFUSE_DIR:-.mrinfuse}/.../$(basename -- "$(pwd)")/${fpath}"
@@ -960,7 +960,7 @@ path_to_mrinfuse_resolve () {
     }
 
     while true; do
-      set_mrinfuse_path "${found_mrinfuse}"
+      set_mrinfuse_path "${curr_mrinfuse_root}"
 
       if [ -e "${mrinfuse_path}" ]; then
         # MAYBE/2020-01-23: Option to return full path?
@@ -977,8 +977,8 @@ path_to_mrinfuse_resolve () {
       fi
 
       # mrinfuse_path is like '../' or '../../', so add one more level.
-      local mrinfuse_parent="${found_mrinfuse}../"
-      if ! found_mrinfuse="$(mrinfuse_findup "${mrinfuse_parent}")"; then
+      local mrinfuse_parent="${curr_mrinfuse_root}../"
+      if ! curr_mrinfuse_root="$(mrinfuse_findup "${mrinfuse_parent}")"; then
         # "Return" path using first .mrinfuse/ found (path doesn't
         # exist, but ${optional} might be enabled).
         canonicalized="${first_path}"
