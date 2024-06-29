@@ -899,21 +899,46 @@ mrinfuse_findup () {
   return 1
 }
 
-# CONVENTION: Store private files under a directory named .mrinfuse,
-# located in the same directory as the .mrconfig file whose repo config
-# calls this function, or located along the path between the root and repo.
-# Under the .mrinfuse directory, mimic the directory alongside the .mrconfig
-# file. For instance, suppose you had a config file at:
-#   /my/work/projects/.mrconfig
-# and you had a public repo underneath that project space at:
-#   /my/work/projects/cool/product/
-# you would store your private .ignore file at:
-#   /my/work/projects/.mrinfuse/cool/product/.ignore
-# and then the infuse function would be specified in your .mrconfig as:
-#   [cool/product]
-#   symlink_mrinfuse_file '.ignore'
+# USAGE: Store private files under a directory named .mrinfuse/
+# located in the same directory as the project (MR_REPO), or along
+# the path between the project and user home (including user home).
+# 
+# - Within the .mrinfuse/ directory, mimic the directory hierarchy
+#   leading to the symlink target.
 #
-# Note this fcn. prints the path to stdout, so errors should go to stderr.
+# - For instance, suppose you had a project at:
+#
+#     ~/work/acme/dynamite/
+#
+#   and you created (or symlinked) a .mrinfuse/ path
+#   alongside it:
+#
+#     ~/work/acme/.mrinfuse/
+#
+#   then you would store your private symlink assets
+#   under a dynamite/ directory within .mrinfuse/:
+#
+#     ~/work/acme/.mrinfuse/dynamite/
+#
+# - Continuing that example, if you wanted to 'infuse'
+#   an ignore file, create one:
+#
+#     ~/work/acme/.mrinfuse/dynamite/_ignore
+#
+#   then symlink it from your mrconfig, e.g.,:
+#
+#     [$HOME/work/acme/dynamite]
+#     infuse = symlink_mrinfuse_file "_ignore" ".ignore"
+#
+#   and finally call `mr`:
+#
+#     mr -d ~/work/acme/dynamite infuse
+#
+#   to create the symlink:
+#
+#     ~/work/acme/dynamite/.ignore -> ../.mrinfuse/dynamite/_ignore
+
+# Prints the found path, if any, to stdout.
 path_to_mrinfuse_resolve () {
   local fpath="$1"
 
