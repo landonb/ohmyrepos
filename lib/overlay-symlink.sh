@@ -937,6 +937,59 @@ mrinfuse_findup () {
 #   to create the symlink:
 #
 #     ~/work/acme/dynamite/.ignore -> ../.mrinfuse/dynamite/_ignore
+#
+# USAGE: You can store assets in separate .mrinfuse/ paths using
+# one .mrinfuse/ per ancestor directory, and also by including
+# a .mrinfuse/ path within a .mrinfuse/ directory (so-called
+# *descendency support*).
+#
+# This enables you to keep different assets in separate repos,
+# e.g., one for private files, and one you might publish to GH.
+#
+# - This function searches upwards for one or more .mrinfuse/
+#   until it finds one that contains the desired infuse asset.
+#
+# - This function always searches *downwards* into a .mrinfuse/
+#   if that .mrinfuse/ also contains its own .mrinfuse/ directory.
+#
+# - This function will search downward whenever possible before
+#   continuing upward.
+#
+# - The two features let you more easily combine assets from
+#   multiple sources.
+#
+# - The descendency support, in particular, is one way to solve
+#   the problem of supporting multiple .mrinfuse/ assets for
+#   home directory symlinks.
+#
+#   - E.g., suppose you create the two symlinks:
+#
+#       ~/.mrinfuse -> ~/my/private/home
+#       ~/my/private/home/.mrinfuse -> ~/my/fallback/home
+#
+#     Where the latter is also:
+#
+#       ~/.mrinfuse/.mrinfuse -> ~/my/fallback/home
+#
+#     Then the symlink function will first inspect
+#     ~/.mrinfuse for the asset, and if not found
+#     therein, will next check ~/.mrinfuse/.mrinfuse
+#
+#   - Use case: Wire ~/.mrinfuse to your own private repo,
+#     and they use ~/.mrinfuse/.mrinfuse to include assets
+#     from another project.
+#
+#     - Previously, one would only be allowed to wire
+#       a single ~/.mrinfuse, without the descendency option,
+#       and if you wanted to include assets from another repo,
+#       you'd have to include them in the top-level ~/.mrinfuse.
+#       E.g., if you wanted to use ~/my/fallback/home/foo, you
+#       could make a symlink:
+#         ~/my/private/home/foo -> ~/my/fallback/home/foo
+#       But now you can just use a single embedded .mrinfuse/
+#       symlink
+#         ~/my/private/home/.mrinfuse -> ~/my/fallback/home
+#       and not have to worry about wiring individual files.
 
 # Prints the found path, if any, to stdout.
 path_to_mrinfuse_resolve () {
@@ -972,6 +1025,7 @@ path_to_mrinfuse_resolve () {
 
     set_mrinfuse_path () {
       local mrinfuse_root="$1"
+      local mrinfuse_hole="$2"
 
       if [ -n "${mrinfuse_root}" ]; then
         mrinfuse_full=$(realpath -- "${mrinfuse_root}")
@@ -981,11 +1035,22 @@ path_to_mrinfuse_resolve () {
 
       local relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
 
-      mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR:-.mrinfuse}/${relative_path}${fpath}"
+      if [ "${relative_path}" != "${repo_path_n_sep}" ]; then
+        mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR:-.mrinfuse}/${mrinfuse_hole}${relative_path}${fpath}"
+      else
+        # Because repo_path_n_sep logical and mrinfuse_full from realpath,
+        # the two paths might be on different trees. E.g., if logical path
+        # is under user home but symlinks mounted device under /Volumes.
+        mrinfuse_path="${repo_path_n_sep}${MRT_INFUSE_DIR:-.mrinfuse}/${mrinfuse_hole}${fpath}"
+      fi
     }
 
+    # See comments above for how .mrinfuse/ descendency works.
+    local curr_mrinfuse_hole=""
+    local next_mrinfuse_hole="${MRT_INFUSE_DIR:-.mrinfuse}/"
+
     while true; do
-      set_mrinfuse_path "${curr_mrinfuse_root}"
+      set_mrinfuse_path "${curr_mrinfuse_root}" "${curr_mrinfuse_hole}"
 
       if [ -e "${mrinfuse_path}" ]; then
         # MAYBE/2020-01-23: Option to return full path?
@@ -1001,17 +1066,28 @@ path_to_mrinfuse_resolve () {
         first_path="${mrinfuse_path}"
       fi
 
-      # mrinfuse_path is like '../' or '../../', so add one more level.
-      local mrinfuse_parent="${curr_mrinfuse_root}../"
-      if ! curr_mrinfuse_root="$(mrinfuse_findup "${mrinfuse_parent}")"; then
-        # "Return" path using first .mrinfuse/ found (path doesn't
-        # exist, but ${optional} might be enabled).
-        canonicalized="${first_path}"
+      if [ -d "${curr_mrinfuse_root}${next_mrinfuse_hole}/" ]; then
+        # Look down .mrinfuse/ rabbit hole.
+        curr_mrinfuse_hole="${next_mrinfuse_hole}"
+        next_mrinfuse_hole="${curr_mrinfuse_hole}${MRT_INFUSE_DIR:-.mrinfuse}/"
+      else
+        # Look upwards for .mrinfuse/ in ancestor.
+        local mrinfuse_parent="${curr_mrinfuse_root}../"
+        if ! curr_mrinfuse_root="$(mrinfuse_findup "${mrinfuse_parent}")"; then
 
-        break
+          break
+        fi
+        # else, keep looking upward.
+        curr_mrinfuse_hole=""
+        next_mrinfuse_hole="${MRT_INFUSE_DIR:-.mrinfuse}/"
       fi
-      # else, keep looking.
     done
+  fi
+
+  if [ -z "${canonicalized}" ]; then
+    # Choose path from first .mrinfuse/ found (path doesn't
+    # exist, but ${optional} might be enabled).
+    canonicalized="${first_path}"
   fi
 
   echo "${canonicalized}"
