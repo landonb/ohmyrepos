@@ -240,7 +240,7 @@ emit_error_target_exists_not_symlink () {
           "and try again, or stop trying."
 }
 
-safely_backup_or_die_if_not_forced () {
+safe_backup_if_not_forced () {
   local targetp="$1"
   local link_type="$2"
 
@@ -260,7 +260,7 @@ ensure_symlink_target_overwritable () {
 
   path_exists_and_not_symlink "${targetp}" || return 0
 
-  safely_backup_or_die_if_not_forced "${targetp}" 'symlink'
+  safe_backup_if_not_forced "${targetp}" 'symlink'
 }
 
 # This fcn. not called, but what it might look like
@@ -272,7 +272,7 @@ ensure_symlink_target_overwritable () {
 #
 #     file_exists_and_not_linked_to_source "${targetp}" "${sourcep}" || return 0
 #
-#     safely_backup_or_die_if_not_forced "${targetp}" 'hard link'
+#     safe_backup_if_not_forced "${targetp}" 'hard link'
 #   }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -329,7 +329,7 @@ makelink_update_informative () {
       # For how this function is used, the code would already have checked
       # that the user specified -f/--force; or else the code didn't care to
       # ask. See:
-      #   safely_backup_or_die_if_not_forced.
+      #   safe_backup_if_not_forced.
       info_msg=" Clobbered file with ${link_type} $(font_highlight $(realpath_s "${targetp}"))"
     else
       info_msg="$(symlink_get_msg_informative \
