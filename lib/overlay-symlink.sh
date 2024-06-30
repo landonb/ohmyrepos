@@ -258,9 +258,12 @@ safe_backup_if_not_forced () {
 ensure_symlink_target_overwritable () {
   local targetp="$1"
 
-  path_exists_and_not_symlink "${targetp}" || return 0
+  if path_exists_and_not_symlink "${targetp}"; then
+    if ! safe_backup_if_not_forced "${targetp}" 'symlink'; then
 
-  safe_backup_if_not_forced "${targetp}" 'symlink'
+      return 1
+    fi
+  fi
 }
 
 # This fcn. not called, but what it might look like
