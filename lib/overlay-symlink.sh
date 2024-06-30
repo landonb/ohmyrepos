@@ -166,9 +166,12 @@ file_exists_and_not_symlink () {
   [ -e "$1" ] && [ ! -h "$1" ]
 }
 
-file_exists_and_not_linked_to_source () {
-  [ -e "$1" ] && ! [ "$1" -ef "$2" ]
-}
+# This fcn. not called, but what it might look like
+# for parity w/ file_exists_and_not_symlink:
+#
+#   file_exists_and_not_linked_to_source () {
+#     [ -e "$1" ] && ! [ "$1" -ef "$2" ]
+#   }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # Source verification.
@@ -258,14 +261,17 @@ ensure_symlink_target_overwritable () {
   safely_backup_or_die_if_not_forced "${targetp}" 'symlink'
 }
 
-ensure_hardlink_target_overwritable () {
-  local targetp="$1"
-  local sourcep="$2"
-
-  file_exists_and_not_linked_to_source "${targetp}" "${sourcep}" || return 0
-
-  safely_backup_or_die_if_not_forced "${targetp}" 'hard link'
-}
+# This fcn. not called, but what it might look like
+# for parity w/ ensure_symlink_target_overwritable:
+#
+#   ensure_hardlink_target_overwritable () {
+#     local targetp="$1"
+#     local sourcep="$2"
+#
+#     file_exists_and_not_linked_to_source "${targetp}" "${sourcep}" || return 0
+#
+#     safely_backup_or_die_if_not_forced "${targetp}" 'hard link'
+#   }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # Symlink creation.
