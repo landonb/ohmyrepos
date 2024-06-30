@@ -162,12 +162,12 @@ is_relative_path () {
   return 1
 }
 
-file_exists_and_not_symlink () {
+path_exists_and_not_symlink () {
   [ -e "$1" ] && [ ! -h "$1" ]
 }
 
 # This fcn. not called, but what it might look like
-# for parity w/ file_exists_and_not_symlink:
+# for parity w/ path_exists_and_not_symlink:
 #
 #   file_exists_and_not_linked_to_source () {
 #     [ -e "$1" ] && ! [ "$1" -ef "$2" ]
@@ -258,7 +258,7 @@ safely_backup_or_die_if_not_forced () {
 ensure_symlink_target_overwritable () {
   local targetp="$1"
 
-  file_exists_and_not_symlink "${targetp}" || return 0
+  path_exists_and_not_symlink "${targetp}" || return 0
 
   safely_backup_or_die_if_not_forced "${targetp}" 'symlink'
 }
