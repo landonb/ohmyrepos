@@ -234,8 +234,9 @@ emit_error_target_exists_not_symlink () {
 }
 
 safe_backup_if_not_forced () {
-  local targetp="$1"
-  local link_type="$2"
+  local link_type="$1"
+  local sourcep="$2"
+  local targetp="$3"
 
   if [ ${MRT_LINK_SAFE:-1} -eq 0 ]; then
     safe_backup_existing_target "${targetp}"
@@ -252,7 +253,7 @@ ensure_symlink_target_overwritable () {
   local targetp="$1"
 
   if path_exists_and_not_symlink "${targetp}"; then
-    if ! safe_backup_if_not_forced "${targetp}" 'symlink'; then
+    if ! safe_backup_if_not_forced "symlink" "${sourcep}" "${targetp}"; then
 
       return 1
     fi
