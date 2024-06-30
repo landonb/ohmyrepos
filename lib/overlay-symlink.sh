@@ -227,10 +227,10 @@ emit_error_target_exists_not_symlink () {
   error "- Target exists but is not a symlink (hence we won't replace)"
   error "- Please examine the target path:"
   error "    ${targetp}"
-  error "- (Possibly) relative to (unless target is canonicalized):"
+  error "- From the working directory:"
   error "    $(pwd -L)"
-  error "- Use -f/--force, or -s/--safe, or remove the file," \
-          "and try again, or stop trying."
+  error "- Use -f/--force, or -s/--safe, or remove the file,"
+  error "  or edit overlay-symlink.sh, which could be broken"
 }
 
 safe_backup_if_not_forced () {
