@@ -157,7 +157,7 @@ is_relative_path () {
     *) return 0 ;;
   esac
 
-  error "Unreachable code!"
+  error "GAFFE: Unreachable code"
 
   return 1
 }
@@ -184,7 +184,7 @@ symlink_verify_source () {
   emit_error () {
     local type_name="$1"
 
-    error "mrt: Cannot create symbolic link:"
+    error "ERROR: Cannot create symbolic link:"
     error "- Did not find linkable source ${type_name} at:"
     error "    ${sourcep}"
     error "- From the directory:"
@@ -230,14 +230,14 @@ emit_error_target_exists_not_symlink () {
   local targetp="$1"
   local link_type="$2"
 
-  error "mrt: Failed to create ${link_type}!"
-  error "  Target exists and is not recognized by ohmyrepos."
-  error "  Please examine the file:"
+  error "ERROR: Cannot create ‘${link_type}’:"
+  error "- Target exists but is not a symlink (hence we won't replace)"
+  error "- Please examine the target path:"
   error "    ${targetp}"
-  error "  Relative to:"
+  error "- (Possibly) relative to (unless target is canonicalized):"
   error "    $(pwd -L)"
-  error "Use -f/--force, or -s/--safe, or remove the file," \
-    "and try again, or stop trying."
+  error "- Use -f/--force, or -s/--safe, or remove the file," \
+          "and try again, or stop trying."
 }
 
 safely_backup_or_die_if_not_forced () {
@@ -293,7 +293,7 @@ makelink_create_informative () {
     local link_type='hard link'
     [ -n "${symlink}" ] && link_type='symlink'
 
-    error "Failed to create ${link_type} at: ${targetp}"
+    error "ERROR: Failed to create ‘${link_type}’ at: ${targetp}"
 
     return 1
   )
@@ -340,7 +340,7 @@ makelink_update_informative () {
       return 0
     fi
   else
-    error "Unexpected path: target neither ${link_type} nor file, but exists?"
+    error "GAFFE: Target neither ‘${link_type}’ nor file, but exists?"
 
     return 1
   fi
@@ -354,7 +354,7 @@ makelink_update_informative () {
   command rm -- "${targetp}"
 
   if ! eval "command ln ${symlink} '${sourcep}' '${targetp}'"; then
-    error "Failed to replace symlink at: $(realpath_s "${targetp}")"
+    error "ERRPR: ‘ln’ failed to replace symlink at: $(realpath_s "${targetp}")"
 
     return 1
   fi
@@ -535,7 +535,7 @@ print_sourcep_relative_targetp () {
     local curname="$(basename -- "${walk_off}")"
 
     if [ "${curname}" = '..' ]; then
-      >&2 error "A relative target cannot use double-dots in its path (No \`..\`)"
+      >&2 error "ERROR: A relative target cannot use double-dots in its path (No \`..\`)"
       >&2 error "- source: ${sourcep}"
       >&2 error "- target: ${targetp}"
 
@@ -627,7 +627,7 @@ symlink_adjusted_source_verify_target () {
   local targetp="$1"
   # Double-check that print_sourcep_relative_targetp worked!
   if [ ! -e "${targetp}" ]; then
-    error "The target symlink is broken at: ${targetp}"
+    error "ERROR: The target symlink is broken at: ${targetp}"
 
     return 1
   fi
