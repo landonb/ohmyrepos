@@ -99,23 +99,6 @@ myrepostravel_opts_parse () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# MAYBE/2019-10-26 15:20: Could move these environ and echo fcns. to new lib file.
-
-_debug_spew_and_die () {
-  #
-  local testing=false
-  # Uncomment to spew vars and exit:
-  testing=true
-  if $testing; then
-    >&2 echo "MR_REPO=${MR_REPO}"
-    >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
-    >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
-    >&2 echo "current dir: $(pwd -L)"
-
-    exit 1
-  fi
-}
-
 infuser_set_envs () {
   local repodir="${1:-"${MR_REPO}"}"
 
