@@ -250,7 +250,9 @@ safe_backup_if_not_forced () {
 # ***
 
 ensure_symlink_target_overwritable () {
-  local targetp="$1"
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="$3"
 
   if path_exists_and_not_symlink "${targetp}"; then
     if ! safe_backup_if_not_forced "symlink" "${sourcep}" "${targetp}"; then
@@ -711,7 +713,7 @@ symlink_overlay_typed () {
   # When called by OMR, we're usally cd'ed to "${MR_REPO}".
 
   # Uses CLI params to check -s/--safe or -f/--force.
-  ensure_symlink_target_overwritable "${targetp}"
+  ensure_symlink_target_overwritable "${srctype}" "${sourcep}" "${targetp}"
 
   makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}" '-s'
 }
