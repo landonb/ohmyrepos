@@ -82,9 +82,9 @@ params_register_switches () {
         # Test if starts with prefix and assume an --option.
         # User can -- to specify filenames that start with dash.
         if [ "${1#-}" != "$1" ]; then
-          fatal "ERROR: Unrecognized argument: $1"
+          error "ERROR: Unrecognized argument: $1"
 
-          exit 1  # Be mean.
+          return 1
         fi
         shift
         ;;
@@ -159,7 +159,7 @@ is_relative_path () {
 
   error "Unreachable code!"
 
-  exit 1
+  return 1
 }
 
 file_exists_and_not_symlink () {
@@ -181,7 +181,7 @@ symlink_verify_source () {
   local srctype="$2"
   local targetp="$3"
 
-  emit_error_and_exit () {
+  emit_error () {
     local type_name="$1"
 
     error "mrt: Cannot create symbolic link:"
@@ -191,22 +191,24 @@ symlink_verify_source () {
     error "    $(pwd -L)"
     error "- For the target:"
     error "    ${targetp}"
-
-    exit 1
   }
 
   if [ "${srctype}" = 'file' ]; then
     if [ ! -f "${sourcep}" ]; then
-      emit_error_and_exit "file"
+      emit_error "file"
+
+    return 1
     fi
   elif [ "${srctype}" = 'dir' ]; then
     if [ ! -d "${sourcep}" ]; then
-      emit_error_and_exit "directory"
+      emit_error "directory"
+
+    return 1
     fi
   else
-    fatal "Not a real srctype: ${srctype}"
+    error "GAFFE: Not a known srctype: ${srctype}"
 
-    exit 2
+    return 1
   fi
 }
 
@@ -224,7 +226,7 @@ safe_backup_existing_target () {
   info "Collision resolved: Moved existing ‘${targetf}’ to: ${backup_targetp}"
 }
 
-fail_target_exists_not_link () {
+emit_error_target_exists_not_symlink () {
   local targetp="$1"
   local link_type="$2"
 
@@ -236,8 +238,6 @@ fail_target_exists_not_link () {
   error "    $(pwd -L)"
   error "Use -f/--force, or -s/--safe, or remove the file," \
     "and try again, or stop trying."
-
-  exit 1
 }
 
 safely_backup_or_die_if_not_forced () {
@@ -247,7 +247,9 @@ safely_backup_or_die_if_not_forced () {
   if [ ${MRT_LINK_SAFE:-1} -eq 0 ]; then
     safe_backup_existing_target "${targetp}"
   elif [ ${MRT_LINK_FORCE:-1} -ne 0 ]; then
-    fail_target_exists_not_link "${targetp}" "${link_type}"
+    emit_error_target_exists_not_symlink "${targetp}" "${link_type}"
+
+    return 1
   fi
 }
 
@@ -293,7 +295,7 @@ makelink_create_informative () {
 
     error "Failed to create ${link_type} at: ${targetp}"
 
-    exit 1
+    return 1
   )
 
   # Created new symlink.
@@ -338,9 +340,9 @@ makelink_update_informative () {
       return 0
     fi
   else
-    fatal "Unexpected path: target neither ${link_type} nor file, but exists?"
+    error "Unexpected path: target neither ${link_type} nor file, but exists?"
 
-    exit 1
+    return 1
   fi
 
   # Note if target symlinks to a file, we can overwrite with force, e.g.,
@@ -351,11 +353,11 @@ makelink_update_informative () {
   # either a file or a directory -- remove the target first.
   command rm -- "${targetp}"
 
-  eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'" || (
+  if ! eval "command ln ${symlink} '${sourcep}' '${targetp}'"; then
     error "Failed to replace symlink at: $(realpath_s "${targetp}")"
 
-    exit 1
-  )
+    return 1
+  fi
 
   info "${info_msg}"
 }
@@ -531,12 +533,13 @@ print_sourcep_relative_targetp () {
   local prent_walk
   while [ "${walk_off}" != '.' ]; do
     local curname="$(basename -- "${walk_off}")"
+
     if [ "${curname}" = '..' ]; then
-      >&2 error "A relative target cannot use dot dots in its path (No \`..\`)"
+      >&2 error "A relative target cannot use double-dots in its path (No \`..\`)"
       >&2 error "- source: ${sourcep}"
       >&2 error "- target: ${targetp}"
 
-      exit 1
+      return 1
     fi
     [ "${curname}" != '.' ] && prent_walk="../${prent_walk}"
     walk_off="$(dirname -- "${walk_off}")"
@@ -626,7 +629,7 @@ symlink_adjusted_source_verify_target () {
   if [ ! -e "${targetp}" ]; then
     error "The target symlink is broken at: ${targetp}"
 
-    exit 1
+    return 1
   fi
 
   return 0
@@ -640,17 +643,29 @@ makelink_clobber_typed () {
 
   # Check that the source file or directory exists.
   # - This may interrupt the flow if errexit.
-  symlink_verify_source "${sourcep}" "${srctype}" "${targetp}"
+  if ! symlink_verify_source "${sourcep}" "${srctype}" "${targetp}"; then
+
+    return 1
+  fi
 
   local origp="${sourcep}"
-  sourcep="$(print_sourcep_relative_targetp "${srctype}" "${sourcep}" "${targetp}")"
+  if ! sourcep="$(print_sourcep_relative_targetp "${srctype}" "${sourcep}" "${targetp}")"; then
+
+    return 1
+  fi
 
   local errcode
   # Check if target does not exist (and be sure not broken symlink).
   if [ ! -e "${targetp}" ] && [ ! -h "${targetp}" ]; then
-    makelink_create_informative "${srctype}" "${sourcep}" "${targetp}" "${symlink}"
+    if ! makelink_create_informative "${srctype}" "${sourcep}" "${targetp}" "${symlink}"; then
+
+      return 1
+    fi
   else
-    makelink_update_informative "${srctype}" "${sourcep}" "${targetp}" "${symlink}"
+    if ! makelink_update_informative "${srctype}" "${sourcep}" "${targetp}" "${symlink}"; then
+
+      return 1
+    fi
   fi
 
   if [ "${origp}" != "${sourcep}" ] && ! is_relative_path "${sourcep}"; then
@@ -660,7 +675,10 @@ makelink_clobber_typed () {
     info "${info_msg}"
   fi
 
-  symlink_adjusted_source_verify_target "${targetp}"
+  if ! symlink_adjusted_source_verify_target "${targetp}"; then
+
+    return 1
+  fi
 }
 
 # ***
@@ -814,7 +832,7 @@ symlink_overlay_file_first_handler () {
   if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
     warn "Did not find existing source file to symlink as: ${targetp}"
 
-    exit 1
+    return 1
   fi
 }
 
