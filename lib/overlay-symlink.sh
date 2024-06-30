@@ -220,10 +220,11 @@ safe_backup_existing_target () {
 }
 
 emit_error_target_exists_not_symlink () {
-  local targetp="$1"
-  local link_type="$2"
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="$3"
 
-  error "ERROR: Cannot create ‘${link_type}’:"
+  error "ERROR: Cannot create ‘${srctype}’:"
   error "- Target exists but is not a symlink (hence we won't replace)"
   error "- Please examine the target path:"
   error "    ${targetp}"
@@ -234,14 +235,14 @@ emit_error_target_exists_not_symlink () {
 }
 
 safe_backup_if_not_forced () {
-  local link_type="$1"
+  local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
 
   if [ ${MRT_LINK_SAFE:-1} -eq 0 ]; then
     safe_backup_existing_target "${targetp}"
   elif [ ${MRT_LINK_FORCE:-1} -ne 0 ]; then
-    emit_error_target_exists_not_symlink "${targetp}" "${link_type}"
+    emit_error_target_exists_not_symlink "${srctype}" "${sourcep}" "${targetp}"
 
     return 1
   fi
