@@ -827,30 +827,7 @@ symlink_overlay_file_first_optional () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-# Resolving magic .mrinfuse/ path.
-
-_info_path_resolve () {
-  local relative_path="$1"
-  local mrinfuse_path="$2"
-  local canonicalized="$3"
-  #
-  local testing=false
-  # Uncomment to spew vars and exit:
-  # testing=true
-  if $testing; then
-    >&2 echo "MR_REPO=${MR_REPO}"
-    >&2 echo "relative_path=${relative_path}"
-    >&2 echo "mrinfuse_path=${mrinfuse_path}"
-    >&2 echo "canonicalized=${canonicalized}"
-    >&2 echo "current dir: $(pwd -L)"
-    >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
-    >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
-
-    exit 1
-  fi
-}
-
-# ***
+# Find proper .mrinfuse/ path
 
 # Prints relative path to .mrinfuse/ dir found in or above start_dir.
 mrinfuse_findup () {
@@ -1046,7 +1023,6 @@ path_to_mrinfuse_resolve () {
         #                     canonicalized=$(realpath -- "${mrinfuse_path}")
         #                   - I like the shorter relative path.
         canonicalized="${mrinfuse_path}"
-        # _info_path_resolve "${relative_path}" "${mrinfuse_path}" "${canonicalized}"
 
         break
       fi
