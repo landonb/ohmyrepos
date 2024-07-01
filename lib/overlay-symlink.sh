@@ -615,7 +615,7 @@ print_sourcep_relative_targetp () {
 #       | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/'
 # - TRYME: Add this to fcn. for runtime CPYST:
 #       >&2 cat <<EOF
-#     printf '%s\\x0%s\\n' "${sourcep}" "${targetp}" \
+#     printf '%s\\0%s\\n' "${sourcep}" "${targetp}" \
 #     | $(gnu_sed) 'H;\$!d;g;s/\\\`.\\(.*\\/\\).*\\x0\\1.*/\\1/' \
 #     | head -n 1 \
 #     | tr -d '\\n'
@@ -629,7 +629,8 @@ print_common_path_prefix () {
     command -v gsed || command -v sed
   }
 
-  printf '%s\x0%s\n' "${sourcep}" "${targetp}" \
+  # Note POSIX printf recognizes \0 but not \x0
+  printf '%s\0%s\n' "${sourcep}" "${targetp}" \
     | $(gnu_sed) 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/' \
     | head -n 1 \
     | tr -d '\n'
