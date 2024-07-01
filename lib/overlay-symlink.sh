@@ -82,7 +82,7 @@ params_register_switches () {
         # Test if starts with prefix and assume an --option.
         # User can -- to specify filenames that start with dash.
         if [ "${1#-}" != "$1" ]; then
-          error "ERROR: Unrecognized argument: $1"
+          >&2 error "ERROR: Unrecognized argument: $1"
 
           return 1
         fi
@@ -157,7 +157,7 @@ is_relative_path () {
     *) return 0 ;;
   esac
 
-  error "GAFFE: Unreachable code"
+  >&2 error "GAFFE: Unreachable code"
 
   return 1
 }
@@ -177,13 +177,13 @@ symlink_verify_source () {
   emit_error () {
     local type_name="$1"
 
-    error "ERROR: Cannot create symbolic link:"
-    error "- Did not find linkable source ${type_name} at:"
-    error "    ${sourcep}"
-    error "- From the directory:"
-    error "    $(pwd -L)"
-    error "- For the target:"
-    error "    ${targetp}"
+    >&2 error "ERROR: Cannot create symbolic link:"
+    >&2 error "- Did not find linkable source ${type_name} at:"
+    >&2 error "    ${sourcep}"
+    >&2 error "- From the directory:"
+    >&2 error "    $(pwd -L)"
+    >&2 error "- For the target:"
+    >&2 error "    ${targetp}"
   }
 
   if [ "${srctype}" = 'file' ]; then
@@ -199,7 +199,7 @@ symlink_verify_source () {
     return 1
     fi
   else
-    error "GAFFE: Not a known srctype: ${srctype}"
+    >&2 error "GAFFE: Not a known srctype: ${srctype}"
 
     return 1
   fi
@@ -224,14 +224,14 @@ emit_error_target_exists_not_symlink () {
   local sourcep="$2"
   local targetp="$3"
 
-  error "ERROR: Cannot create ‘${srctype}’:"
-  error "- Target exists but is not a symlink (hence we won't replace)"
-  error "- Please examine the target path:"
-  error "    ${targetp}"
-  error "- From the working directory:"
-  error "    $(pwd -L)"
-  error "- Use -f/--force, or -s/--safe, or remove the file,"
-  error "  or edit overlay-symlink.sh, which could be broken"
+  >&2 error "ERROR: Cannot create ‘${srctype}’:"
+  >&2 error "- Target exists but is not a symlink (hence we won't replace)"
+  >&2 error "- Please examine the target path:"
+  >&2 error "    ${targetp}"
+  >&2 error "- From the working directory:"
+  >&2 error "    $(pwd -L)"
+  >&2 error "- Use -f/--force, or -s/--safe, or remove the file,"
+  >&2 error "  or edit overlay-symlink.sh, which could be broken"
 }
 
 safe_backup_if_not_forced () {
@@ -298,7 +298,7 @@ makelink_create_informative () {
     local link_type='hard link'
     [ -n "${symlink}" ] && link_type='symlink'
 
-    error "ERROR: Failed to create ‘${link_type}’ at: ${targetp}"
+    >&2 error "ERROR: Failed to create ‘${link_type}’ at: ${targetp}"
 
     return 1
   )
@@ -345,7 +345,7 @@ makelink_update_informative () {
       return 0
     fi
   else
-    error "GAFFE: Target neither ‘${link_type}’ nor file, but exists?"
+    >&2 error "GAFFE: Target neither ‘${link_type}’ nor file, but exists?"
 
     return 1
   fi
@@ -359,7 +359,7 @@ makelink_update_informative () {
   command rm -- "${targetp}"
 
   if ! eval "command ln ${symlink} '${sourcep}' '${targetp}'"; then
-    error "ERRPR: ‘ln’ failed to replace symlink at: $(realpath_s "${targetp}")"
+    >&2 error "ERRPR: ‘ln’ failed to replace symlink at: $(realpath_s "${targetp}")"
 
     return 1
   fi
@@ -632,7 +632,7 @@ symlink_adjusted_source_verify_target () {
   local targetp="$1"
   # Double-check that print_sourcep_relative_targetp worked!
   if [ ! -e "${targetp}" ]; then
-    error "ERROR: The target symlink is broken at: ${targetp}"
+    >&2 error "ERROR: The target symlink is broken at: ${targetp}"
 
     return 1
   fi
@@ -835,7 +835,7 @@ symlink_overlay_file_first_handler () {
   done
 
   if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
-    warn "Did not find existing source file to symlink as: ${targetp}"
+    >&2 warn "Did not find existing source file to symlink as: ${targetp}"
 
     return 1
   fi
@@ -1102,7 +1102,7 @@ symlink_mrinfuse_typed () {
 
   if [ ! -e "${sourcep}" ]; then
     if [ "${optional}" -eq 0 ]; then
-      warn "Non-optional symlink source not found: ${sourcep} [relative to ${MR_REPO:-.}]"
+      >&2 warn "Non-optional symlink source not found: ${sourcep} [relative to ${MR_REPO:-.}]"
 
       return 1
     fi
@@ -1155,7 +1155,7 @@ symlink_mrinfuse_file_first_handler () {
   done
 
   if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
-    warn "Did not find existing source file to symlink as: ${targetp}"
+    >&2 warn "Did not find existing source file to symlink as: ${targetp}"
 
     return 1
   fi
