@@ -507,10 +507,17 @@ print_sourcep_relative_targetp () {
   fi
 
   if ! is_relative_path "${targetp}"; then
-    # Note that caller has already cd'd to targetp base dir and called
-    # `symlink_verify_source`, so we know sourcep exists relative to
-    # targetp base dir.
-    printf "%s" "${sourcep}"
+    # Check that caller has cd'd to targetp base dir (common
+    # symlink_overlay_* flow). If not, switch to full path
+    # (e.g., `symlink_mrinfuse_file "file" "/path/to/target"`).
+    if ( \
+      cd "$(dirname -- "${targetp}")" 2> /dev/null \
+        && test -e "${sourcep}" \
+    ); then
+      printf "%s" "${sourcep}"
+    else
+      realpath -- "${sourcep}"
+    fi
 
     return 0
   fi
@@ -711,9 +718,9 @@ symlink_overlay_typed () {
   local sourcep="$2"
   local targetp="${3:-$(basename -- "${sourcep}")}"
 
-  # When called by OMR, we're usally cd'ed to "${MR_REPO}".
-
-  # Uses CLI params to check -s/--safe or -f/--force.
+  # At this point, expect targetp exists relative to the current
+  # working directory.
+  # - Uses CLI params to check -s/--safe or -f/--force.
   ensure_symlink_target_overwritable "${srctype}" "${sourcep}" "${targetp}"
 
   makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}" '-s'
