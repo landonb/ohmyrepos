@@ -27,8 +27,8 @@ source_deps () {
 # Also note that the .git/ directory is mirrored as _git, because git
 #   will not let you add files from under a directory named .git/.
 
-SOURCE_REL='_git/info/exclude'
-TARGET_REL='.git/info/exclude'
+SOURCE_REL="${SOURCE_REL:-_git/info/exclude}"
+TARGET_REL="${TARGET_REL:-.git/info/exclude}"
 
 # ***
 
