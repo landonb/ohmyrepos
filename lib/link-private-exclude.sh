@@ -30,6 +30,8 @@ source_deps () {
 SOURCE_REL="${SOURCE_REL:-_git/info/exclude}"
 TARGET_REL="${TARGET_REL:-.git/info/exclude}"
 
+MRT_SILENT="${MRT_SILENT:-false}"
+
 # ***
 
 _info_path_exclude () {
@@ -101,6 +103,16 @@ link_exclude_resolve_source_and_overlay () {
 
   local sourcep
   sourcep=$(path_to_mrinfuse_resolve "${SOURCE_REL}")
+
+  if [ ! -f "${sourcep}" ] && ${MRT_SILENT:-false}; then
+    # Use case: `MRT_SILENT=true link_private_exclude` is simpler than:
+    #   sourcep="$(path_to_mrinfuse_resolve "_git/info/exclude")" \
+    #     && [ -f "${sourcep}" ] \
+    #     && link_private_exclude
+    # for *optional* symlink.
+
+    return 1
+  fi
 
   # Clobber .git/info/exclude if `git init` boilerplate, otherwise try
   # updating normally (replace/update if symlink, or check --force or
