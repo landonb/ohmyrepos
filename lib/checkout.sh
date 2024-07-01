@@ -32,6 +32,13 @@ mr_repo_checkout () {
     dest_dir="$3"
   fi
 
+  if [ -z "${remote_name}" ] || [ -z "${remote_url_or_path}" ]; then
+    >&2 error "ERROR: The MR_REPO_REMOTES environ is missing the remote name or url"
+
+    # Stop on errexit.
+    return 1
+  fi
+
   # Note this uses `_github_url_according_to_user` to make appropriate URL.
   git_clone_giturl -o "${remote_name}" "${remote_url_or_path}" "${dest_dir}"
 }
