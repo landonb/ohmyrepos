@@ -9,10 +9,14 @@
 source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
-  . logger.sh
+  if ! . logger.sh 2> /dev/null; then
+    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
+  fi
 
   # Load: print_unresolved_path/realpath_s
-  . print-unresolved-path.sh
+  if ! . print-unresolved-path.sh 2> /dev/null; then
+    . "$(dirname -- "${BASH_SOURCE[0]}")/print-unresolved-path.sh"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
