@@ -105,7 +105,7 @@ link_hard () {
 
   # Different inode but either nothing different from canon,
   # or nothing changed locally, so we're cleared to clobber.
-  ln -f "${canon_file}" "${local_file}"
+  command ln -f "${canon_file}" "${local_file}"
 
   info " ${msg_action} $(font_emphasize "hard link")" \
     "$(font_highlight "$(print_unresolved_path "${local_file}")")"
