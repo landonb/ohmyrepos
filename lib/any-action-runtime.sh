@@ -15,10 +15,14 @@ source_deps () {
   # - Lastly, the .mrconfig-omr file sets, e.g., `lib = PATH=...`
   #   which enables the path-less source logger.sh here to work.
   # Load the logger library, from github.com/landonb/sh-logger.
-  . logger.sh
+  if ! . logger.sh 2> /dev/null; then
+    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
+  fi
 
   # Load `print_nanos_now`.
-  . print-nanos-now.sh
+  if ! . print-nanos-now.sh 2> /dev/null; then
+    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
+  fi
 }
 
 reveal_biz_vars () {
@@ -233,11 +237,18 @@ git_any_cache_teardown () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  source_deps
+  # Only source deps when not included by OMR.
+  # - This supports user sourcing this file directly,
+  #   and it helps OMR avoid re-sourcing the same files.
+  if [ -z "${MR_CONFIG}" ]; then
+    source_deps
+  fi
+
   reveal_biz_vars
 }
 
 main "$@"
+
 unset -f main
 unset -f source_deps
 unset -f reveal_biz_vars

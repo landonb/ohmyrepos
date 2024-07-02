@@ -18,7 +18,9 @@
 source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
-  . logger.sh
+  if ! . logger.sh 2> /dev/null; then
+    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -60,7 +62,13 @@ main () {
   source_deps
 }
 
-main "$@"
+# Only source deps when not included by OMR.
+# - This supports user sourcing this file directly,
+#   and it helps OMR avoid re-sourcing the same files.
+if [ -z "${MR_CONFIG}" ]; then
+  main "$@"
+fi
+
 unset -f main
 unset -f source_deps
 

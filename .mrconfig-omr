@@ -105,9 +105,15 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/wire-remotes"
 
 [DEFAULT]
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/line-in-file.sh"
+lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/print-unresolved-path.sh"
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-set.sh"
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-set-private.sh"
+
+# Depdendencies for previous (PATH was set above)
+[DEFAULT]
+lib = . "logger.sh"
+lib = . "print-nanos-now.sh"
 
 # ========================================================================
 # ------------------------------------------------------------------------

@@ -7,8 +7,8 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  # Load the logger library, from github.com/landonb/sh-logger.
-  # - Includes print commands: info, warn, error, debug.
+  # Load the logger library, from github.com/landonb/sh-logger
+  # - Includes print commands: info, warn, error, debug
   if ! . logger.sh 2> /dev/null; then
     . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
   fi
@@ -16,6 +16,11 @@ source_deps () {
   # Load: print_unresolved_path/realpath_s
   if ! . print-unresolved-path.sh 2> /dev/null; then
     . "$(dirname -- "${BASH_SOURCE[0]}")/print-unresolved-path.sh"
+  fi
+
+  # Load: font_emphasize, font_highlight
+  if ! . "overlay-symlink.sh" 2> /dev/null; then
+    . "$(dirname -- "${BASH_SOURCE[0]}")/overlay-symlink.sh"
   fi
 }
 
@@ -112,7 +117,13 @@ main () {
   source_deps
 }
 
-main "$@"
+# Only source deps when not included by OMR.
+# - This supports user sourcing this file directly,
+#   and it helps OMR avoid re-sourcing the same files.
+if [ -z "${MR_CONFIG}" ]; then
+  main "$@"
+fi
+
 unset -f main
 unset -f source_deps
 

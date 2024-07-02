@@ -1184,7 +1184,13 @@ main () {
   # Caller will call functions explicitly as appropriate.
 }
 
-main "$@"
+# Only source deps when not included by OMR.
+# - This supports user sourcing this file directly,
+#   and it helps OMR avoid re-sourcing the same files.
+if [ -z "${MR_CONFIG}" ]; then
+  main "$@"
+fi
+
 unset -f main
 unset -f source_deps
 

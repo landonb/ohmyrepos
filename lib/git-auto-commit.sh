@@ -8,7 +8,9 @@
 source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
-  . logger.sh
+  if ! . logger.sh 2> /dev/null; then
+    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -489,11 +491,18 @@ git_auto_commit_path_new () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  source_deps
+  # Only source deps when not included by OMR.
+  # - This supports user sourcing this file directly,
+  #   and it helps OMR avoid re-sourcing the same files.
+  if [ -z "${MR_CONFIG}" ]; then
+    source_deps
+  fi
+
   reveal_biz_vars
 }
 
 main "$@"
+
 unset -f main
 unset -f source_deps
 unset -f reveal_biz_vars
