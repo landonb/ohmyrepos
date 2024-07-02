@@ -38,8 +38,8 @@
 #   $ cd <path>
 #   $ mr -n --force <action>
 
-# mr_exclusive returns True if project should be skipped per MR_INCLUDE.
-mr_exclusive () {
+# mr_exclusive_tag returns True if project should be skipped per MR_INCLUDE.
+mr_exclusive_tag () {
   # If MR_INCLUDE unset, don't skip anything.
   # - Returns 1, aka false, aka don't skip.
   [ -z "${MR_INCLUDE+x}" ] && return 1
@@ -83,5 +83,40 @@ mr_exclusive () {
   # MR_INCLUDE tag didn't match.
   # - Returns 0 (skip) by default.
   return 0
+}
+
+# ***
+
+mr_exclusive_remote () {
+  if [ -z "${MR_REPO}" ]; then
+    # Called outside a repo, e.g., from a [DEFAULT] `include` block.
+    # - Use case: Lets user check MR_INCLUDE tags before conditionally
+    #   loading additional config.
+
+    # Don't skip
+    return 1
+  fi
+
+  if [ -z "${MR_INCLUDE_REMOTE}" ]; then
+
+    # Don't skip
+    return 1
+  fi
+
+  # Skip unless remote exists.
+  ! git_remote_exists "${MR_INCLUDE_REMOTE}"
+}
+
+# COPYD: ~/.kit/git/git-bump-version-tag/deps/sh-git-nubs/lib/git-nubs.sh
+git_remote_exists () {
+  local remote="$1"
+
+  git remote get-url ${remote} > /dev/null 2>&1
+}
+
+# ***
+
+mr_exclusive () {
+  mr_exclusive_tag "$@" || mr_exclusive_remote
 }
 

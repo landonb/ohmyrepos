@@ -27,7 +27,12 @@
 # archived to the travel device.
 lib =
   no_travel () {
-    [ -z ${MR_ARCHIVED+x} ] &&
-    [ -n "${MR_TRAVEL}" ]
+    if [ -z "${MR_ARCHIVED+x}" ] && [ -n "${MR_TRAVEL}" ]; then
+      # Skip
+      return 0
+    else
+      # Check MR_INCLUDE_REMOTE
+      mr_exclusive
+    fi
   }
 
