@@ -72,9 +72,12 @@ mr_exclusive () {
     # - E.g., `skip = mr_exclusive "!foo"`.
     local nonnegated
     nonnegated="$(echo "${tag}" | sed 's/^!//')"
-    [ "${tag}" != "${nonnegated}" ] \
+    if [ "${tag}" != "${nonnegated}" ] \
       && [ "${MR_INCLUDE}" != "${nonnegated}" ] \
-      && return 1
+    ; then
+
+      return 1
+    fi
   done
 
   # MR_INCLUDE tag didn't match.
