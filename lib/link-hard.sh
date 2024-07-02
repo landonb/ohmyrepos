@@ -85,18 +85,52 @@ link_hard () {
       #   can re-link it.
       msg_action="Rewrote as"
       # - Otherwise, if local file has changes, defer to user to resolve.
-      if [ -n "$(git status --porcelain=v1 -- "${chase_file}")" ]; then
-        # Cannot proceed.
-        warn "Refuses to hard link disparate files."
-        warn "- Depending on your workflow, this might help:"
-        warn "    cd '$(pwd -L)'"
-        warn "    meld '${chase_file}' '${canon_file}' &"
-        warn "    git add '${chase_file}'"
-        warn "    git commit -m 'Deps: Update dependency ($(basename -- "${chase_file}"))'"
-        # This assumes user uses link_hard from 'infuse' tasks.
-        warn "    mr -d . -n infuse"
+
+      local changed_file="${chase_file}"
+      local status
+      if ! status="$(git status --porcelain=v1 -- "${chase_file}" 2> /dev/null)"; then
+        # The chase_file is outside the repo.
+        warn "The two files are different, and the destination is outside the repo"
+        warn "- Compare the files and make equal, or remove the target,"
+        warn "  and try again:"
+        warn "    cd \"$(pwd -L)\""
+        warn "    meld \"${chase_file}\" \"${canon_file}\" &"
+        warn "    command rm \"${chase_file}\""
+        warn "    mr -d . -n ${MR_ACTION:-infuse}"
 
         return 1
+      elif [ -n "${status}" ]; then
+        # Cannot proceed.
+        warn "The two files are different, and the local file has uncommitted changes"
+        warn "- Compare the files and try again"
+        warn "- Depending on your workflow, this might help:"
+        warn "    cd \"$(pwd -L)'"
+        warn "    meld \"${chase_file}\" \"${canon_file}\" &"
+        warn "    git add \"${chase_file}\""
+        warn "    git commit -m 'Deps: Update dependency ($(basename -- "${chase_file}"))'"
+        # This assumes user uses link_hard from 'infuse' tasks.
+        warn "    mr -d . -n ${MR_ACTION:-infuse}"
+
+        return 1
+      # else, chase_file belongs to the local repo and is unedited,
+      # so we now it's safe to clobber.
+      # - This works well if you use link_hard to manage local deps.
+      #   E.g., say you have a shell command project that uses multiple
+      #   scripts from other projects. Rather than require end users to
+      #   download multiple projects, you could create hard-links in the
+      #   application repo to track each of the upstream dependencies.
+      #   Whenever an upstream file changes, you just commit the local
+      #   copy. If the local hard link breaks and the file is unchanged,
+      #   it's safe to recreate the hard link, even if the source file
+      #   is different.
+      # - But the opposite scenario is not handled, and the user must
+      #   resolve it manually. In this case, the file from the local
+      #   repo is what's being placed somewhere else, outside the repo.
+      #   This is useful for installing '.gitignore' files (which Git
+      #   doesn't allow to be symlinked). You'd keep some _gitignore
+      #   files locally in your repo that you hard-link where you need
+      #   as '.gitignore' files. In this case, we don't want to clobber
+      #   the destination, because it's outside this repo.
       fi
     fi
   fi
