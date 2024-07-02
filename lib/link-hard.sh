@@ -83,7 +83,7 @@ link_hard () {
       # - If local file has no changes, then it's safe to assume its
       #   last commit was a normal "Update dependency" commit, and we
       #   can re-link it.
-      msg_action="Replace w/"
+      msg_action="Rewrote as"
       # - Otherwise, if local file has changes, defer to user to resolve.
       if [ -n "$(git status --porcelain=v1 -- "${chase_file}")" ]; then
         # Cannot proceed.
