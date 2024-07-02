@@ -64,15 +64,15 @@ link_hard () {
   local msg_action="Placed new"
 
   if [ -e "${chase_file}" ]; then
-    local local_inode
+    local chase_inode
     local canon_inode
-    local_inode=$(file_index_number_or_warn "${chase_file}") || return 1
+    chase_inode=$(file_index_number_or_warn "${chase_file}") || return 1
     canon_inode=$(file_index_number_or_warn "${canon_file}") || return 1
 
     msg_action=" Recreated"
 
     # Compare inode values.
-    if [ "${local_inode}" = "${canon_inode}" ]; then
+    if [ "${chase_inode}" = "${canon_inode}" ]; then
       # Same inode; already at the desired state.
       info " Hard link $(font_emphasize inode) same" \
         "$(font_highlight "$(print_unresolved_path "${chase_file}")")"
