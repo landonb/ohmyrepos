@@ -35,7 +35,7 @@ source_deps () {
 link_hard () {
   # The reference file.
   local canon_file="$1"
-  local local_file="${2:-${MR_REPO}/$(basename -- "${canon_file}")}"
+  local chase_file="${2:-${MR_REPO}/$(basename -- "${canon_file}")}"
 
   # Use `ls -i` to get the inode, e.g.,:
   #   $ ls -i ${canon_file}
@@ -63,10 +63,10 @@ link_hard () {
 
   local msg_action="Placed new"
 
-  if [ -e "${local_file}" ]; then
+  if [ -e "${chase_file}" ]; then
     local local_inode
     local canon_inode
-    local_inode=$(file_index_number_or_warn "${local_file}") || return 1
+    local_inode=$(file_index_number_or_warn "${chase_file}") || return 1
     canon_inode=$(file_index_number_or_warn "${canon_file}") || return 1
 
     msg_action=" Recreated"
@@ -75,24 +75,24 @@ link_hard () {
     if [ "${local_inode}" = "${canon_inode}" ]; then
       # Same inode; already at the desired state.
       info " Hard link $(font_emphasize inode) same" \
-        "$(font_highlight "$(print_unresolved_path "${local_file}")")"
+        "$(font_highlight "$(print_unresolved_path "${chase_file}")")"
 
       return 0
-    elif ! diff -q "${local_file}" "${canon_file}" > /dev/null; then
+    elif ! diff -q "${chase_file}" "${canon_file}" > /dev/null; then
       # Different inode, and different file contents.
       # - If local file has no changes, then it's safe to assume its
       #   last commit was a normal "Update dependency" commit, and we
       #   can re-link it.
       msg_action="Replace w/"
       # - Otherwise, if local file has changes, defer to user to resolve.
-      if [ -n "$(git status --porcelain=v1 -- "${local_file}")" ]; then
+      if [ -n "$(git status --porcelain=v1 -- "${chase_file}")" ]; then
         # Cannot proceed.
         warn "Refuses to hard link disparate files."
         warn "- Depending on your workflow, this might help:"
         warn "    cd '$(pwd -L)'"
-        warn "    meld '${local_file}' '${canon_file}' &"
-        warn "    git add '${local_file}'"
-        warn "    git commit -m 'Deps: Update dependency ($(basename -- "${local_file}"))'"
+        warn "    meld '${chase_file}' '${canon_file}' &"
+        warn "    git add '${chase_file}'"
+        warn "    git commit -m 'Deps: Update dependency ($(basename -- "${chase_file}"))'"
         # This assumes user uses link_hard from 'infuse' tasks.
         warn "    mr -d . -n infuse"
 
@@ -101,14 +101,14 @@ link_hard () {
     fi
   fi
 
-  mkdir -p "$(dirname -- "${local_file}")"
+  mkdir -p "$(dirname -- "${chase_file}")"
 
   # Different inode but either nothing different from canon,
   # or nothing changed locally, so we're cleared to clobber.
-  command ln -f "${canon_file}" "${local_file}"
+  command ln -f "${canon_file}" "${chase_file}"
 
   info " ${msg_action} $(font_emphasize "hard link")" \
-    "$(font_highlight "$(print_unresolved_path "${local_file}")")"
+    "$(font_highlight "$(print_unresolved_path "${chase_file}")")"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
