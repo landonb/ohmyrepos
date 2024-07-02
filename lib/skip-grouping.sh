@@ -70,7 +70,8 @@ mr_exclusive () {
 
     # Check if OMR config uses negated tag.
     # - E.g., `skip = mr_exclusive "!foo"`.
-    local nonnegated="$(echo "${tag}" | sed 's/^!//')"
+    local nonnegated
+    nonnegated="$(echo "${tag}" | sed 's/^!//')"
     [ "${tag}" != "${nonnegated}" ] \
       && [ "${MR_INCLUDE}" != "${nonnegated}" ] \
       && return 1
