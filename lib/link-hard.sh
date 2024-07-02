@@ -9,17 +9,23 @@
 source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger
   # - Includes print commands: info, warn, error, debug
-  if ! . logger.sh 2> /dev/null; then
+  if command -v "logger.sh" > /dev/null; then
+    . "logger.sh"
+  else
     . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
   fi
 
   # Load: print_unresolved_path/realpath_s
-  if ! . print-unresolved-path.sh 2> /dev/null; then
+  if command -v "print-unresolved-path.sh" > /dev/null; then
+    . "print-unresolved-path.sh"
+  else
     . "$(dirname -- "${BASH_SOURCE[0]}")/print-unresolved-path.sh"
   fi
 
   # Load: font_emphasize, font_highlight
-  if ! . "overlay-symlink.sh" 2> /dev/null; then
+  if command -v "overlay-symlink.sh" > /dev/null; then
+    . "overlay-symlink.sh"
+  else
     . "$(dirname -- "${BASH_SOURCE[0]}")/overlay-symlink.sh"
   fi
 }

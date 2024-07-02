@@ -7,7 +7,9 @@
 source_deps () {
   # Load: symlink_*.
   # - Note that .mrconfig-omr sets PATH to include OMR's lib/.
-  if ! . "overlay-symlink.sh" 2> /dev/null; then
+  if command -v "overlay-symlink.sh" > /dev/null; then
+    . "overlay-symlink.sh"
+  else
     . "$(dirname -- "${BASH_SOURCE[0]}")/overlay-symlink.sh"
   fi
 }

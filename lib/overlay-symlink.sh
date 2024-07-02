@@ -14,12 +14,16 @@ source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Note that .mrconfig-omr adds deps/... path to PATH.
   # - This also implicitly loads the colors.sh library.
-  if ! . logger.sh 2> /dev/null; then
+  if command -v "logger.sh" > /dev/null; then
+    . "logger.sh"
+  else
     . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
   fi
 
   # Load: print_unresolved_path, realpath_s
-  if ! . print-unresolved-path.sh 2> /dev/null; then
+  if command -v "print-unresolved-path.sh" > /dev/null; then
+    . "print-unresolved-path.sh"
+  else
     . "$(dirname -- "${BASH_SOURCE[0]}")/print-unresolved-path.sh"
   fi
 }

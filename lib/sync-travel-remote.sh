@@ -65,10 +65,18 @@ GIT_BARE_REPO='--bare'
 _travel_source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
-  . logger.sh
+  if command -v "logger.sh" > /dev/null; then
+    . "logger.sh"
+  else
+    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
+  fi
 
   # Load: print_homebrew_prefix
-  . print-homebrew-prefix.sh
+  if command -v "print-homebrew-prefix.sh" > /dev/null; then
+    . "print-homebrew-prefix.sh"
+  else
+    . "$(dirname -- "${BASH_SOURCE[0]}")/print-homebrew-prefix.sh"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -18,7 +18,9 @@
 source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
-  if ! . logger.sh 2> /dev/null; then
+  if command -v "logger.sh" > /dev/null; then
+    . "logger.sh"
+  else
     . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
   fi
 }

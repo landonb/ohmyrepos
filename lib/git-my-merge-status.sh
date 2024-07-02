@@ -9,12 +9,16 @@ source_deps () {
   # Note .mrconfig-omr sets PATH so deps found in OMR's deps/.
 
   # Load the logger library, from github.com/landonb/sh-logger.
-  if ! . logger.sh 2> /dev/null; then
+  if command -v "logger.sh" > /dev/null; then
+    . "logger.sh"
+  else
     . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
   fi
 
   # Load `print_nanos_now`.
-  if ! . print-nanos-now.sh 2> /dev/null; then
+  if command -v "print-nanos-now.sh" > /dev/null; then
+    . "print-nanos-now.sh"
+  else
     . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
   fi
 }
