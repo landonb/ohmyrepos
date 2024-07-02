@@ -42,7 +42,7 @@
 mr_exclusive () {
   # If MR_INCLUDE unset, don't skip anything.
   # - Returns 1, aka false, aka don't skip.
-  [ -z ${MR_INCLUDE+x} ] && return 1
+  [ -z "${MR_INCLUDE+x}" ] && return 1
 
   # MR_INCLUDE is set.
 
