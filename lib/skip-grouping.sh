@@ -55,8 +55,14 @@ mr_exclusive () {
 
   # Check tags, and return 1 (don't skip) if MR_INCLUDE
   # matches input tag, or if a negated tag and doesn't.
-  while [ -n "$1" ]; do
+  while [ $# -gt 0 ]; do
     local tag="$1"
+    shift
+
+    if [ -z "${tag}" ]; then
+
+      continue
+    fi
 
     # MR_INCLUDE tag matches, so don't skip this project.
     [ "${MR_INCLUDE}" = "${tag}" ] \
@@ -69,8 +75,6 @@ mr_exclusive () {
     [ "${tag}" != "${nonnegated}" ] \
       && [ "${MR_INCLUDE}" != "${nonnegated}" ] \
       && return 1
-
-    shift
   done
 
   # MR_INCLUDE tag didn't match.
