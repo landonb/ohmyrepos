@@ -634,12 +634,21 @@ git_ensure_or_clone_target () {
   # OH, BASH: Piping $SHELLOPTS will always disable errexit. E.g.,
   #           `echo $SHELLOPTS | grep -q "\berrexit\b"` is always false,
   #           because errexit is removed for the echo before the pipe.
-  local shell_opts="${SHELLOPTS}"
+  # CALSO: `shopt -o -p errexit` returns "set +o errexit" (unset)
+  #                                   or "set -o errexit" (set)
+  # BWARE: On @macOS, if you've changed /var/select/sh -> /bin/dash (you should!)
+  #        then not /bin/bash (Bash v3), and SHELLOPTS not set (it's a Bashism).
+  #        - So this won't work:
+  #            local shell_opts="${SHELLOPTS}"
+  #            ... grep -q "\berrexit\b"
+  #        Use $- instead, which is one letter for each option,
+  #        and errexit is assigned 'e'.
+  local shell_opts="$-"
 
   # Another Bashism? Variable set to empty string evaluate true:
   #   empty="" && $empty && echo "so true"
   # So being lazy: echoing false if false, else nothing (empty string).
-  local restore_errexit=$(echo "${shell_opts}" | grep -q "\berrexit\b" || echo false)
+  local restore_errexit=$(echo "${shell_opts}" | grep -q "e" && echo true || echo false)
 
   set +e
 
