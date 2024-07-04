@@ -213,6 +213,15 @@ git_mrrepo_at_git_root () {
   return 1
 }
 
+git_status_check_blocklisted () {
+  ${OMR_MYSTATUS_BLOCKLISTED:-false} || return 0
+
+  print_status "  $(attr_emphasis)$(git_status_format_minty "blocklist")  " \
+    "$(git_status_format_minty "${MR_REPO}")"
+
+  return 1
+}
+
 # ***
 
 git_status_format_alert () {
@@ -457,6 +466,7 @@ git_my_merge_status () {
   ${MR_STRIPING} && bg_flipflop
   git_status_check_reset
   git_mrrepo_at_git_root || return 0
+  git_status_check_blocklisted || return 0
   git_status_check_unstaged
   git_status_check_uncommitted
   git_status_check_untracked
