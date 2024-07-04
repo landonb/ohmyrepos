@@ -49,6 +49,10 @@ reveal_biz_vars () {
   OMR_MYSTATUS_FANCY=${OMR_MYSTATUS_FANCY:-true}
 
   OMR_MYSTATUS_SHOW_PROG="${OMR_MYSTATUS_SHOW_PROG:-}"
+
+  # ***
+
+  MR_STRIPING=${MR_STRIPING:-true}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -109,8 +113,6 @@ git_status_cache_setup () {
   #     - Just be sure not to do any setup or teardown that conflicts
   #       with any another setup or teardown function.
   [ -z "${MR_ACTION}" ] || [ "${MR_ACTION}" = 'mystatus' ] || return 0
-
-  MR_STRIPING=${MR_STRIPING:-true}
 
   command rm -f -- "${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-"*
 
