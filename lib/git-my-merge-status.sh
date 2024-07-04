@@ -207,7 +207,7 @@ git_mrrepo_at_git_root () {
   # The user can stub out the OMR config to support projects that are
   # not actual Git repos. Report that here. (Returns 1 so `main` will
   # `return 0`.)
-  print_status "  $(attr_emphasis)$(git_status_format_minty "notuhrepo")  " \
+  print_status "  $(attr_emphasis)$(git_status_format_minty " no .git/")  " \
     "$(git_status_format_minty "${MR_REPO}")"
 
   return 1
@@ -321,7 +321,7 @@ git_status_check_unstaged () {
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
 
-    git_status_check_report_9chars_maybe 'unstaged' ' '
+    git_status_check_report_9chars_maybe 'unstaged' '  '
   fi
 }
 
@@ -349,7 +349,7 @@ git_status_check_untracked () {
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
 
-    git_status_check_report_9chars_maybe 'untracked'
+    git_status_check_report_9chars_maybe 'untracked' ' '
   fi
 }
 
