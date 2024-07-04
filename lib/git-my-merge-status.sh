@@ -53,6 +53,9 @@ reveal_biz_vars () {
   # ***
 
   MR_STRIPING=${MR_STRIPING:-true}
+  if ${SHCOLORS_OFF:-false}; then
+    MR_STRIPING=false
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
