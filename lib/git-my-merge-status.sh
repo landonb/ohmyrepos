@@ -204,6 +204,12 @@ git_mrrepo_at_git_root () {
     return 0
   fi
 
+  # The user can stub out the OMR config to support projects that are
+  # not actual Git repos. Report that here. (Returns 1 so `main` will
+  # `return 0`.)
+  print_status "  $(attr_emphasis)$(git_status_format_minty "notuhrepo")  " \
+    "$(git_status_format_minty "${MR_REPO}")"
+
   return 1
 }
 
