@@ -767,7 +767,7 @@ git_must_be_tidy () {
 
   [ -z "$(git status --porcelain)" ] && return 0 || true
 
-  info " $(fg_lightorange)$(attr_underline)✗ not tidy$(res_underline) $(attr_reset) " \
+  info " $(fg_lightorange)✗ $(attr_underline)not tidy$(res_underline) $(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
 
   # ***
@@ -1100,7 +1100,7 @@ git_fetch_remote_travel () {
       #                                          bologna
       #                                          boloney
       #                                          baloney
-      debug "  $(fg_mediumgrey)$(attr_emphasis)✗ missing  $(attr_reset)" \
+      debug "  $(fg_mediumgrey)✗ $(attr_emphasis)missing  $(attr_reset)" \
         "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
 
       return 1
@@ -1281,7 +1281,7 @@ git_change_branches_if_necessary () {
   # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
   if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
     # If (detached) HEAD is active branch, do naught.
-    info " $(fg_mintgreen)$(attr_emphasis)✗ checkout $(attr_reset) " \
+    info " $(fg_mintgreen)✗ $(attr_emphasis)checkout $(attr_reset) " \
       "SKIP: $(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
 
@@ -1315,7 +1315,7 @@ git_change_branches_if_necessary () {
           # Unlikely path. Might happen if remote branch was removed since
           # the script queried remote/HEAD, like, milliseconds ago. Otherwise
           # no good reason to be in here.
-          warn " $(fg_mintgreen)$(attr_emphasis)✗ co-faild $(attr_reset) " \
+          warn " $(fg_mintgreen)✗ $(attr_emphasis)co-faild $(attr_reset) " \
             "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)"
 
           warn "  $ checkout --track \"${MR_REMOTE}/${source_branch}\""
@@ -1744,7 +1744,7 @@ print_mergefail_msg_diverged () {
 
   local common_ancestor_sha="$(shorten_sha "$(git merge-base HEAD ${to_commit})")"
 
-  warn " $(fg_lightorange)$(attr_underline)✗ merge-no$(res_underline) $(attr_reset) " \
+  warn " $(fg_lightorange)✗ $(attr_underline)merge-no$(res_underline) $(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
 
   # (lb): So weird: Dubs Vim syntax highlight broken on "... ${to_commit}\` ...".
@@ -1816,7 +1816,7 @@ shorten_sha () {
 print_mergefail_msg_localahead () {
   local target_repo="$1"
 
-  warn " $(fg_lightorange)$(attr_underline)✗ localchg$(res_underline) $(attr_reset) " \
+  warn " $(fg_lightorange)✗ $(attr_underline)localchg$(res_underline) $(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${target_repo}$(attr_reset)"
 
   local rem_repo="$(print_path_for_remote_user)"
@@ -1834,7 +1834,7 @@ print_mergefail_msg_dangling () {
   local target_repo="$1"
   local to_commit="$2"
 
-  warn " $(fg_lightorange)$(attr_underline)✗ dangling$(res_underline) $(attr_reset) " \
+  warn " $(fg_lightorange)✗ $(attr_underline)dangling$(res_underline) $(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${target_repo}$(res_underline) (no such branch: ${to_commit})$(attr_reset)"
 
   # ***
