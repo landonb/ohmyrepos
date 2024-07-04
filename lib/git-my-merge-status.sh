@@ -110,16 +110,6 @@ git_status_cache_setup () {
   #       with any another setup or teardown function.
   [ -z "${MR_ACTION}" ] || [ "${MR_ACTION}" = 'mystatus' ] || return 0
 
-  # FIXME/2023-05-01: Document MR_STRIPING. Among other vars, like MR_REMOTE_HOME.
-  # DUNNO/2023-05-01: Should striping be opt-in, or opt-out?
-  # - I do find matching icons on right to paths on left somewhat difficult
-  #   or inaccurate without the striping, so leaning opt-in.
-  #   - Users more likely to ask to change striping if it's enabled, than
-  #     there are likely to know it's an option if they have to read docs
-  #     (or code!) to find it.
-  # FTREQ/2023-05-01: User chooses their striping color.
-  #
-  #  MR_STRIPING=${MR_STRIPING:-false}
   MR_STRIPING=${MR_STRIPING:-true}
 
   command rm -f -- "${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-"*
