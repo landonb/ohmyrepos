@@ -426,8 +426,12 @@ git_report_fancy () {
     xwid=$((xwid + ((path_bytes - path_chars) * 2 / 3)))
   fi
 
+  gnu_grep () {
+    command -v ggrep || command -v grep
+  }
+
   # Step 1 of 2: Truncate to maximum width.
-  local rpath="$(eval "printf '${MR_REPO}' | grep -o -P '.{0,${padw}}\$'")"
+  local rpath="$(eval "printf '${MR_REPO}' | $(gnu_grep) -o -P '.{0,${padw}}\$'")"
 
   # Step 1.5 of 2: Prefix with ellipses if truncated.
   [ "${rpath}" != "${MR_REPO}" ] && rpath="...${rpath}"
