@@ -783,8 +783,7 @@ git_must_be_tidy () {
 
   # ***
 
-  # Exit using errexit.
-  false
+  return 1
 }
 
 print_graph_width_cfg () {
@@ -1104,8 +1103,7 @@ git_fetch_remote_travel () {
       debug "  $(fg_mediumgrey)$(attr_emphasis)✗ missing  $(attr_reset)" \
         "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
 
-      # Yuck.
-      exit 0
+      return 1
     fi
 
     print_fetchfail_msg "${target_repo}" "${source_repo}" "${rel_repo}" \
@@ -1115,8 +1113,7 @@ git_fetch_remote_travel () {
       git remote remove "${MR_REMOTE}"
     fi
 
-    # Exit using errexit.
-    false
+    return 1
   elif [ ${fetch_success} -ne 0 ]; then
     # Trigger errexit with `fatal`'s `return 1`.
     # - Note this might be the 3rd time we print the git-fetch response.
@@ -1128,8 +1125,9 @@ git_fetch_remote_travel () {
         >> "${MR_TMP_TRAVEL_CHORES_FILE}"
     travel_process_chores_file_lock_release
 
-    # Exits on errexit.
-    fatal "Unexpected fetch failure!\n${git_resp}"
+    error "Unexpected fetch failure!\n${git_resp}"
+
+    return 1
   fi
 
   if [ "${target_type}" = 'travel' ]; then
@@ -1871,6 +1869,15 @@ git_fetch_n_cobr () {
 
   # ***
 
+  if ${OMR_TRAVEL_BLOCKLISTED:-false}; then
+    debug "  $(fg_mediumgrey)blocklist$(attr_reset)  " \
+      "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
+
+    return 1
+  fi
+
+  # ***
+
   must_be_git_dirs "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
   [ $? -ne 0 ] && return $? || true  # Obviously unreacheable if caller used `set -e`.
 
@@ -1879,7 +1886,8 @@ git_fetch_n_cobr () {
   local before_cd="$(pwd -L)"
   cd "${target_repo}"  # (lb): Probably $MR_REPO, which is already cwd.
 
-  git_must_be_tidy
+  git_must_be_tidy \
+    || return 1
 
   # ***
 
@@ -1888,7 +1896,8 @@ git_fetch_n_cobr () {
 
   git_remote_delete_head
 
-  git_fetch_remote_travel "${target_repo}" "${target_type}" "${source_repo}" "${rel_repo}"
+  git_fetch_remote_travel "${target_repo}" "${target_type}" "${source_repo}" "${rel_repo}" \
+    || return 1
 
   # ***
 
@@ -1928,7 +1937,11 @@ git_fetch_n_cobr_n_merge () {
 
   local MR_ACTIVE_BRANCH
   # Insist local repo tidy; set remote; fetch remote; change local branch.
-  git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_type}" "${target_type}" "${rel_repo}"
+  git_fetch_n_cobr \
+    "${source_repo}" "${target_repo}" \
+    "${source_type}" "${target_type}" \
+    "${rel_repo}" \
+    || return 0
 
   # Try to fast-forward merge, or use reset-hard if safe, otherwise complain.
   git_move_local_branch_if_safe "${MR_ACTIVE_BRANCH}" "${target_repo}"
@@ -1940,7 +1953,10 @@ git_pack_travel_device () {
 
   travel_ops_reset_stats
   git_ensure_or_clone_target "${source_repo}" "${target_repo}"
-  git_fetch_n_cobr "${source_repo}" "${target_repo}" 'local' 'travel'
+  git_fetch_n_cobr \
+    "${source_repo}" "${target_repo}" \
+    "local" "travel" \
+    || return 0
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
