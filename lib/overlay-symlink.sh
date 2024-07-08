@@ -1122,6 +1122,15 @@ symlink_mrinfuse_typed () {
     return 0
   fi
 
+  # HSTRY/2024-07-08: Until now, would use relative link, e.g.,
+  # ../../.mrinfuse/foo. But with new descendency feature, the links can
+  # be meaningless, e.g., ../../../.mrinfuse/.mrinfuse/.mrinfuse/foo. So
+  # new default is to expand .mrinfuse/ links so user knows what target
+  # really is.
+  if ${MRT_MRINFUSE_EXPAND_LINK:-true}; then
+    sourcep="$(realpath -- "${sourcep}")"
+  fi
+
   symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
 
   cd "${before_cd}"
