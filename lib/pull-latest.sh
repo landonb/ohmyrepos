@@ -50,13 +50,20 @@ pull_latest () {
     #            tags special "stable-X.X" branches, so unless you want
     #            to periodically have to update the version number manually,
     #            just live with the warning.
-    install_version="$(git latest-version-normal)"
+    install_version="$( \
+      GITNUBS_PREFIX="${GITNUBS_PREFIX}" \
+        git latest-version-normal
+    )"
     if [ $? -ne 0 ] || [ -z "${install_version}" ]; then
       >&2 echo
       >&2 echo "ERROR: git latest-version-normal failed:"
       >&2 echo
-      >&2 echo "  $ git latest-version-normal"
-      >&2 echo "$(git latest-version-normal 2>&1 | sed 's/^/  /')"
+      >&2 echo "  $ GITNUBS_PREFIX=\"${GITNUBS_PREFIX}\" git latest-version-normal"
+      >&2 echo "$( \
+        GITNUBS_PREFIX="${GITNUBS_PREFIX}" \
+          git latest-version-normal 2>&1 \
+        | sed 's/^/  /'
+      )"
       >&2 echo
 
       return 1
