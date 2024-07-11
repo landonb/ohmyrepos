@@ -363,7 +363,7 @@ makelink_update_informative () {
   command rm -- "${targetp}"
 
   if ! eval "command ln ${symlink} '${sourcep}' '${targetp}'"; then
-    >&2 error "ERRPR: ‘ln’ failed to replace symlink at: $(realpath_s "${targetp}")"
+    >&2 error "ERROR: ‘ln’ failed to replace symlink at: $(realpath_s "${targetp}")"
 
     return 1
   fi
