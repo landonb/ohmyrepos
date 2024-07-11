@@ -311,7 +311,7 @@ makelink_create_informative () {
   local info_msg
   info_msg="$( \
     symlink_get_msg_informative \
-      "$(font_info_created "Created")" "${srctype}" "${targetp}" "${symlink}" \
+      " $(font_info_created "Created")" "${srctype}" "${targetp}" "${symlink}" \
   )"
 
   info "${info_msg}"
@@ -330,7 +330,7 @@ makelink_update_informative () {
   if [ -h "${targetp}" ]; then
     # (Will be) Overwriting existing symlink.
     info_msg="$(symlink_get_msg_informative \
-      "$(font_info_updated "Updated")" "${srctype}" "${targetp}" "${symlink}" \
+      " $(font_info_updated "Updated")" "${srctype}" "${targetp}" "${symlink}" \
     )"
   elif [ -f "${targetp}" ]; then
     # SAVVY: -ef true when checking symlink and its link path.
@@ -342,7 +342,7 @@ makelink_update_informative () {
       info_msg=" Clobbered file with ${link_type} $(font_highlight $(realpath_s "${targetp}"))"
     else
       info_msg="$(symlink_get_msg_informative \
-        "$(font_info_checked "Checked")" "${srctype}" "${targetp}" "${symlink}" \
+        " $(font_info_checked "Checked")" "${srctype}" "${targetp}" "${symlink}" \
       )"
       info "${info_msg}"
 
@@ -389,7 +389,7 @@ symlink_get_msg_informative () {
   [ "${srctype}" = 'dir' ] && srctype='dir.' || true
 
   local info_msg
-  info_msg=" ${what} $( \
+  info_msg="${what} $( \
     font_emphasize ${srctype}) ${link_type} $(\
       font_highlight $( \
         realpath_s "${targetp}"
