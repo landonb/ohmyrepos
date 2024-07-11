@@ -298,7 +298,9 @@ makelink_create_informative () {
   local targetd="$(dirname -- "${targetp}")"
   mkdir -p "${targetd}"
 
-  eval "/bin/ln ${symlink} '${sourcep}' '${targetp}'" || (
+  local command_or_sudo="$(print_command_or_sudo)"
+
+  eval "${command_or_sudo} ln ${symlink} '${sourcep}' '${targetp}'" || (
     local link_type='hard link'
     [ -n "${symlink}" ] && link_type='symlink'
 
@@ -354,21 +356,38 @@ makelink_update_informative () {
     return 1
   fi
 
+  local command_or_sudo="$(print_command_or_sudo)"
+
   # Note if target symlinks to a file, we can overwrite with force, e.g.,
   #   /bin/ln -sf source/path target/path
   # but if the target exists and is a symlink to a directory instead,
   # the new symlink gets created inside the referenced directory.
   # To handle either situation -- the existing symlink references
   # either a file or a directory -- remove the target first.
-  command rm -- "${targetp}"
+  ${command_or_sudo} rm -- "${targetp}"
 
-  if ! eval "command ln ${symlink} '${sourcep}' '${targetp}'"; then
+  if ! eval "${command_or_sudo} ln ${symlink} '${sourcep}' '${targetp}'"; then
     >&2 error "ERROR: ‘ln’ failed to replace symlink at: $(realpath_s "${targetp}")"
 
     return 1
   fi
 
   info "${info_msg}"
+}
+
+# Caller can prefix `MRT_SUDO=sudo ` to their call to place
+# root symlinks — but note we don't support running `mkdir -p`
+# via sudo, but assume user is overwriting existing symlink.
+# - The current/only use case (currently) is to replace
+#     macOS:/var/select/sh
+print_command_or_sudo () {
+  local command_or_sudo="command"
+
+  if [ "${MRT_SUDO}" = "sudo" ]; then
+    command_or_sudo="sudo"
+  fi
+
+  printf "%s" "${command_or_sudo}"
 }
 
 symlink_get_msg_informative () {
