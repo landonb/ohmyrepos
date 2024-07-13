@@ -51,11 +51,14 @@ wire_remotes () {
 }
 
 _wire_remotes_exit_if_no_remotes_configured () {
-  if [ -z "$1" ]; then
-    >&2 echo "ERROR: Please set or fix MR_REPO_REMOTES for project: ${MR_REPO}"
-    #
-    exit 1
+  if [ -n "$1" ]; then
+
+    return 0
   fi
+
+  >&2 echo "ERROR: Please set or fix MR_REPO_REMOTES for project: ${MR_REPO}"
+
+  exit 1
 }
 
 # ***
