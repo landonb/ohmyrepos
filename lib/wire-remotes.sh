@@ -31,6 +31,8 @@ wire_remotes () {
 
   _wire_remotes_exit_if_no_remotes_configured "$1"
 
+  local num_remotes=0
+
   local processed_first=false
   
   while [ -n "$1" ]; do
@@ -47,7 +49,11 @@ wire_remotes () {
     processed_first=true
 
     remote_add "${remote_name}" "${remote_url_or_path}"
+
+    num_remotes=$((${num_remotes} + 1))
   done
+
+  info "WIRED: Added/Reset ${num_remotes} remotes for project: $(fg_green)${MR_REPO}$(attr_reset)"
 }
 
 _wire_remotes_exit_if_no_remotes_configured () {
