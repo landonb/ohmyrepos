@@ -28,6 +28,10 @@
 #
 #   MR_REMOTE=hostname mr -d /path/to/project checkout
 #
+# You might also need the remote home path, if it's different, e.g.,:
+#
+#   MR_REMOTE=swamp MR_REMOTE_PATH=/home/kermit mr -d / wireRemotes
+#
 # Or if you're using a local remote, add its path prefix, e.g.,
 #
 #   MR_TRAVEL=/media/user/usb-stick MR_REMOTE=usb mr -d /path/to/project checkout
