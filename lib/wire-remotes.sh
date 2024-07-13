@@ -56,9 +56,10 @@ _wire_remotes_exit_if_no_remotes_configured () {
     return 0
   fi
 
-  >&2 echo "ERROR: Please set or fix MR_REPO_REMOTES for project: ${MR_REPO}"
+  # Nothing set via MR_REPO_REMOTES, remote_set, etc.
+  info "SKIPD: No remotes configured for project: $(fg_lightorange)${MR_REPO}$(attr_reset)"
 
-  exit 1
+  exit 0
 }
 
 # ***
