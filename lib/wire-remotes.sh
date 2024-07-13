@@ -27,6 +27,8 @@
 # 'dest-dir').
 
 wire_remotes () {
+  _wire_remotes_exit_if_not_a_repo
+
   eval "set -- $(mr_repo_remotes_complete)"
 
   _wire_remotes_exit_if_no_remotes_configured "$1"
@@ -56,6 +58,21 @@ wire_remotes () {
   info "WIRED: Added/Reset ${num_remotes} remotes for project: $(fg_green)${MR_REPO}$(attr_reset)"
 }
 
+# ***
+
+_wire_remotes_exit_if_not_a_repo () {
+  if git_is_git_repo_root; then
+
+    return 0
+  fi
+
+  info "SKIPD: The project has no .git/ direct'y: $(fg_orange)${MR_REPO}$(attr_reset)"
+
+  exit 0
+}
+
+# ***
+
 _wire_remotes_exit_if_no_remotes_configured () {
   if [ -n "$1" ]; then
 
@@ -71,6 +88,8 @@ _wire_remotes_exit_if_no_remotes_configured () {
 # ***
 
 report_remotes () {
+  _wire_remotes_exit_if_not_a_repo
+
   local alert_msg=""
 
   alert_msg_add_comma () {
@@ -149,5 +168,25 @@ report_remotes () {
   fi
 
   command rm -- "${tmp_file}"
+}
+
+# ***
+
+# COPYD: ~/.kit/sh/sh-git-nubs/lib/git-nubs.sh
+git_is_git_repo_root () {
+  local proj_path="${1:-$(pwd)}"
+
+  local repo_root
+  if ! repo_root="$(git rev-parse --show-toplevel 2> /dev/null)"; then
+
+    return 1
+  fi
+
+  if [ "$(realpath -- "${proj_path}")" != "$(realpath -- "${repo_root}")" ]; then
+
+    return 1
+  fi
+
+  return 0
 }
 
