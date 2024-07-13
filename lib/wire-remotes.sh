@@ -29,7 +29,7 @@
 wire_remotes () {
   eval "set -- $(mr_repo_remotes_complete)"
 
-  _wire_remotes_exit_if_arg_missing "$1"
+  _wire_remotes_exit_if_no_remotes_configured "$1"
 
   local processed_first=false
   
@@ -37,7 +37,7 @@ wire_remotes () {
     local remote_name="$1"
     local remote_url_or_path="$2"
 
-    _wire_remotes_exit_if_arg_missing "${remote_url_or_path}"
+    _wire_remotes_exit_if_no_remotes_configured "${remote_url_or_path}"
     shift 2
 
     # Ignore the dest. dir (only used on 'checkout').
@@ -50,7 +50,7 @@ wire_remotes () {
   done
 }
 
-_wire_remotes_exit_if_arg_missing () {
+_wire_remotes_exit_if_no_remotes_configured () {
   if [ -z "$1" ]; then
     >&2 echo "ERROR: Please set or fix MR_REPO_REMOTES for project: ${MR_REPO}"
     #
@@ -82,7 +82,7 @@ report_remotes () {
     local remote_url_or_path="$2"
     local local_dest_dir=""
 
-    _wire_remotes_exit_if_arg_missing "${remote_url_or_path}"
+    _wire_remotes_exit_if_no_remotes_configured "${remote_url_or_path}"
     shift 2
 
     if ! ${processed_first} && [ "${1%/}" != "${1}" ]; then
