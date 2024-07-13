@@ -34,7 +34,7 @@ wire_remotes () {
   local num_remotes=0
 
   local processed_first=false
-  
+
   while [ -n "$1" ]; do
     local remote_name="$1"
     local remote_url_or_path="$2"
