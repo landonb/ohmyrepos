@@ -87,16 +87,6 @@ git_any_action_stopped () {
   #
   #  _trace_ps_heritage "TEARDOWN"
 
-  # Mimic `mr`'s `showstats` and check these options to decide whether
-  # to show footer. (Else user might see lonely "(n secs.)" printed.)
-  local show_time=true
-  if [ "${MR_OPTS_QUIET:-0}" -eq 1 ] \
-    || [ "${MR_OPTS_MINIMAL:-0}" -eq 1 ] \
-    || [ "${MR_OPTS_PRINT_FOOTER:-1}" -eq 0 ] \
-  ; then
-    show_time=false
-  fi
-
   local setup_time_0
   setup_time_0="$(head -n 1 -- "${OMR_RUNTIME_TEMPFILE}" 2> /dev/null)" \
     || true
@@ -113,19 +103,17 @@ git_any_action_stopped () {
     return 0
   fi
 
-  if ${show_time}; then
-    local setup_time_n="$(print_nanos_now)"
+  local setup_time_n="$(print_nanos_now)"
 
-    local seconds=$(echo "${setup_time_n} - ${setup_time_0}" | bc -l)
+  local seconds=$(echo "${setup_time_n} - ${setup_time_0}" | bc -l)
 
-    if [ $(echo "${seconds} >= ${OMR_RUNTIME_MIN_SECS}" | bc -l) -ne 0 ]; then
-      local time_elapsed="$(python_prettify_elapsed "${seconds}")"
+  if [ $(echo "${seconds} >= ${OMR_RUNTIME_MIN_SECS}" | bc -l) -ne 0 ]; then
+    local time_elapsed="$(python_prettify_elapsed "${seconds}")"
 
-      [ -z "${time_elapsed}" ] \
-        && time_elapsed="$(simple_bc_elapsed "${seconds}")"
+    [ -z "${time_elapsed}" ] \
+      && time_elapsed="$(simple_bc_elapsed "${seconds}")"
 
-      printf %s "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
-    fi
+    printf %s "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
   fi
 
   update_or_remove_tempfile
@@ -224,28 +212,32 @@ _trace_ps_heritage () {
 
 # ***
 
-mr_is_quieted () {
-  for switch in ${MR_SWITCHES}; do
-    if [ "${switch}" = "-q" ] || [ "${switch}" = "--quiet" ]; then
-      return 0
-    fi
+# Mimic `mr`'s `showstats` and check these options to decide whether
+# to show footer. (Else user might see lonely "(n secs.)" printed.)
+mr_show_stats () {
+  local show_time=true
 
-    if [ "${switch}" = "-M" ] || [ "${switch}" = "--more-minimal" ]; then
-      return 0
-    fi
-  done
+  if ( \
+    false \
+    || [ "${MR_OPTS_QUIET:-0}" -eq 1 ] \
+    || [ "${MR_OPTS_MINIMAL:-0}" -eq 1 ] \
+    || [ "${MR_OPTS_MORE_MINIMAL:-0}" -eq 1 ] \
+    || [ "${MR_OPTS_PRINT_FOOTER:-1}" -eq 0 ] \
+    ) && [ "${MR_OPTS_STATS:-0}" -eq 0 ]; then
+    show_time=false
+  fi
 
-  return 1
+  ${show_time}
 }
 
 git_any_cache_setup () {
-  if ! mr_is_quieted; then
+  if mr_show_stats; then
     git_any_action_started
   fi
 }
 
 git_any_cache_teardown () {
-  if ! mr_is_quieted; then
+  if mr_show_stats; then
     git_any_action_stopped
   fi
 }
