@@ -151,7 +151,7 @@ git_auto_commit_path_one () {
     if [ ! -e "${repo_file}" ]; then
       error "- Found nothing"
     else
-      error "- Found wrong type: $(gstat -c %F "${repo_file}")"
+      error "- Found wrong type: $($(gnu_stat) -c %F "${repo_file}")"
     fi
 
     exit 1
@@ -186,6 +186,10 @@ git_auto_commit_path_one () {
     fi
   # else the file has no changes/is not changed.
   fi
+}
+
+gnu_stat () {
+  command -v gstat || command -v stat
 }
 
 # - Check for ' M unstaged/files'
