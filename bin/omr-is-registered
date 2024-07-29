@@ -76,19 +76,19 @@ omr_is_registered () {
     # Or perhaps:
     #   (0 secs.) mr run: FAILED: Cannot run action from subdir when -n/--no-recurse
     if echo "${cmd_mr_repo_force}" \
-      | grep -q " mr run: no repositories found to work on$" \
+      | grep -q -i " mr run: no repositories found to work on$" \
     ; then
       >&2 _omr_log_analysis "${proj_path}" "(unregistered)" \
         "✗ unregistered, parentless directory"
 
       return 1
     elif echo "${cmd_mr_repo_force}" \
-      | grep -q "mr run: Cannot run action from subdir when -n/--no-recurse$" \
+      | grep -q -i "mr run: cannot run action from subdir when -n/--no-recurse$" \
     ; then
       mr_repo_path="$( \
         echo "${cmd_mr_repo_force}" \
-        | grep "Project root detected at:" \
-        | sed 's/.*Project root detected at: //'
+        | grep -i "project root detected at:" \
+        | sed 's/.*project root detected at: //i'
       )"
     else
       >&2 echo "GAFFE: \`mr --force run\` failed, but *for reasons unknown*"
