@@ -57,7 +57,8 @@ DRY_RUN=${DRY_RUN:-}
 #       anacron -n -f \
 #         -t ${HOME}/.anacron/anacrontab \
 #         -S ${HOME}/.anacron/spool \
-#         cron.weekly  # Or cron.monthly, perhaps
+#         cron.weekly
+#         # Or perhaps: cron.monthly
 #
 #   - TRICK: Add -d for -don't fork in bg, helpful for troubleshooting.
 
