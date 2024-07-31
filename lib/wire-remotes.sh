@@ -59,6 +59,11 @@ wire_remotes () {
     else
       num_remotes=$((${num_remotes} + 1))
     fi
+
+    # MAYBE: If this slows things down too much, only do when "added".
+    if [ "${cmd_action}" = "reset" ] || [ "${cmd_action}" = "added" ]; then
+      git fetch "${remote_name}"
+    fi
   done
 
   info "WIRED: ${num_remotes} remotes added/edited, ${num_skipped} already set:" \
