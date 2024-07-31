@@ -34,6 +34,7 @@ wire_remotes () {
   _wire_remotes_exit_if_no_remotes_configured "$1"
 
   local num_remotes=0
+  local num_skipped=0
 
   local processed_first=false
 
@@ -50,12 +51,18 @@ wire_remotes () {
     fi
     processed_first=true
 
-    remote_add "${remote_name}" "${remote_url_or_path}"
+    local cmd_action
+    cmd_action="$(remote_add "${remote_name}" "${remote_url_or_path}")"
 
-    num_remotes=$((${num_remotes} + 1))
+    if [ "${cmd_action}" = "none" ]; then
+      num_skipped=$((${num_skipped} + 1))
+    else
+      num_remotes=$((${num_remotes} + 1))
+    fi
   done
 
-  info "WIRED: Added/Reset ${num_remotes} remotes for project: $(fg_green)${MR_REPO}$(attr_reset)"
+  info "WIRED: ${num_remotes} remotes added/edited, ${num_skipped} already set:" \
+    "$(fg_green)${MR_REPO}$(attr_reset)"
 }
 
 # ***
