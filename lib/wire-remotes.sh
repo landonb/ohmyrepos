@@ -41,7 +41,7 @@ wire_remotes () {
     local remote_name="$1"
     local remote_url_or_path="$2"
 
-    _wire_remotes_exit_if_no_remotes_configured "${remote_url_or_path}"
+    _wire_remotes_exit_if_missing_url "${remote_name}" "${remote_url_or_path}"
     shift 2
 
     # Ignore the dest. dir (only used on 'checkout').
@@ -87,6 +87,23 @@ _wire_remotes_exit_if_no_remotes_configured () {
 
 # ***
 
+_wire_remotes_exit_if_missing_url () {
+  local remote_name="$1"
+  local url_or_path="$2"
+
+  if [ -n "${url_or_path}" ]; then
+
+    return 0
+  fi
+
+  # Misconfigured MR_REPO_REMOTES.
+  info "FAILD: No URL for project remote “${remote_name}”: $(fg_lightorange)${MR_REPO}$(attr_reset)"
+
+  exit 1
+}
+
+# ***
+
 report_remotes () {
   _wire_remotes_exit_if_not_a_repo
 
@@ -111,7 +128,7 @@ report_remotes () {
     local remote_url_or_path="$2"
     local local_dest_dir=""
 
-    _wire_remotes_exit_if_no_remotes_configured "${remote_url_or_path}"
+    _wire_remotes_exit_if_missing_url "${remote_name}" "${remote_url_or_path}"
     shift 2
 
     if ! ${processed_first} && [ "${1%/}" != "${1}" ]; then
