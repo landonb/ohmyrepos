@@ -78,7 +78,7 @@ remote_set_private () {
 
   if [ -z "${MR_TRAVEL}" ]; then
     # E.g., ssh://<remote>/path/to/repo
-    local rem_repo="$(print_path_for_remote_user "${MR_REPO}")"
+    local rem_repo="$(print_path_for_remote_user)"
     local rel_repo="$(lchop_sep "${rem_repo}")"
     rem_path="ssh://${MR_REMOTE}/${rel_repo}"
   else
