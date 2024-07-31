@@ -2000,11 +2000,17 @@ print_path_for_remote_user () {
     return 0
   fi
 
+  # Try to use the path as indicated in the mrconfig.
+  # - E.g., config path like
+  #   [${HOME}/some-mountpoint/foo/bar]
   if [ -z "${local_repo}" ]; then
-    # 2024-04-16: MR_REPO_RAW new from `mr`.
     local_repo="${MR_REPO_RAW}"
   fi
 
+  # If MR_REPO_RAW unset [new to `mr` on 2024-04-16],
+  # fallback the canonicalized project path.
+  # - E.g., if [${HOME}/some-mountpoint/foo/bar] uses symlinks,
+  #   this path might be /Volumes/some-device/foo/bar
   if [ -z "${local_repo}" ]; then
     local_repo="${MR_REPO}"
   fi
