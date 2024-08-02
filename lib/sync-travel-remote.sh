@@ -774,7 +774,7 @@ git_must_be_tidy () {
   # If a bare repository, no working status... so inherently clean, er, negative.
   git_is_bare_repository && return 0 || true
 
-  [ -z "$(git status --porcelain)" ] && return 0 || true
+  [ -z "$(git status --porcelain=v1)" ] && return 0 || true
 
   info " $(fg_lightorange)✗ $(attr_underline)not tidy$(res_underline) $(attr_reset) " \
     "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
@@ -1524,7 +1524,7 @@ _git_merge_ff_only_safe_and_complicated () {
     debug_mline "${changes_bin}"
   fi
 
-  # We verified `git status --porcelain` indicated nothing before trying to merge,
+  # We verified `git status --porcelain=v1` indicated nothing before trying to merge,
   # so this could mean the branch diverged from remote, or something. Inform user.
   if [ ${merge_retcode} -ne 0 ]; then
     print_mergefail_msg_diverged "${target_repo}" "${to_commit}" "${git_resp}" || true

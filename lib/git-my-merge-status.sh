@@ -180,7 +180,7 @@ insist_installed () {
   return 1
 }
 
-# NOTE: Parsing --porcelain response should be future-proof.
+# NOTE: Parsing --porcelain=v1 response should be future-proof.
 #
 #   $ man git status
 #   ...
@@ -315,7 +315,7 @@ git_status_check_unstaged () {
   local extcd
 
   # ' M' is modified but not added.
-  (git status --porcelain | grep "^ M " >/dev/null 2>&1) \
+  (git status --porcelain=v1 | grep "^ M " >/dev/null 2>&1) \
     || extcd=$?
 
   if [ -z ${extcd} ]; then
@@ -329,7 +329,7 @@ git_status_check_uncommitted () {
   local extcd
 
   # 'M ' is added but not committed.
-  (git status --porcelain | grep "^M  " >/dev/null 2>&1) \
+  (git status --porcelain=v1 | grep "^M  " >/dev/null 2>&1) \
     || extcd=$?
 
   if [ -z ${extcd} ]; then
@@ -343,7 +343,7 @@ git_status_check_untracked () {
   local extcd
 
   # '^?? ' is untracked.
-  (git status --porcelain | grep "^?? " >/dev/null 2>&1) \
+  (git status --porcelain=v1 | grep "^?? " >/dev/null 2>&1) \
     || extcd=$?
 
   if [ -z ${extcd} ]; then
@@ -356,12 +356,12 @@ git_status_check_untracked () {
 git_status_check_any_porcelain_output () {
   ${UNTIDY_REPO} && return
 
-  local n_bytes=$(git status --porcelain | wc -c)
+  local n_bytes=$(git status --porcelain=v1 | wc -c)
 
   if [ ${n_bytes} -gt 0 ]; then
     UNTIDY_REPO=true
 
-    warn "UNEXPECTED: \`git status --porcelain\` nonempty output in repo at: “${MR_REPO}”"
+    warn "UNEXPECTED: \`git status --porcelain=v1\` nonempty output in repo at: “${MR_REPO}”"
 
     git_status_check_report_9chars_maybe 'confusing'
   fi

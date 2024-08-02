@@ -209,7 +209,7 @@ git_status_unstaged_or_untracked () {
   # SAVVY: Set quotepath off, so unicode path characters are not converted
   # to octal UTF8 (e.g., "🪤" !→ "\360\237\252\244"), which would break our
   # filename grep.
-  git -c core.quotepath=off status --porcelain -- "${repo_file}" |
+  git -c core.quotepath=off status --porcelain=v1 -- "${repo_file}" |
     grep -q -E -e "^(${inclT} M|\?\?) \"?${repo_file}\"?$"
 }
 
@@ -333,8 +333,8 @@ git_auto_commit_all () {
   #
   # Also, either grep pattern should work:
   #
-  #   git status --porcelain | grep "^\W*M\W*" >/dev/null 2>&1
-  #   git status --porcelain | grep "^[^\?]" >/dev/null 2>&1
+  #   git status --porcelain=v1 | grep "^\W*M\W*" >/dev/null 2>&1
+  #   git status --porcelain=v1 | grep "^[^\?]" >/dev/null 2>&1
   #
   # but I'm ignorant of anything other than the two codes,
   # '?? filename', and ' M filename', so let's be inclusive and
@@ -342,7 +342,7 @@ git_auto_commit_all () {
   # looking for modified files. If there are untracted files, a
   # later call to git-status--porcelain on the same repo will die.
   local extcd
-  (git status --porcelain | grep "^[^\?]" >/dev/null 2>&1) || extcd=$?
+  (git status --porcelain=v1 | grep "^[^\?]" >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
@@ -458,7 +458,7 @@ git_auto_commit_path_new () {
   local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix}${msg_postfix}.}"
 
   local extcd
-  (git status --porcelain "${add_path}" | grep "^[\?][\?]" >/dev/null 2>&1) || extcd=$?
+  (git status --porcelain=v1 "${add_path}" | grep "^[\?][\?]" >/dev/null 2>&1) || extcd=$?
 
   if [ -z ${extcd} ]; then
     local yorn
