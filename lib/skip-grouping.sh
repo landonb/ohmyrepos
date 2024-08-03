@@ -65,8 +65,10 @@ mr_exclusive_tag () {
     fi
 
     # MR_INCLUDE tag matches, so don't skip this project.
-    [ "${MR_INCLUDE}" = "${tag}" ] \
-      && return 1
+    if [ "${MR_INCLUDE}" = "${tag}" ]; then
+
+      return 1
+    fi
 
     # Check if OMR config uses negated tag.
     # - E.g., `skip = mr_exclusive "!foo"`.
