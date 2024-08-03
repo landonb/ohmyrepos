@@ -341,7 +341,7 @@ makelink_update_informative () {
       # that the user specified -f/--force; or else the code didn't care to
       # ask. See:
       #   safe_backup_if_not_forced.
-      info_msg=" Clobbered file with ${link_type} $(font_highlight $(realpath_s "${targetp}"))"
+      info_msg=" Clobbered file with ${link_type} $(font_highlight "$(realpath_s "${targetp}")")"
     else
       info_msg="$(symlink_get_msg_informative \
         " $(font_info_checked "Checked")" "${srctype}" "${targetp}" "${symlink}" \
@@ -409,10 +409,10 @@ symlink_get_msg_informative () {
 
   local info_msg
   info_msg="${what} $( \
-    font_emphasize ${srctype}) ${link_type} $(\
-      font_highlight $( \
+    font_emphasize "${srctype}") ${link_type} $(\
+      font_highlight "$( \
         realpath_s "${targetp}"
-      )${targetd}
+      )${targetd}"
     )"
 
   printf "%s" "${info_msg}"
@@ -706,7 +706,7 @@ makelink_clobber_typed () {
 
   if [ "${origp}" != "${sourcep}" ] && ! is_relative_path "${sourcep}"; then
     local info_msg
-    info_msg="  Used absolute path  $(font_highlight ${sourcep})"
+    info_msg="  Used absolute path  $(font_highlight "${sourcep}")"
 
     info "${info_msg}"
   fi
