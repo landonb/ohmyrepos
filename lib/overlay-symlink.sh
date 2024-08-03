@@ -129,25 +129,25 @@ infuser_prepare () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 font_emphasize () {
-  echo "$(attr_emphasis)${1}$(attr_reset)"
+  echo "$(attr_emphasis)$@$(attr_reset)"
 }
 
 font_highlight () {
-  echo "$(fg_lightorange)${1}$(attr_reset)"
+  echo "$(fg_lightorange)$@$(attr_reset)"
 }
 
 # ***
 
 font_info_checked () {
-  echo "$(fg_lightyellow)${1}$(attr_reset)"
+  echo "$(fg_lightyellow)$@$(attr_reset)"
 }
 
 font_info_created () {
-  echo "$(fg_lightcyan)${1}$(attr_reset)"
+  echo "$(fg_lightcyan)$@$(attr_reset)"
 }
 
 font_info_updated () {
-  echo "$(fg_lavender)${1}$(attr_reset)"
+  echo "$(fg_lavender)$@$(attr_reset)"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
