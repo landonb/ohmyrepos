@@ -44,7 +44,10 @@ mr_exclusive_tag () {
   # - Returns 1, aka false, aka don't skip.
   [ -z "${MR_INCLUDE+x}" ] && return 1
 
-  # MR_INCLUDE is set.
+  # If no tags specified for project, don't skip (user must specify
+  # `skip = mr_exclusive "<tag>"` in their config to exclude projects;
+  # and to check MR_INCLUDE before calling `mr_cat` on specific files).
+  [ $# -eq 0 ] && return 1
 
   # Sort negated tags first.
   local sorted_tags
