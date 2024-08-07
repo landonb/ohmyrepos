@@ -113,6 +113,27 @@ insist_find_mr_and_append_path () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+desktop_notify () {
+  local summary="$1"
+  local body="$2"
+  local icon_linux="$3"
+
+  if command -v notify-send > /dev/null; then
+    # Linux
+    notify-send -i "${icon_linux}" "${summary}" "${body}"
+  elif command -v terminal-notifier > /dev/null; then
+    # macOS — e.g., /opt/homebrew/bin/terminal-notifier
+    #  Or /usr/local/bin/terminal-notifier
+    # - Without `-title`, prints "Terminal".
+    #   With `-title ""`, prints "terminal-notifier".
+    #   When included, `-subtitle` is second line, bolded.
+    #   `-message` is last line(s), and only part that's required.
+    terminal-notifier -message "${body}" -title "${summary}"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # CXREF: ~/.local/share/weekly-omr-report/omr-report--localhost
 CACHE_CAPTURE_DIR="${HOME}/.local/share/weekly-omr-report"
 CACHE_CAPTURE_LOCALHOST="${CACHE_CAPTURE_DIR}/omr-report--localhost"
@@ -141,7 +162,7 @@ weekly_omr_report () {
   cleanup_capture
 
   if stdout_isatty; then
-    notify-send -i face-wink "Complete!" "OMR says hi 🙋"
+    desktop_notify "Complete!" "OMR says hi 🙋" "face-wink"
   fi
 }
 
