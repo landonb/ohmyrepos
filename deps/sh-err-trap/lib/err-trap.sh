@@ -44,24 +44,43 @@ exit_1 () {
 }
 
 trap_exit () {
+  local return_value=$?
+  
   clear_traps
 
   # USAGE: Alert on unexpected error path, so you can add happy path.
   >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
   >&2 echo "- Hint: Enable \`set -x\` and run again..."
 
-  exit 2
+  # If user calls `exit 0` and not exit_0, this'll hit.
+  if [ ${return_value} -eq 0 ]; then
+    >&2 echo "- DEV: Try \`exit_0\`, not \`exit 0\`"
+
+    # Any nonzero value will do.
+    return_value=2
+  fi
+
+  exit ${return_value}
 }
 
 trap_exit_safe () {
   >&2 echo "ALERT: "$(basename -- "$0")" tossed an error!"
   >&2 echo "- Hint: Enable \`set -x\` and run again..."
-  >&2 echo "- But this script is playing it safe, and will keep going!"
+  >&2 echo "- But this script is playing it loose, and will keep going!"
 
   return 0
 }
 
+# Ctrl-C generates 130 in Bash, or 128+SIGINT.
+# - "Other shells will use diff. reps., like 256+signum in ksh93,
+#    128+256+signum in yash, textual representations like sigint
+#    or sigquit+core in rc/es."
+#   https://unix.stackexchange.com/a/386856
+#   https://unix.stackexchange.com/questions/386836/
+#     why-is-doing-an-exit-130-is-not-the-same-as-dying-of-sigint
 trap_int () {
+  local return_value=$?
+
   clear_traps
 
   # Restore tty flags
@@ -75,7 +94,7 @@ trap_int () {
   [ -t 0 ] && stty "${_TTY_FLAGS}" \
     || true
 
-  exit 3
+  exit ${return_value}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
