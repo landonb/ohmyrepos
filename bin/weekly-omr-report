@@ -16,7 +16,10 @@
 # CXREF: For notes on setting up postfix server, see:
 #   ~/.kit/py/birdseye/lib/daily-books-update.sh
 #     https://github.com/befinance/birdseye#🐦👁️
-SEND_EMAIL_TO="${SEND_EMAIL_TO:-${LOGNAME}@$(hostname)}"
+# SAVVY: Don't add local hostname, e.g.,
+#   SEND_EMAIL_TO="${SEND_EMAIL_TO:-${LOGNAME}@$(hostname)}"
+# or sendmail from macOS doesn't work.
+SEND_EMAIL_TO="${SEND_EMAIL_TO:-$(id -un)}"
 
 # SAVVY: When local machine forwards to Gmail, you'll see this as buried header, e.g.,
 #   X-Google-Original-From: Weekly-OMR-Report <weekly-omr-report@host>
@@ -65,7 +68,8 @@ DRY_RUN=${DRY_RUN:-}
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  insist_cmd 'mailx' '- E.g., `apt install bsd-mailx`'
+  # insist_cmd 'mailx' '- E.g., `apt install bsd-mailx`'
+  insist_cmd 'sendmail' '- E.g., `apt install postfix`'
 
   insist_find_mr_and_append_path
 }
@@ -311,11 +315,19 @@ email_report () {
 
   local report_time_0=$(date +%s.%N)
 
-  mailx \
-    -r "${SEND_EMAIL_FROM}" \
-    -s "${subject}" \
-    -a 'Content-Type: text/html' \
-    "${SEND_EMAIL_TO}" <<EOF
+  # `mailx` works from Debian, but not from macOS, e.g.,:
+  #   mailx \
+  #     -r "${SEND_EMAIL_FROM}" \
+  #     -s "${subject}" \
+  #     -a 'Content-Type: text/html' \
+  #     "${SEND_EMAIL_TO}" <<EOF
+  # - So use `sendmail` instead of `mailx`.
+  sendmail -oi "${SEND_EMAIL_TO}" \
+<<EOF
+From: ${SEND_EMAIL_FROM}
+Subject: ${subject}
+Content-Type: text/html
+
 <p style="color:black">
 $(echo_elapsed)
 </p>
