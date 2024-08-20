@@ -23,17 +23,28 @@ _my_merge_status_source_deps () {
   fi
 }
 
+_my_merge_status_source_deps_on_demand () {
+  # Load: mr_process_id, is_multiprocessing
+  if command -v "mr-process-id.sh" > /dev/null; then
+    . "mr-process-id.sh"
+  else
+    . "$(dirname -- "${BASH_SOURCE[0]}")/mr-process-id.sh"
+  fi
+}
+
 _my_merge_status_reveal_biz_vars () {
+  local mrpid="$(mr_process_id)"
+
   # Each my_merge_status runs in a separate subshell without direct
   # inter-process communication, so we use temp files with specific
-  # filenames to cache data for the final report. The $PPID ensures
+  # filenames to cache data for the final report. The $mrpid ensures
   # that the user can run my-merge-status separately simultanesouly.
   OMR_MYSTATUS_TMP_CHORES_FILE_BASE="/tmp/gitsmart-ohmyrepos-mystatus-chores"
   OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE="/tmp/gitsmart-ohmyrepos-mystatus-timeit"
   OMR_MYSTATUS_TMP_FLPFLP_FILE_BASE="/tmp/gitsmart-ohmyrepos-mystatus-flpflp"
-  OMR_MYSTATUS_TMP_CHORES_FILE="${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-${PPID}"
-  OMR_MYSTATUS_TMP_TIMEIT_FILE="${OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE}-${PPID}"
-  OMR_MYSTATUS_TMP_FLPFLP_FILE="${OMR_MYSTATUS_TMP_FLPFLP_FILE_BASE}-${PPID}"
+  OMR_MYSTATUS_TMP_CHORES_FILE="${OMR_MYSTATUS_TMP_CHORES_FILE_BASE}-${mrpid}"
+  OMR_MYSTATUS_TMP_TIMEIT_FILE="${OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE}-${mrpid}"
+  OMR_MYSTATUS_TMP_FLPFLP_FILE="${OMR_MYSTATUS_TMP_FLPFLP_FILE_BASE}-${mrpid}"
 
   # MAYBE/2020-02-26: Could adjust width based on terminal width.
   OMR_MYSTATUS_ECHO_PATH_WIDTH=${OMR_MYSTATUS_ECHO_PATH_WIDTH:-60}
@@ -508,6 +519,7 @@ main () {
   if [ -z "${MR_CONFIG}" ]; then
     _my_merge_status_source_deps
   fi
+  _my_merge_status_source_deps_on_demand
 
   _my_merge_status_reveal_biz_vars
   # Ohmyrepos will source this file, then later call, e.g.,
@@ -518,5 +530,6 @@ main "$@"
 
 unset -f main
 unset -f _my_merge_status_source_deps
+unset -f _my_merge_status_source_deps_on_demand
 unset -f _my_merge_status_reveal_biz_vars
 

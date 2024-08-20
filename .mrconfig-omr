@@ -105,6 +105,7 @@ include = cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/wire-remotes"
 
 [DEFAULT]
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/line-in-file.sh"
+# On-demand: "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/mr-process-id.sh"
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/print-unresolved-path.sh"
 lib = . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-set.sh"
