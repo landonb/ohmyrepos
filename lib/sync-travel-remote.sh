@@ -124,6 +124,8 @@ _travel_reveal_biz_vars () {
   IS_MULTIPROCESSING=
 }
 
+# ***
+
 mr_process_id () {
   local ancestor_pid
 
@@ -158,6 +160,8 @@ is_multiprocessing () {
 
   ${IS_MULTIPROCESSING}
 }
+
+# ***
 
 is_single_project_mr_command () {
   print_ppid_command_args | grep -q " -n( |$)"
