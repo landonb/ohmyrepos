@@ -5,7 +5,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
+_my_merge_status_source_deps () {
   # Note .mrconfig-omr sets PATH so deps found in OMR's deps/.
 
   # Load the logger library, from github.com/landonb/sh-logger.
@@ -506,7 +506,7 @@ main () {
   # - This supports user sourcing this file directly,
   #   and it helps OMR avoid re-sourcing the same files.
   if [ -z "${MR_CONFIG}" ]; then
-    source_deps
+    _my_merge_status_source_deps
   fi
 
   reveal_biz_vars
@@ -517,6 +517,6 @@ main () {
 main "$@"
 
 unset -f main
-unset -f source_deps
+unset -f _my_merge_status_source_deps
 unset -f reveal_biz_vars
 
