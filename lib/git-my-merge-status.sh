@@ -23,7 +23,7 @@ _my_merge_status_source_deps () {
   fi
 }
 
-reveal_biz_vars () {
+_my_merge_status_reveal_biz_vars () {
   # Each my_merge_status runs in a separate subshell without direct
   # inter-process communication, so we use temp files with specific
   # filenames to cache data for the final report. The $PPID ensures
@@ -509,7 +509,7 @@ main () {
     _my_merge_status_source_deps
   fi
 
-  reveal_biz_vars
+  _my_merge_status_reveal_biz_vars
   # Ohmyrepos will source this file, then later call, e.g.,
   #  git_my_merge_status
 }
@@ -518,5 +518,5 @@ main "$@"
 
 unset -f main
 unset -f _my_merge_status_source_deps
-unset -f reveal_biz_vars
+unset -f _my_merge_status_reveal_biz_vars
 
