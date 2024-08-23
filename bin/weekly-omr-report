@@ -34,8 +34,8 @@ ALWAYS_EMAIL=${ALWAYS_EMAIL:-false}
 # - This also lets user see the repo count periodically.
 ALWAYS_EMAIL=true
 
-DRY_RUN=${DRY_RUN:-}
-# DRY_RUN=echo
+DRY_ECHO=${DRY_ECHO:-}
+# DRY_ECHO=echo
 
 # CPYST/2024-04-03: Test running like it's the cron env:
 #
@@ -181,14 +181,14 @@ capture_omr_report () {
     exit_1
   fi
 
-  # If DRY_RUN unset, cannot use before VAR=val, e.g.,
-  #   $ ${DRY_RUN} OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report ...
+  # If DRY_ECHO unset, cannot use before VAR=val, e.g.,
+  #   $ ${DRY_ECHO} OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report ...
   #   OMR_VERBOSE=false: command not found
-  if [ -z "${DRY_RUN}" ]; then
+  if [ -z "${DRY_ECHO}" ]; then
     # CXREF: ~/.kit/git/ohmyrepos/bin/omr-report
     OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report > "${CAPTURE_PATH}" 2>&1
   else
-    ${DRY_RUN} "OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report > \"${CAPTURE_PATH}\" 2>&1"
+    ${DRY_ECHO} "OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report > \"${CAPTURE_PATH}\" 2>&1"
   fi
 }
 
@@ -199,14 +199,14 @@ normalize_omr_report () {
     return 0
   fi
 
-  ${DRY_RUN} sed -i '/^base_dir: /d' "${CAPTURE_PATH}"
+  ${DRY_ECHO} sed -i '/^base_dir: /d' "${CAPTURE_PATH}"
 
-  local summary="$(${DRY_RUN} tail -2 "${CAPTURE_PATH}")"
+  local summary="$(${DRY_ECHO} tail -2 "${CAPTURE_PATH}")"
 
-  ${DRY_RUN} head -n -2 "${CAPTURE_PATH}" \
-    | ${DRY_RUN} sort -k1,1 -t' ' -o "${CAPTURE_PATH}"
+  ${DRY_ECHO} head -n -2 "${CAPTURE_PATH}" \
+    | ${DRY_ECHO} sort -k1,1 -t' ' -o "${CAPTURE_PATH}"
 
-  ${DRY_RUN} echo "${summary}" >> "${CAPTURE_PATH}"
+  ${DRY_ECHO} echo "${summary}" >> "${CAPTURE_PATH}"
 }
 
 process_report () {
