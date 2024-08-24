@@ -150,6 +150,10 @@ font_info_updated () {
   echo "$(fg_lavender)$@$(attr_reset)"
 }
 
+font_info_skipped () {
+  echo "$(fg_lightred)$@$(attr_reset)"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 is_relative_path () {
