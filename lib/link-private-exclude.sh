@@ -72,6 +72,8 @@ _info_path_exclude () {
 #   $ sha256sum .git/info/exclude | awk '{print $1}'
 #   6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1
 
+_OMR_XSUM_FRESH_EXCLUDE="6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+
 try_clobbering_exclude_otherwise_try_normal_overlay () {
   local sourcep="$1"
 
@@ -86,7 +88,7 @@ try_clobbering_exclude_otherwise_try_normal_overlay () {
   local exclude_f='exclude'
   if [ -f "${exclude_f}" ]; then
     local xsum=$(sha256sum "${exclude_f}" | awk '{print $1}')
-    if [ "$xsum" = '6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1' ]; then
+    if [ "${xsum}" = "${_OMR_XSUM_FRESH_EXCLUDE}" ]; then
       # info "Removed default: .git/info/exclude"
       symlink_file_clobber "${sourcep}" 'exclude'
       clobbered=true
