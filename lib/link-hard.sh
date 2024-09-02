@@ -38,6 +38,17 @@ source_deps () {
 # other projects and don't want to accidentally have different
 # copies of the source diverge; and you only want search results
 # from one copy of the file when grepping across projects.
+
+# Note this doesn't know about update-faithful.sh
+#   https://github.com/thegittinsgood/git-update-faithful#⛲
+# Which otherwise supports a local file being at a known
+# previous version of the file that it links.
+# - The DepoXy environment uses a git post-rebase exec command
+#   to ensure that hard links are never broken, so link_hard
+#   conflicts should hopefully happen rarely. (Otherwise we
+#   might consider adding update-faithful.sh-type awareness
+#   to this feature.)
+
 link_hard () {
   # The reference file.
   local canon_file="$1"
