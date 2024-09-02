@@ -18,7 +18,12 @@ _TTY_FLAGS="$([ -t 0 ] && stty -g)" \
   || true
 
 clear_traps () {
+  local normal_exit="${1:-true}"
+  local return_value="${2:-0}"
+
   trap - EXIT INT
+
+  err_trap_user_hook "${normal_exit}" "${return_value}"
 }
 
 set_traps () {
@@ -32,21 +37,21 @@ set_traps_safe () {
 }
 
 exit_0 () {
-  clear_traps
+  clear_traps true 0
 
   exit 0
 }
 
 exit_1 () {
-  clear_traps
+  clear_traps true 1
 
   exit 1
 }
 
 trap_exit () {
   local return_value=$?
-  
-  clear_traps
+
+  clear_traps false ${return_value}
 
   # USAGE: Alert on unexpected error path, so you can add happy path.
   >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
@@ -95,6 +100,19 @@ trap_int () {
     || true
 
   exit ${return_value}
+}
+
+# ***
+
+SH_ERR_TRAP_USER_HOOK="${SH_ERR_TRAP_USER_HOOK:-sh_err_trap_user_hook}"
+
+err_trap_user_hook () {
+  local normal_exit="$1"
+  local return_value="$2"
+
+  if typeset -f ${SH_ERR_TRAP_USER_HOOK} > /dev/null; then
+    ${SH_ERR_TRAP_USER_HOOK} "$@"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
