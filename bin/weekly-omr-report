@@ -21,6 +21,8 @@
 # or sendmail from macOS doesn't work.
 SEND_EMAIL_TO="${SEND_EMAIL_TO:-$(id -un)}"
 
+SEND_EMAIL_TO_FRIENDLY="$(id -un)@$(hostname)"
+
 # SAVVY: When local machine forwards to Gmail, you'll see this as buried header, e.g.,
 #   X-Google-Original-From: Weekly-OMR-Report <weekly-omr-report@host>
 # but email in your inbox will show <org@gmail.com> it was forwarded through.
@@ -320,11 +322,12 @@ email_report () {
   #     -r "${SEND_EMAIL_FROM}" \
   #     -s "${subject}" \
   #     -a 'Content-Type: text/html' \
-  #     "${SEND_EMAIL_TO}" <<EOF
+  #     "${SEND_EMAIL_TO_FRIENDLY}" <<EOF
   # - So use `sendmail` instead of `mailx`.
   sendmail -oi "${SEND_EMAIL_TO}" \
 <<EOF
 From: ${SEND_EMAIL_FROM}
+To: ${SEND_EMAIL_TO_FRIENDLY}
 Subject: ${subject}
 Content-Type: text/html
 
