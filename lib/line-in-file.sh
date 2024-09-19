@@ -178,7 +178,7 @@ append_line_unless_exists () {
       info "Updating $(fg_lightorange)${friendly_path}$(attr_reset)"
     fi
 
-    # If creating, assigns 644 permissions.
+    # Assigns permissions per umask, e.g., 644 when umask is `0002`.
     echo "${line}" | ${OMR_BECOME} tee -a "${path}" > /dev/null
   fi
 }
