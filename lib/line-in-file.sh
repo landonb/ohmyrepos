@@ -158,7 +158,7 @@ append_line_unless_exists () {
   local path="$1"
   local line="$2"
 
-  if [ -z "${line}" ] || [ -z "${path}" ]; then
+  if [ -z "${path}" ] || [ -z "${line}" ]; then
     >&2 echo "GAFFE: Missing line and/or path"
 
     return 1
