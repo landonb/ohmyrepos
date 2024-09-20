@@ -90,6 +90,13 @@ echoInstallHelpWidget () {
     checkbox="❌"
   fi
 
+  if [ "${checkbox}" = "🔳" ]; then
+    if mr -d . -n isInstalled > /dev/null 2>&1; then
+      # "👍"
+      checkbox="✅"
+    fi
+  fi
+
   printf "%s" "${checkbox}"
 }
 

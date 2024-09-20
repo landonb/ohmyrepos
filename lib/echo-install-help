@@ -7,6 +7,12 @@
 # Avoid 'failed' during `mr -d / echoInstallHelp` on repos that don't use it.
 echoInstallHelp = true
 
+# USAGE: Use isInstalled to short-circuit return immediately on
+# 'install' action if already installed.
+# - Also echoInstallHelp will check to indicate when reminder has
+#   been completed.
+isInstalled = false
+
 [DEFAULT]
 lib =
   . "echo-install-help.sh"
