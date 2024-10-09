@@ -12,6 +12,7 @@ echoInstallHelp () {
   local dxy_scope="${2:-dxy_all}"
   local addendum="$3"
   local alt_name="$4"
+  local is_installed="$5"
 
   # if ! ${SLATHER_DEFAULTS_ENABLE:-false}; then
   #   return 0
@@ -21,7 +22,7 @@ echoInstallHelp () {
   which_os="$(echo "${which_os}" | tr '[:upper:]' '[:lower:]')"
   dxy_scope="$(echo "${dxy_scope}" | tr '[:upper:]' '[:lower:]')"
 
-  local checkbox="$(echoInstallHelpWidget "${which_os}" "${dxy_scope}")"
+  local checkbox="$(echoInstallHelpWidget "${which_os}" "${dxy_scope}" ${is_installed})"
 
   local app_name="\`$(basename -- "${MR_REPO}")\`"
 
@@ -39,6 +40,7 @@ echoInstallHelp () {
 echoInstallHelpWidget () {
   local which_os="${1:-os_all}"
   local dxy_scope="${2:-dxy_all}"
+  local is_installed="$3"
 
   local checkbox="🔳"
 
@@ -91,7 +93,9 @@ echoInstallHelpWidget () {
   fi
 
   if [ "${checkbox}" = "🔳" ]; then
-    if mr -d . -n isInstalled > /dev/null 2>&1; then
+    if ( [ -z "${is_installed}" ] && mr -d . -n isInstalled > /dev/null 2>&1 ) \
+      || ${is_installed:-false} \
+    ; then
       # "👍"
       checkbox="✅"
     fi
