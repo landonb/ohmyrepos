@@ -70,6 +70,7 @@ pull_latest () {
     fi
   fi
 
+  # SAVVY/2024-06-21: Use prefix to disambiguate tip branches from remote branches.
   local prefix="_"
   local install_branch="${prefix}${remote_name}/${install_version}"
 
