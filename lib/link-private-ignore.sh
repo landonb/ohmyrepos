@@ -17,6 +17,8 @@ source_deps () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 link_private_ignore () {
+  local retcode=0
+
   local lnkpath='.ignore'
 
   # Assume first param an alternative filename unless an -o/--option.
@@ -38,12 +40,15 @@ link_private_ignore () {
   cd "${MR_REPO}"
 
   set -- "${lnkpath}" "${targetp}" "$@"
-  symlink_mrinfuse_file "$@"
+  symlink_mrinfuse_file "$@" \
+    || retcode=$?
 
   cd "${before_cd}"
 
   MRT_LINK_FORCE="${was_link_force}"
   MRT_LINK_SAFE="${was_link_safe}"
+
+  return ${retcode}
 }
 
 # An alias, of sorts.
