@@ -186,8 +186,8 @@ _github_url_according_to_user () {
   # ***
 
   # If URL begins with https://github.com/, substitute ${git_host_origin}.
+  # - Also preclude altering /-prefixed local file paths.
   # - Any other URL, and any git@ URL, will be left alone.
-  # - This also precludes altering /-prefixed local file paths.
   local url_subdir="${remote_url_or_path}"
   if true \
     && [ "${remote_url_or_path#/}" = "${remote_url_or_path}" ] \
