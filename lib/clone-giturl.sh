@@ -185,10 +185,14 @@ _github_url_according_to_user () {
 
   # ***
 
+  # Strip trailing comment character and project emoji, if set.
+  # - E.g., "https://github.com/landonb/ohmyrepos#😤"
+  local url_subdir
+  url_subdir="$(echo "${remote_url_or_path}" | sed 's/^\(.*\)\(#[^#]*\)$/\1/')"
+
   # If URL begins with https://github.com/, substitute ${git_host_origin}.
   # - Also preclude altering /-prefixed local file paths.
   # - Any other URL, and any git@ URL, will be left alone.
-  local url_subdir="${remote_url_or_path}"
   if true \
     && [ "${remote_url_or_path#/}" = "${remote_url_or_path}" ] \
     && echo "${remote_url_or_path}" | grep -q -e "^https\?://github.com/" \
