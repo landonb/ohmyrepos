@@ -4,12 +4,13 @@
 # License: MIT
 
 print_homebrew_prefix () {
+  # If `eval "$(brew shellenv)"` prev. called, HOMEBREW_PREFIX is set.
   local brew_prefix="${HOMEBREW_PREFIX}"
 
   # Apple Silicon (arm64) brew path is /opt/homebrew
   [ -d "${brew_prefix}" ] || brew_prefix="/opt/homebrew"
 
-  # Otherwise on Intel Macs it's under /usr/local
+  # On Intel Macs it's under /usr/local (tho deprecated)
   [ -d "${brew_prefix}" ] || brew_prefix="/usr/local/Homebrew"
 
   if [ ! -d "${brew_prefix}" ]; then
