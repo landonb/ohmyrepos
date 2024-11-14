@@ -13,6 +13,9 @@ print_homebrew_prefix () {
   # On Intel Macs it's under /usr/local (tho deprecated)
   [ -d "${brew_prefix}" ] || brew_prefix="/usr/local/Homebrew"
 
+  # On Linux, it's under /home (although there's no 'linuxbrew' account)
+  [ -d "${brew_prefix}" ] || brew_prefix="/home/linuxbrew/.linuxbrew"
+
   if [ ! -d "${brew_prefix}" ]; then
     >&2 echo "ERROR: Where's HOMEBREW_PREFIX?"
 
