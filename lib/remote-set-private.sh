@@ -58,7 +58,7 @@ remote_set_private () {
     # E.g., MR_REMOTE=<host>
     if [ -z "${MR_REMOTE}" ]; then
       # Stop on errexit.
-      fatal "You must set MR_REMOTE"
+      fatal "You must set MR_REMOTE [${MR_REPO}]"
     fi
   elif [ "${MR_ACTION}" = "wireRemotes" ] || [ "${MR_ACTION}" = "reportRemotes" ]; then
     if [ -z "${MR_REMOTE}" ]; then
