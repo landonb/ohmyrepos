@@ -360,6 +360,10 @@ $(${DIFF_FAILED} && echo " \
 <p>Here's the meld incantation:</p>
 <p><pre ${pre_style}>meld \"${CACHE_CAPTURE}\" <(cat \"${CAPTURE_PATH}\") &</pre></p>
 
+<p>CPYST: This is the easiest fix:</p>
+<p><pre ${pre_style}>rm \"${CACHE_CAPTURE}\"</pre></p>
+<p><pre ${pre_style}>cp \"${CAPTURE_PATH}\" \"${CACHE_CAPTURE}\"</pre></p>
+
 <p>Here's what's the diff (new ↔ old):</p>
 <p><pre ${pre_style}>$(diff "${CAPTURE_PATH}" "${CACHE_CAPTURE}")</pre></p>" || true)
 
