@@ -20,7 +20,7 @@
 # OVIEW: This file defines a function, `git_clone_giturl` that the
 #        user is unlikely to call directly if they use `remote_set`.
 #
-#        This file uses an environ, `MR_GIT_HOST_ORIGIN`, that the
+#        This file uses an environ, `MR_GITHUB_HOST_ORIGIN`, that the
 #        user will likely want to export from their shell.
 
 # USAGE: You will likely want to export the environ from your shell.
@@ -28,15 +28,15 @@
 # - E.g., call this during ~/.bashrc or equivalent, then don't worry
 #   about it again:
 #
-#     export MR_GIT_HOST_ORIGIN="git@github.com:"
+#     export MR_GITHUB_HOST_ORIGIN="git@github.com:"
 #
 # Keep reading for more details.
 
-# USAGE: Set `MR_GIT_HOST_ORIGIN` to specify if remote URLs use SSH or HTTPS.
+# USAGE: Set `MR_GITHUB_HOST_ORIGIN` to specify if remote URLs use SSH or HTTPS.
 #
 # - When the environ is unset or set to "https://github.com/", calling, e.g.,
 #
-#     MR_GIT_HOST_ORIGIN= mr -d . checkout
+#     MR_GITHUB_HOST_ORIGIN= mr -d . checkout
 #
 #   will clone:
 #
@@ -54,7 +54,7 @@
 #
 # - You can use SSH transport by setting the environ to "git@github.com:", e.g.,
 #
-#     MR_GIT_HOST_ORIGIN="git@github.com:" mr -d . checkout
+#     MR_GITHUB_HOST_ORIGIN="git@github.com:" mr -d . checkout
 #
 #   will clone:
 #
@@ -62,7 +62,7 @@
 #
 # - Note the environ lets you specify a local remote instead, e.g.,
 #
-#     MR_GIT_HOST_ORIGIN=/media/user/some-mount mr -d /path/to/user/repo -n checkout
+#     MR_GITHUB_HOST_ORIGIN=/media/user/some-mount mr -d /path/to/user/repo -n checkout
 #
 #   will clone:
 #
@@ -99,10 +99,10 @@
 # - If the 'checkout' action is absent, the default action calls
 #   `mr_repo_checkout` (from checkout.sh) which passes the first
 #   remote from `remote_set` to this function, `git_clone_giturl`.
-#   This function uses MR_GIT_HOST_ORIGIN to format the URL, and
+#   This function uses MR_GITHUB_HOST_ORIGIN to format the URL, and
 #   to clone the remote repository.
 #
-# So generally the user will set MR_GIT_HOST_ORIGIN and use
+# So generally the user will set MR_GITHUB_HOST_ORIGIN and use
 # `remote_set`, but they won't call this function directly.
 
 git_clone_giturl () {
@@ -176,7 +176,7 @@ _github_url_according_to_user () {
   local git_host_user="$3"
 
   if [ -z "${2+x}" ]; then
-    git_host_origin="${MR_GIT_HOST_ORIGIN:-https://github.com/}"
+    git_host_origin="${MR_GITHUB_HOST_ORIGIN:-https://github.com/}"
   fi
 
   if [ -z "${3+x}" ]; then
