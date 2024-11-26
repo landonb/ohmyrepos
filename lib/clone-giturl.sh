@@ -168,7 +168,7 @@ git_clone_giturl () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# DEFIN: Protocol (or Scheme) plus Host (plus Port) is called the *Origin*
+# WORDS: Protocol (or Scheme) plus Host (plus Port) is called the *Origin*
 #   https://www.rfc-editor.org/rfc/rfc6454#section-5
 _github_url_according_to_user () {
   local remote_url_or_local_path="$1"
