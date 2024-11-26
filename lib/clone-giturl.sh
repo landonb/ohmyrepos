@@ -176,6 +176,25 @@ _github_url_according_to_user () {
   local git_host_origin="$2"
   local git_host_user="$3"
 
+  # ***
+
+  # Strip trailing comment character and project emoji, if set.
+  # - E.g., change "https://github.com/landonb/ohmyrepos#😤"
+  #             to "https://github.com/landonb/ohmyrepos"
+  local santized_url_or_path
+  santized_url_or_path="$(\
+    echo "${remote_url_or_local_path}" | sed 's/^\(.*\)\(#[^#]*\)$/\1/'
+  )"
+
+  # Leave "/"-prefixed local file path remote URLs as-is.
+  if [ "${santized_url_or_path#/}" != "${santized_url_or_path}" ]; then
+    printf "%s" "${santized_url_or_path}"
+
+    return 0
+  fi
+
+  # ***
+
   if [ -z "${2+x}" ]; then
     git_host_origin="${MR_GITHUB_HOST_ORIGIN:-https://github.com/}"
   fi
@@ -186,26 +205,15 @@ _github_url_according_to_user () {
 
   # ***
 
-  # Strip trailing comment character and project emoji, if set.
-  # - E.g., "https://github.com/landonb/ohmyrepos#😤"
-  local url_or_path
-  url_or_path="$(\
-    echo "${remote_url_or_local_path}" | sed 's/^\(.*\)\(#[^#]*\)$/\1/'
-  )"
-
   # If URL begins with https://github.com/, substitute ${git_host_origin}.
-  # - Also preclude altering /-prefixed local file paths.
   # - Any other URL, and any git@ URL, will be left alone.
-  if true \
-    && [ "${remote_url_or_local_path#/}" = "${remote_url_or_local_path}" ] \
-    && echo "${remote_url_or_local_path}" | grep -q -e "^https\?://github.com/" \
-  ; then
+  if echo "${santized_url_or_path}" | grep -q -e "^https\?://github.com/"; then
     # This strips any https:// or git@ prefix, but we know it's
     # either https://github.com or http://github.com.
     # - macOS sed doesn't like that which works with GNU sed:
     #   | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
     url_or_path="$( \
-      echo "${remote_url_or_local_path}" \
+      echo "${santized_url_or_path}" \
       | sed -E 's#(https?://|git@)([^:/]+)[:/](.*)#\3#' \
     )"
 
