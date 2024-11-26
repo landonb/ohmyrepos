@@ -168,15 +168,8 @@ git_clone_giturl () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# WORDS: Protocol (or Scheme) plus Host (plus Port) is called the *Origin*
-#   https://www.rfc-editor.org/rfc/rfc6454#section-5
 _github_url_according_to_user () {
   local remote_url_or_local_path="$1"
-  # The following 2 args are generally left unspecified.
-  local git_host_origin="$2"
-  local git_host_user="$3"
-
-  # ***
 
   # Strip trailing comment character and project emoji, if set.
   # - E.g., change "https://github.com/landonb/ohmyrepos#😤"
@@ -195,39 +188,30 @@ _github_url_according_to_user () {
 
   # ***
 
-  if [ -z "${2+x}" ]; then
-    git_host_origin="${MR_GITHUB_HOST_ORIGIN:-https://github.com/}"
-  fi
+  local remote_url="${santized_url_or_path}"
 
-  if [ -z "${3+x}" ]; then
-    git_host_user="${MR_GIT_HOST_USER}"
-  fi
-
-  # ***
-
-  # If URL begins with https://github.com/, substitute ${git_host_origin}.
-  # - Any other URL, and any git@ URL, will be left alone.
-  if echo "${santized_url_or_path}" | grep -q -e "^https\?://github.com/"; then
+  # If URL begins with https://github.com/, substitute ${MR_GITHUB_HOST_ORIGIN}.
+  # - Any other URL, including any git@ URL, will be left alone.
+  # - WORDS: Just FYI, the Protocol (or Scheme) plus Host (plus Port)
+  #   is called the *Origin*. E.g., "https://github.com".
+  #     https://www.rfc-editor.org/rfc/rfc6454#section-5
+  if [ -n "${MR_GITHUB_HOST_ORIGIN}" ] \
+    && echo "${santized_url_or_path}" | grep -q -e "^https\?://github.com/" \
+  ; then
     # This strips any https:// or git@ prefix, but we know it's
     # either https://github.com or http://github.com.
     # - macOS sed doesn't like that which works with GNU sed:
     #   | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
-    url_or_path="$( \
+    local url_path_component
+    url_path_component="$( \
       echo "${santized_url_or_path}" \
       | sed -E 's#^(https?://|git@)([^:/]+)[:/](.*)#\3#' \
     )"
 
-    # Replace Git host user/org name if specified.
-    if [ -n "${git_host_user}" ]; then
-      url_or_path="${git_host_user}/$(echo "${url_or_path}" | cut -d'/' -f2-)"
-    fi
-  else
-    git_host_origin=""
+    # Reassemable URL using scheme/protocol (HTTPS/SSH) and domain (github.com)
+    # from arg or environ.
+    remote_url="${MR_GITHUB_HOST_ORIGIN}${url_path_component}"
   fi
-
-  # Reassemable URL using scheme/protocol (HTTPS/SSH) and domain (github.com)
-  # from arg or environ.
-  local remote_url="${git_host_origin}${url_or_path}"
 
   printf "%s" "${remote_url}"
 }
