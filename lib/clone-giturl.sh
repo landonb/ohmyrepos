@@ -214,7 +214,7 @@ _github_url_according_to_user () {
     #   | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
     url_or_path="$( \
       echo "${santized_url_or_path}" \
-      | sed -E 's#(https?://|git@)([^:/]+)[:/](.*)#\3#' \
+      | sed -E 's#^(https?://|git@)([^:/]+)[:/](.*)#\3#' \
     )"
 
     # Replace Git host user/org name if specified.
