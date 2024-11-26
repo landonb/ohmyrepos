@@ -172,6 +172,7 @@ git_clone_giturl () {
 #   https://www.rfc-editor.org/rfc/rfc6454#section-5
 _github_url_according_to_user () {
   local remote_url_or_path="$1"
+  # The following 2 args are generally left unspecified.
   local git_host_origin="$2"
   local git_host_user="$3"
 
