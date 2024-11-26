@@ -219,8 +219,8 @@ _github_url_according_to_user () {
 
   # Reassemable URL using scheme/protocol (HTTPS/SSH) and domain (github.com)
   # from arg or environ.
-  local git_url="${git_host_origin}${url_or_path}"
+  local remote_url="${git_host_origin}${url_or_path}"
 
-  printf "%s" "${git_url}"
+  printf "%s" "${remote_url}"
 }
 
