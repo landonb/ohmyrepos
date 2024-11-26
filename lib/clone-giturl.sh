@@ -188,6 +188,7 @@ _github_url_according_to_user () {
 
   # ***
 
+  # We know the remote is a URL and not a local path.
   local remote_url="${santized_url_or_path}"
 
   # If URL begins with https://github.com/, substitute ${MR_GITHUB_HOST_ORIGIN}.
