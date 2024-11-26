@@ -198,14 +198,11 @@ _github_url_according_to_user () {
   if [ -n "${MR_GITHUB_HOST_ORIGIN}" ] \
     && echo "${santized_url_or_path}" | grep -q -e "^https\?://github.com/" \
   ; then
-    # This strips any https:// or git@ prefix, but we know it's
-    # either https://github.com or http://github.com.
-    # - macOS sed doesn't like that which works with GNU sed:
-    #   | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
+    # Strip the http:// or https:// prefix.
     local url_path_component
     url_path_component="$( \
       echo "${santized_url_or_path}" \
-      | sed -E 's#^(https?://|git@)([^:/]+)[:/](.*)#\3#' \
+      | sed -E 's#^https?://[^/]+/(.*)#\1#' \
     )"
 
     # Reassemable URL using scheme/protocol (HTTPS/SSH) and domain (github.com)
