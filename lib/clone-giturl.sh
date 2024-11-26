@@ -188,8 +188,8 @@ _github_url_according_to_user () {
 
   # Strip trailing comment character and project emoji, if set.
   # - E.g., "https://github.com/landonb/ohmyrepos#😤"
-  local url_subdir
-  url_subdir="$(\
+  local url_or_path
+  url_or_path="$(\
     echo "${remote_url_or_local_path}" | sed 's/^\(.*\)\(#[^#]*\)$/\1/'
   )"
 
@@ -204,14 +204,14 @@ _github_url_according_to_user () {
     # either https://github.com or http://github.com.
     # - macOS sed doesn't like that which works with GNU sed:
     #   | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
-    url_subdir="$( \
+    url_or_path="$( \
       echo "${remote_url_or_local_path}" \
       | sed -E 's#(https?://|git@)([^:/]+)[:/](.*)#\3#' \
     )"
 
     # Replace Git host user/org name if specified.
     if [ -n "${git_host_user}" ]; then
-      url_subdir="${git_host_user}/$(echo "${url_subdir}" | cut -d'/' -f2-)"
+      url_or_path="${git_host_user}/$(echo "${url_or_path}" | cut -d'/' -f2-)"
     fi
   else
     git_host_origin=""
@@ -219,7 +219,7 @@ _github_url_according_to_user () {
 
   # Reassemable URL using scheme/protocol (HTTPS/SSH) and domain (github.com)
   # from arg or environ.
-  local git_url="${git_host_origin}${url_subdir}"
+  local git_url="${git_host_origin}${url_or_path}"
 
   printf "%s" "${git_url}"
 }
