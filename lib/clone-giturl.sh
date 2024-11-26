@@ -208,7 +208,7 @@ _github_url_according_to_user () {
   # - E.g., change "https://github.com/landonb/ohmyrepos#😤"
   #             to "https://github.com/landonb/ohmyrepos"
   local santized_url_or_path
-  santized_url_or_path="$(\
+  santized_url_or_path="$( \
     echo "${remote_url_or_local_path}" | sed 's/^\(.*\)\(#[^#]*\)$/\1/'
   )"
 
@@ -227,7 +227,7 @@ _github_url_according_to_user () {
   # Determine base HTTP URL, e.g., "https://github.com/", or
   # "https://gitlab.com/", etc.
   local https_host_origin
-  https_host_origin="$(\
+  https_host_origin="$( \
     echo "${remote_url}" | sed 's#^\(https\?://[^/]\+/\).*#\1#'
   )"
 
