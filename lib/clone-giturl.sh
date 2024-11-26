@@ -168,6 +168,39 @@ git_clone_giturl () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# USAGE: Converts https:// git remotes to git@ remotes.
+# - Useful if you use https:// on some machines but git@ on others.
+# - E.g., if user's OMR config specifies an HTTPS remote, e.g.,
+#     lib = remote_set publish https://github.com/landonb/ohmyrepos.git
+#   This function will either print the HTTPS URL:
+#     https://github.com/landonb/ohmyrepos.git
+#   Or it'll print the SSH URL:
+#     git@github.com:landonb/ohmyrepos.git
+# - To use an SSH URL for GitHub URLs, define the
+#   MR_GITHUB_HOST_ORIGINAL environ, e.g.,
+#     MR_GITHUB_HOST_ORIGIN="git@github.com:"
+#   otherwise defaults to HTTP, which is equivalent to:
+#     MR_GITHUB_HOST_ORIGIN="https://github.com/"
+#   This lets you set different environs on different machines you use.
+# - To use an SSH URL for GitLab URLs, define the
+#   MR_GITLAB_HOST_ORIGIN environ, e.g.,
+#     MR_GITLAB_HOST_ORIGIN="git@gitlab.com:"
+# - This function will leave other URLs, including local path URLs
+#   (such as "/path/to/repo"), unchanged.
+# - If you'd like to always use an SSH URL, or if you want to use a
+#   different SSH URL than the environ specifies, you can specify
+#   that instead, e.g.,
+#     lib = remote_set publish git@github_user:landonb/ohmyrepos.git
+#   will use the corresponding SSH identify defined ~/.ssh/config,
+#   e.g.,
+#       # https://github.com/user
+#       # To test:
+#       #   ssh -T git@github_user
+#       Host github_user
+#         HostName github.com
+#         User user
+#         IdentitiesOnly yes
+#         IdentityFile ~/.ssh/id_github_user_ed25519
 _github_url_according_to_user () {
   local remote_url_or_local_path="$1"
 
@@ -191,24 +224,43 @@ _github_url_according_to_user () {
   # We know the remote is a URL and not a local path.
   local remote_url="${santized_url_or_path}"
 
-  # If URL begins with https://github.com/, substitute ${MR_GITHUB_HOST_ORIGIN}.
+  # Determine base HTTP URL, e.g., "https://github.com/", or
+  # "https://gitlab.com/", etc.
+  local https_host_origin
+  https_host_origin="$(\
+    echo "${remote_url}" | sed 's#^\(https\?://[^/]\+/\).*#\1#'
+  )"
+
+  # Check if user specified their own origin for either GH or GL,
+  # e.g., "git@github.com:", or "git@gitlab.com:", etc.
+  local git_host_origin=""
+  if [ "${https_host_origin}" != "${remote_url}" ]; then
+    if echo "${https_host_origin}" | grep -q -e "^https\?://github.com/$"; then
+      git_host_origin="${MR_GITHUB_HOST_ORIGIN}"
+    elif echo "${https_host_origin}" | grep -q -e "^https\?://gitlab.com/$"; then
+      git_host_origin="${MR_GITLAB_HOST_ORIGIN}"
+    fi
+  fi
+
+  # ***
+
+  # If URL begins with https://github.com/ or https://gitlab.com/,
+  # substitute ${git_host_origin}.
   # - Any other URL, including any git@ URL, will be left alone.
   # - WORDS: Just FYI, the Protocol (or Scheme) plus Host (plus Port)
   #   is called the *Origin*. E.g., "https://github.com".
   #     https://www.rfc-editor.org/rfc/rfc6454#section-5
-  if [ -n "${MR_GITHUB_HOST_ORIGIN}" ] \
-    && echo "${santized_url_or_path}" | grep -q -e "^https\?://github.com/" \
-  ; then
+  if [ -n "${git_host_origin}" ]; then
     # Strip the http:// or https:// prefix.
     local url_path_component
     url_path_component="$( \
-      echo "${santized_url_or_path}" \
+      echo "${remote_url}" \
       | sed -E 's#^https?://[^/]+/(.*)#\1#' \
     )"
 
     # Reassemable URL using scheme/protocol (HTTPS/SSH) and domain (github.com)
     # from arg or environ.
-    remote_url="${MR_GITHUB_HOST_ORIGIN}${url_path_component}"
+    remote_url="${git_host_origin}${url_path_component}"
   fi
 
   printf "%s" "${remote_url}"
