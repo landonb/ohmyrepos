@@ -106,7 +106,7 @@
 # `remote_set`, but they won't call this function directly.
 
 git_clone_giturl () {
-  local remote_url_or_path=""
+  local remote_url_or_local_path=""
   local target_dir=""
   local remote_name="origin"
   local config_name_vals=""
@@ -134,12 +134,12 @@ git_clone_giturl () {
         ;;
 
       *)
-        [ -n "${remote_url_or_path}" ] && [ -n "${target_dir}" ] \
+        [ -n "${remote_url_or_local_path}" ] && [ -n "${target_dir}" ] \
           && >&2 echo "ERROR: more than one git_clone_giturl path or URL" \
           && return 1 || true
 
-        [ -z "${remote_url_or_path}" ] \
-          && remote_url_or_path="$1" \
+        [ -z "${remote_url_or_local_path}" ] \
+          && remote_url_or_local_path="$1" \
           || target_dir="$1"
 
         shift
@@ -147,12 +147,12 @@ git_clone_giturl () {
     esac
   done
 
-  [ -z "${remote_url_or_path}" ] \
+  [ -z "${remote_url_or_local_path}" ] \
     && >&2 echo "ERROR: missing git_clone_giturl path or URL" \
     && return 1 || true
 
   local git_url
-  git_url="$(_github_url_according_to_user "${remote_url_or_path}")"
+  git_url="$(_github_url_according_to_user "${remote_url_or_local_path}")"
 
   echo "git clone -o \"${remote_name}\" \"${git_url}\" ${config_name_vals}\"${target_dir}\""
 
@@ -171,7 +171,7 @@ git_clone_giturl () {
 # DEFIN: Protocol (or Scheme) plus Host (plus Port) is called the *Origin*
 #   https://www.rfc-editor.org/rfc/rfc6454#section-5
 _github_url_according_to_user () {
-  local remote_url_or_path="$1"
+  local remote_url_or_local_path="$1"
   # The following 2 args are generally left unspecified.
   local git_host_origin="$2"
   local git_host_user="$3"
@@ -189,21 +189,21 @@ _github_url_according_to_user () {
   # Strip trailing comment character and project emoji, if set.
   # - E.g., "https://github.com/landonb/ohmyrepos#😤"
   local url_subdir
-  url_subdir="$(echo "${remote_url_or_path}" | sed 's/^\(.*\)\(#[^#]*\)$/\1/')"
+  url_subdir="$(echo "${remote_url_or_local_path}" | sed 's/^\(.*\)\(#[^#]*\)$/\1/')"
 
   # If URL begins with https://github.com/, substitute ${git_host_origin}.
   # - Also preclude altering /-prefixed local file paths.
   # - Any other URL, and any git@ URL, will be left alone.
   if true \
-    && [ "${remote_url_or_path#/}" = "${remote_url_or_path}" ] \
-    && echo "${remote_url_or_path}" | grep -q -e "^https\?://github.com/" \
+    && [ "${remote_url_or_local_path#/}" = "${remote_url_or_local_path}" ] \
+    && echo "${remote_url_or_local_path}" | grep -q -e "^https\?://github.com/" \
   ; then
     # This strips any https:// or git@ prefix, but we know it's
     # either https://github.com or http://github.com.
     # - macOS sed doesn't like that which works with GNU sed:
     #   | sed 's#\(https\?://\|git@\)\([^:/]\+\)[:/]\(.*\)#\3#' \
     url_subdir="$( \
-      echo "${remote_url_or_path}" \
+      echo "${remote_url_or_local_path}" \
       | sed -E 's#(https?://|git@)([^:/]+)[:/](.*)#\3#' \
     )"
 
