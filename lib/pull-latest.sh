@@ -26,8 +26,11 @@ pull_latest () {
     this instead:
 
       pull_latest \"${remote_name}\" \"${remote_branch}\" \"<version-tag>\"
-  "
 
+  - ALTLY: If the project doesn't use version tags, or hasn't tagged in
+    a while, use \"remote/branch\" as the <version-tag>, e.g.:
+
+      pull_latest \"${remote_name}\" \"${remote_branch}\" \"${remote_name}/${remote_branch}\""
   git fetch ${remote_name} --prune
   git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true
   git checkout ${local_branch}
