@@ -31,10 +31,28 @@ pull_latest () {
     a while, use \"remote/branch\" as the <version-tag>, e.g.:
 
       pull_latest \"${remote_name}\" \"${remote_branch}\" \"${remote_name}/${remote_branch}\""
+
+  echo
+  echo "*** Preparing $(basename -- "$(pwd)") ***"
+
+  echo
+  echo "$ git fetch ${remote_name} --prune"
   git fetch ${remote_name} --prune
+
+  echo
+  echo "$ git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true"
   git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true
+
+  echo
+  echo "$ git checkout ${local_branch}"
   git checkout ${local_branch}
+
+  echo
+  echo "$ git branch -u ${remote_name}/${remote_branch}"
   git branch -u ${remote_name}/${remote_branch}
+
+  echo
+  echo "$ git pull --ff-only"
   git pull --ff-only
 
   local install_version="${version_tag}"
@@ -71,16 +89,28 @@ pull_latest () {
 
       return 1
     fi
+
+    echo
+    echo "Using latest version tag: ${install_version}"
   fi
 
   # SAVVY/2024-06-21: Use prefix to disambiguate tip branches from remote branches.
   local prefix="_"
   local install_branch="${prefix}${remote_name}/${install_version}"
 
+  echo
+  echo "$ git checkout -b ${install_branch} ${install_version} 2> /dev/null || true"
   git checkout -b ${install_branch} ${install_version} 2> /dev/null || true
+
+  echo
+  echo "$ git checkout ${install_branch}"
   git checkout ${install_branch}
+
+  echo
+  echo "$ git branch -u ${remote_name}/${remote_branch}"
   git branch -u ${remote_name}/${remote_branch}
 
-  echo "Installing ${install_version} from branch ${install_branch}..."
+  echo
+  echo "*** Done! Setup branch \"${install_branch}\" from ${install_version}***"
 }
 
