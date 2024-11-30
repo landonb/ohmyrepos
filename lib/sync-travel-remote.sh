@@ -983,6 +983,8 @@ git_fetch_remote_travel () {
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
 
+  git_delete_floating_tags_also_found_on_remote
+
   local extcd=0
   local git_resp
   git_resp="$(git fetch ${MR_REMOTE} --prune 2>&1)" || extcd=$?
@@ -1193,6 +1195,89 @@ print_fetchfail_msg () {
   fi
 
   travel_process_chores_file_lock_release
+}
+
+# ***
+
+# Manage so-called "floating" tags — delete locally if found remotely,
+# so that git-fetch moves 'em.
+# - Note that `git ls-remote` is a network call.
+#   - Though not sure there's a way to do without using it.
+#   - You can check tag names for a specific remote branch, e.g.:
+#       git tag -l --no-contains remotes/<remote>/<branch>
+#     But if you look at that branch, e.g.:
+#       git log remotes/<remote>/<branch>
+#     You'll see the tag on the same commit as it is locally, even
+#     if it's really on a different commit on the remote.
+#   - So we'll check if the tag exists locally and remotely, and
+#     we'll delete locally if that's the case, so that git-fetch
+#     replaces it (effectively moves it).
+#     - Otherwise, if not found on both hosts, don't worry about it.
+# USAGE: Specify list of floating tags using MR_FLOATING_TAGS.
+git_delete_floating_tags_also_found_on_remote () {
+  # DUNNO: Is it just me, or does this function seem overly complex?
+  if [ -z "${MR_FLOATING_TAGS}" ]; then
+
+    return 0
+  fi
+
+  local floating_tags=""
+  # One approach, albeit not the easiest read:
+  #   floating_tags="$( \
+  #     printf '%s' "${MR_FLOATING_TAGS}" \
+  #       | tr ' ' '\0' \
+  #       | xargs -0 -I {} sh -c ' \
+  #         git rev-parse --verify --end-of-options "refs/tags/{}" > /dev/null 2>&1 \
+  #         && echo {}'
+  #   )"
+  # Another approach:
+  print_floating_tags_reduce_to_existing () {
+    local tag_name=""
+    for tag_name in ${MR_FLOATING_TAGS}; do
+      if git_tag_exists "${tag_name}"; then
+        echo "${tag_name}"
+      fi
+    done
+  }
+  floating_tags="$(print_floating_tags_reduce_to_existing)"
+
+  if [ -z "${floating_tags}" ]; then
+
+    return 0
+  fi
+
+  local prefixed_tag_names=""
+  prefixed_tag_names="$( \
+    printf '%s' "${floating_tags}" \
+      | xargs -I {} echo refs/tags/{} \
+      | tr $'\n' ' '
+  )"
+
+  local matching_tags
+  matching_tags="$(
+    git ls-remote ${MR_REMOTE} ${prefixed_tag_names} \
+      | awk '{ print $2 }' \
+      | sed 's#^refs/tags/##'
+  )"
+
+  # One approach:
+  #   printf '%s' "${matching_tags}" \
+  #     | tr ' ' '\0' \
+  #     | xargs -0 -I {} git tag -d {}
+  # Another approach:
+  local tag_name=""
+  for tag_name in ${matching_tags}; do
+    git tag -d "${tag_name}" > /dev/null
+  done
+}
+
+# COPYD: Poached from: https://github.com/landonb/sh-git-nubs#🌰
+# - CXREF: Found locally in DepoXy environment at:
+#   ~/.kit/sh/sh-git-nubs/lib/git-nubs.sh
+git_tag_exists () {
+  local tag_name="$1"
+
+  git rev-parse --verify --end-of-options "refs/tags/${tag_name}" > /dev/null 2>&1
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
