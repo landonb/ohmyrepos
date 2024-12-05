@@ -270,7 +270,7 @@ To create a symlink to any file (i.e., to a file *not* under a parent-level
 ``.mrinfuse/`` directory), use ``symlink_overlay_file``.
 
 You can use either relative paths or absolute paths, considering that the
-symlink command (``/bin/ln``) runs in the context of the project directory
+symlink command (``ln``) runs in the context of the project directory
 (aka ``$MR_REPO``).
 
 For example, let's symlink a private notes file in my project working tree::
@@ -437,7 +437,7 @@ If I also symlink the ``.dotfiles/home`` directory to ``~/.mrinfuse``,
 e.g.,::
 
   $ cd $HOME
-  $ /bin/ln -s .dotfiles/home .mrinfuse
+  $ ln -s .dotfiles/home .mrinfuse
 
 then I can easily wire my Vim rule to overlay the spell file symlink.
 Here's what the Vim project rule might look like (and look, it clones

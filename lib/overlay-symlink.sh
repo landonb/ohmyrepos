@@ -363,7 +363,7 @@ makelink_update_informative () {
   local command_or_sudo="$(print_command_or_sudo)"
 
   # Note if target symlinks to a file, we can overwrite with force, e.g.,
-  #   /bin/ln -sf source/path target/path
+  #   ln -sf source/path target/path
   # but if the target exists and is a symlink to a directory instead,
   # the new symlink gets created inside the referenced directory.
   # To handle either situation -- the existing symlink references
