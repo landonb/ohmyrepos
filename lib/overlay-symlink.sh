@@ -598,7 +598,7 @@ print_sourcep_relative_targetp () {
   echo "${sourcep}"
 }
 
-# SAVVY: S/O article gives following regex to find commone prefix:
+# SAVVY: S/O article gives following regex to find common prefix:
 #     printf ... | sed 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/'
 # - THANX: https://stackoverflow.com/a/6973268
 # - REFER: From `man sed`/`man gsed` and https://gnu.org:
