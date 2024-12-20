@@ -647,6 +647,8 @@ print_sourcep_relative_targetp () {
 #     | head -n 1 \
 #     | tr -d '\\n'
 #     EOF
+# REFER/2024-12-19: Here's a great sed example — with comments!:
+#   https://github.com/preservim/vim-markdown/blob/8f6cb3a/Makefile#L49-L75
 
 print_common_path_prefix () {
   local sourcep="$1"
