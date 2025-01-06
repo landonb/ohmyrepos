@@ -14,7 +14,14 @@
 # And use `pwd` instead, with explicit `-L` (the default).
 print_unresolved_path () {
   local item_path="$1"
- 
+
+  if [ $# -eq 0 ]; then
+    # Only called by realpath_s, so use its name.
+    >&2 echo "realpath_s: missing operand"
+
+    return 1
+  fi
+
   local dir_name=""
   local base_name=""
 
