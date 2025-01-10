@@ -54,8 +54,9 @@ trap_exit () {
   clear_traps false ${return_value}
 
   # USAGE: Alert on unexpected error path, so you can add happy path.
-  >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
-  >&2 echo "- Hint: Enable \`set -x\` and run again..."
+  >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally! (err-trap: ${return_value})"
+  # >&2 echo "- Hint: Enable \`set -x\` and run again, or"
+  # >&2 echo "  maybe replace \`exit <n>\` with \`exit_1\`"
 
   # If user calls `exit 0` and not exit_0, this'll hit.
   if [ ${return_value} -eq 0 ]; then
@@ -69,8 +70,11 @@ trap_exit () {
 }
 
 trap_exit_safe () {
-  >&2 echo "ALERT: "$(basename -- "$0")" tossed an error!"
-  >&2 echo "- Hint: Enable \`set -x\` and run again..."
+  local return_value=$?
+
+  >&2 echo "ALERT: "$(basename -- "$0")" tossed an error! (err-trap: ${return_value})"
+  >&2 echo "- Hint: Enable \`set -x\` and run again, or"
+  >&2 echo "  maybe replace \`exit <n>\` with \`exit_1\`..."
   >&2 echo "- But this script is playing it loose, and will keep going!"
 
   return 0
@@ -110,7 +114,8 @@ err_trap_user_hook () {
   local normal_exit="$1"
   local return_value="$2"
 
-  if typeset -f ${SH_ERR_TRAP_USER_HOOK} > /dev/null; then
+  # Bashism: typeset -f ${SH_ERR_TRAP_USER_HOOK} > /dev/null
+  if type ${SH_ERR_TRAP_USER_HOOK} > /dev/null 2>&1; then
     ${SH_ERR_TRAP_USER_HOOK} "$@"
   fi
 }
