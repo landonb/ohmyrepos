@@ -20,6 +20,23 @@ mr_process_id () {
     ancestor_pid="${PPID}"
   fi
 
+  # SAVVY: We don't check that ancestor_pid is actually `mr`.
+  # - The callers use the PID get a unique value for the chores file,
+  #   etc., for parallel runnings. So it's not really important that
+  #   the process we find is for reals `mr`.
+  # - We could call the process, e.g., `${command_name} version`...
+  #   but that seems like overkill.
+  # We can at least check the name matches, for debugging purposes,
+  # and to add a little contract by design.
+  # CALSO: For name only, `ps -ocomm= -p <PID>`, which returns "perl"
+  # for `mr` process.
+  local command_name
+  # E.g., "perl /Users/user/.local/bin/mr ..."
+  command_name=$(ps -ocommand= -p "${ancestor_pid}")
+  if [ "$(basename -- "$(echo "${command_name}" | awk '{ print $2 }')")" != "mr" ]; then
+    >&2 echo "ALERT: PID ${ancestor_pid} not named \`mr\`: ${command_name}"
+  fi
+
   printf "${ancestor_pid}"
 }
 
