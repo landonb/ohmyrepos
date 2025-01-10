@@ -136,7 +136,7 @@ link_private_exclude () {
 
   local was_link_force="${MRT_LINK_FORCE}"
   local was_link_safe="${MRT_LINK_SAFE}"
-  myrepostravel_opts_parse "${@}"
+  myrepostravel_opts_parse "$@"
 
   local before_cd="$(pwd -L)"
   cd "${MR_REPO}"
