@@ -89,7 +89,8 @@ _travel_source_deps () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _travel_reveal_biz_vars () {
-  local mrpid="$(mr_process_id)"
+  local mrpid
+  mrpid="$(mr_process_id)"
 
   # When called via multi-process `mr -j [n>1]`, colors.sh omits ANSI
   # color sequence (it checks if the process is connected to a terminal

@@ -33,7 +33,8 @@ _my_merge_status_source_deps_on_demand () {
 }
 
 _my_merge_status_reveal_biz_vars () {
-  local mrpid="$(mr_process_id)"
+  local mrpid
+  mrpid="$(mr_process_id)"
 
   # Each my_merge_status runs in a separate subshell without direct
   # inter-process communication, so we use temp files with specific
