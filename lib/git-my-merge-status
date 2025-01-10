@@ -4,6 +4,5 @@
 # License: MIT
 
 [DEFAULT]
-lib = . "git-my-merge-status.sh"
 mystatus = git_my_merge_status
 

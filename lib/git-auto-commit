@@ -7,12 +7,6 @@
 # Avoid 'failed' during `mr -d / autocommit` on repos that don't use it.
 autocommit = true
 
-[DEFAULT]
-# Note that myrepos stops parsing `lib` at the first blank line,
-# so use commented blank lines if you need breaks.
-lib =
-  . "git-auto-commit.sh"
-
 # USAGE: E.g.,:
 #   autocommit = git_auto_commit_all "${@}"
 # Or, e.g.,

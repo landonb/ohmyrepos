@@ -13,7 +13,3 @@ echoInstallHelp = true
 #   been completed.
 isInstalled = false
 
-[DEFAULT]
-lib =
-  . "echo-install-help.sh"
-

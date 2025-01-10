@@ -8,7 +8,3 @@
 installDarwin = false
 installLinux = false
 
-[DEFAULT]
-lib =
-  . "install-os-specific.sh"
-

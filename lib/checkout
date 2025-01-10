@@ -99,7 +99,5 @@
 
 [DEFAULT]
 
-lib = . "checkout.sh"
-
 checkout = mr_repo_checkout
 

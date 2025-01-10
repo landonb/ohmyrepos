@@ -6,6 +6,8 @@
 source_deps () {
   # Note .mrconfig-omr sets PATH so deps found in OMR's deps/.
 
+  local before_cd="$(pwd -L)"
+
   # Load the log library, which includes `warn`, etc.
   # - As a side-effect, this also loads the stream-injectable
   #   color/style library, colors.sh.
@@ -15,18 +17,14 @@ source_deps () {
   # - Lastly, the .mrconfig-omr file sets, e.g., `lib = PATH=...`
   #   which enables the path-less source logger.sh here to work.
   # Load the logger library, from github.com/landonb/sh-logger.
-  if command -v "logger.sh" > /dev/null; then
-    . "logger.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin/logger.sh"
 
   # Load `print_nanos_now`.
-  if command -v "print-nanos-now.sh" > /dev/null; then
-    . "print-nanos-now.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-print-nanos-now/bin"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
+
+  cd -- "${before_cd}"
 }
 
 reveal_biz_vars () {

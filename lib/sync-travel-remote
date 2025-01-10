@@ -4,11 +4,6 @@
 # License: MIT
 
 [DEFAULT]
-# Note that myrepos stops parsing `lib` at the first blank line,
-# so use commented blank lines if you need breaks.
-lib =
-  # # Ha! `source` not POSIX, but `.` is.
-  . "sync-travel-remote.sh"
 
 # ***
 

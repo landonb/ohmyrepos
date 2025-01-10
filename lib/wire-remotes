@@ -4,8 +4,6 @@
 # License: MIT
 
 [DEFAULT]
-lib =
-  . "wire-remotes.sh"
 
 wireRemotes = wire_remotes
 

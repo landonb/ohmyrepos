@@ -7,6 +7,8 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
+  local before_cd="$(pwd -L)"
+
   # Use fallback paths to support sourcing into user's Bash shell
   # (assumes BASH_SOURCE); otherwise being sourced by OMR (and
   # /bin/sh) and .mrconfig-omr put the libs on PATH.
@@ -14,18 +16,14 @@ source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Note that .mrconfig-omr adds deps/... path to PATH.
   # - This also implicitly loads the colors.sh library.
-  if command -v "logger.sh" > /dev/null; then
-    . "logger.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin/logger.sh"
 
   # Load: print_unresolved_path, realpath_s
-  if command -v "print-unresolved-path.sh" > /dev/null; then
-    . "print-unresolved-path.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/print-unresolved-path.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/print-unresolved-path.sh"
+
+  cd -- "${before_cd}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

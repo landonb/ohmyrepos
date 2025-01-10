@@ -6,27 +6,22 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
+  local before_cd="$(pwd -L)"
+
   # Load the logger library, from github.com/landonb/sh-logger
   # - Includes print commands: info, warn, error, debug
-  if command -v "logger.sh" > /dev/null; then
-    . "logger.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin/logger.sh"
 
   # Load: print_unresolved_path/realpath_s
-  if command -v "print-unresolved-path.sh" > /dev/null; then
-    . "print-unresolved-path.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/print-unresolved-path.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/print-unresolved-path.sh"
 
   # Load: font_emphasize, font_highlight
-  if command -v "overlay-symlink.sh" > /dev/null; then
-    . "overlay-symlink.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/overlay-symlink.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
+
+  cd -- "${before_cd}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -5,13 +5,14 @@
 # License: MIT
 
 source_deps () {
+  local before_cd="$(pwd -L)"
+
   # Load: symlink_*.
   # - Note that .mrconfig-omr sets PATH to include OMR's lib/.
-  if command -v "overlay-symlink.sh" > /dev/null; then
-    . "overlay-symlink.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/overlay-symlink.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
+
+  cd -- "${before_cd}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

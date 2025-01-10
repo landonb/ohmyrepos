@@ -32,23 +32,19 @@
 
 [DEFAULT]
 lib =
-  # So that the scripts themselves can perform worry-free sourcing,
-  # add the OMR lib to PATH.
-  PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  _omr_before_cd="$(pwd -L)"
   
-  # - Wire the color library dependency.
-  #   https://github.com/landonb/sh-colors#💥
-  PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/deps/sh-colors/bin"
-  
-  # - Wire the logger library dependency.
+  # - Wire the logger library.
   #   https://github.com/landonb/sh-logger#🎮🐸
-  PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
+  # - Also wires the color library.
+  #   https://github.com/landonb/sh-colors#💥
   # Let the caller override the LOG_LEVEL. Note that we don't check LOG_LEVEL
   # itself, because the user might be using logger.sh in their own environment
   # and have the level set to their liking for their environment, but that does
   # not mean it's the best value for when they run `mr`. So if the user wants
   # to change the log level for the `mr` command, they must use MR_LOG_LEVEL.
-  . logger.sh
+  cd "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin/logger.sh"
   # Verify MR_LOG_LEVEL is an integer. Note the -eq spews when it fails, e.g.:
   #   bash: [: <foo>: integer expression expected
   [ -n "${MR_LOG_LEVEL}" ] \
@@ -58,25 +54,21 @@ lib =
   # Default log level: Debug and higher.
   LOG_LEVEL=${MR_LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
   
-  # - Wire the timing library dependency.
-  #   https://github.com/landonb/sh-print-nanos-now#⏱️
-  PATH="${PATH}:${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-print-nanos-now/bin"
+  cd "${_omr_before_cd}"
 
 # ========================================================================
 # ------------------------------------------------------------------------
 
 [DEFAULT]
 # Oh My Repos offers a handful of actions and utilities, included here.
-# - Each of these files — each a mrconfig file — use `lib =` to load
-# their corresponding shell (.sh) file (so these `include` calls must
-# follow the `lib = PATH` calls, above).
 # - Note that it's difficult to debug parse errors with glob, e.g.,
 #     include = cat ${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/*
 #   because any line number printed will not be very meaningful.
 include =
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime"
+  _omr_before_cd="$(pwd -L)"
+  cd "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/checkout"
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/clone-giturl"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/echo-install-help"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/fetch-selective"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-auto-commit"
@@ -86,38 +78,59 @@ include =
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-my-merge-status"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/infuse-no-op"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/install-os-specific"
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-hard"
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-exclude"
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-ignore"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/no-travel"
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/os-is-macos"
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/pull-latest"
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-add"
   # CAVEAT: Though `. skip-grouping.sh` called by `skip-grouping`, it's via
   # a `lib` block, which run after `include` blocks. So to use `mr_exclusive`
   # from an include block, you need to `. skip-grouping.sh` from that block.
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-grouping"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-unless-archiving"
-  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sorted-commit"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/wire-remotes"
+  
+  cd "${_omr_before_cd}"
 
 # ========================================================================
 # ------------------------------------------------------------------------
 
 [DEFAULT]
 lib =
+  _omr_before_cd="$(pwd -L)"
+  
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/checkout.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/clone-giturl.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/echo-install-help.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/fetch-selective.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-auto-commit.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-my-merge-status.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/install-os-specific.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/line-in-file.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-hard.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-exclude.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/link-private-ignore.sh"
   # On-demand: "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/mr-process-id.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/os-is-macos.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/overlay-symlink.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/pull-latest.sh"
   # On-demand: "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/print-homebrew-prefix.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/print-unresolved-path.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-set.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-set-private.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/remote-add.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-grouping.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sorted-commit.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/wire-remotes.sh"
   
-  # Depdendencies for previous (relies on PATH set atop this file)
-  . "logger.sh"
-  . "print-nanos-now.sh"
+  # Depdendencies for previous
+  
+  # - Wire the timing library.
+  #   https://github.com/landonb/sh-print-nanos-now#⏱️
+  cd "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-print-nanos-now/bin"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
+  
+  cd -- "${_omr_before_cd}"
 
 # ========================================================================
 # ------------------------------------------------------------------------

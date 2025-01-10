@@ -65,25 +65,16 @@ GIT_BARE_REPO='--bare'
 _travel_source_deps () {
   # Load the logger library, from github.com/landonb/sh-logger.
   # - Includes print commands: info, warn, error, debug.
-  if command -v "logger.sh" > /dev/null; then
-    . "logger.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin/logger.sh"
 
   # Load: mr_process_id, is_multiprocessing
-  if command -v "mr-process-id.sh" > /dev/null; then
-    . "mr-process-id.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/mr-process-id.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/mr-process-id.sh"
 
   # Load: print_homebrew_prefix
-  if command -v "print-homebrew-prefix.sh" > /dev/null; then
-    . "print-homebrew-prefix.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/print-homebrew-prefix.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/print-homebrew-prefix.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

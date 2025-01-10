@@ -6,30 +6,27 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _my_merge_status_source_deps () {
-  # Note .mrconfig-omr sets PATH so deps found in OMR's deps/.
+  local before_cd="$(pwd -L)"
 
   # Load the logger library, from github.com/landonb/sh-logger.
-  if command -v "logger.sh" > /dev/null; then
-    . "logger.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-logger/bin/logger.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin/logger.sh"
 
   # Load `print_nanos_now`.
-  if command -v "print-nanos-now.sh" > /dev/null; then
-    . "print-nanos-now.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-print-nanos-now/bin"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
+
+  cd -- "${before_cd}"
 }
 
 _my_merge_status_source_deps_on_demand () {
+  local before_cd="$(pwd -L)"
+
   # Load: mr_process_id, is_multiprocessing
-  if command -v "mr-process-id.sh" > /dev/null; then
-    . "mr-process-id.sh"
-  else
-    . "$(dirname -- "${BASH_SOURCE[0]}")/mr-process-id.sh"
-  fi
+  cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/mr-process-id.sh"
+
+  cd -- "${before_cd}"
 }
 
 _my_merge_status_reveal_biz_vars () {

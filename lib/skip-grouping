@@ -3,7 +3,3 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-[DEFAULT]
-lib =
-  . "skip-grouping.sh"
-

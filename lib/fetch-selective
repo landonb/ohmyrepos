@@ -4,9 +4,6 @@
 # License: MIT
 
 [DEFAULT]
-lib =
-  . "fetch-selective.sh"
-
 # Override default `fetch`, which specifies `--all` and tacks on $@ as additional
 # arguments. But I don't use args on fetch other than --prune and --tags, which
 # are already specified, and would prefer $@ be used to specify a specific remote;
