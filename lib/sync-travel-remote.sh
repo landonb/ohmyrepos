@@ -479,12 +479,15 @@ kill_mr () {
   >&2 echo "  🥩 🥩 chop chop"
   >&2 echo
 
+  local mrpid
+  mrpid="$(mr_process_id)"
+
   # Cannot redirect stderr to suppress "Killed" message,
   # which is redundant to what we just said, or perhaps
   # we just said it so the user knows what was "Killed".
-  # (I checked StackOverflow and there doesn't seem to
-  #  be a way, not even `exec 2>/dev/null`, deal w/ it).
-  kill -s 9 $(mr_process_id)
+  # (I checked StackOverflow and there seems to be no
+  #  way to deal w/ it, not even `exec 2>/dev/null`).
+  kill -s 9 ${mrpid}
 
   # Note that this process continues to run.
 }
