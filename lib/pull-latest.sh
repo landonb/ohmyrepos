@@ -111,6 +111,6 @@ pull_latest () {
   git branch -u ${remote_name}/${remote_branch}
 
   echo
-  echo "*** Done! Setup branch \"${install_branch}\" from ${install_version}***"
+  echo "*** Done! Setup branch \"${install_branch}\" from ${install_version} ***"
 }
 
