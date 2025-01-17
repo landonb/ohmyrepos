@@ -535,7 +535,10 @@ git_report_fancy () {
   fi
 
   gnu_grep () {
-    command -v ggrep || command -v grep
+    for cmd in "ggrep" "grep"; do
+      ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
+        && break
+    done
   }
 
   # Step 1 of 2: Truncate to maximum width.

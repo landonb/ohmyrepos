@@ -1841,7 +1841,7 @@ _git_merge_reset_hard_if_local_unchanged () {
         # Cut off the final summary line (which merge doesn't report, either).
         local git_diff="$( \
           git $(print_graph_width_cfg) diff --compact-summary ${head_sha}..HEAD \
-          | $(command -v ghead || command -v head) -n -1
+          | $(_gnu_head) -n -1
         )"
         local pattern=""
 
@@ -1864,6 +1864,13 @@ _git_merge_reset_hard_if_local_unchanged () {
   done
 
   return 1
+}
+
+_gnu_head () {
+  for cmd in "ghead" "head"; do
+    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
+      && break
+  done
 }
 
 # The reflog timestamps are probably not meaningful, but we can check.

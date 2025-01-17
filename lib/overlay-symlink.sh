@@ -749,7 +749,10 @@ print_common_path_prefix () {
   local targetp="$2"
 
   gnu_sed () {
-    command -v gsed || command -v sed
+    for cmd in "gsed" "sed"; do
+      ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
+        && break
+    done
   }
 
   # Note POSIX printf recognizes \0 but not \x0

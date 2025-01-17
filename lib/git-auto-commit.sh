@@ -294,7 +294,10 @@ git_auto_commit_path_one () {
 }
 
 gnu_stat () {
-  command -v gstat || command -v stat
+  for cmd in "gstat" "stat"; do
+    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
+      && break
+  done
 }
 
 # - Check for ' M unstaged/files'
