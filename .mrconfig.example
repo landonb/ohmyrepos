@@ -212,7 +212,7 @@ autocommit = git_auto_commit_all "${@}" && git_auto_commit_new "${@}"
 # use `MR_INCLUDE=personal mr -d / ls`
 #  or `MR_INCLUDE=notes mr -d / ls`
 #  or a plain `mr -d / ls` to include this project.
-skip = mr_exclusive "personal" && mr_exclusive "notes"
+skip = mr_exclusive "personal" "notes"
 
 # ========================================================================
 # ------------------------------------------------------------------------
