@@ -56,6 +56,8 @@ mr_exclusive_tag () {
     for tag in "$@"; do echo "${tag}" | sed '/^!/d'; done
   )"
 
+  local negative_matches=false
+
   # Check tags, and return 1 (don't skip) if MR_INCLUDE
   # matches input tag, or if a negated tag and doesn't.
   while [ $# -gt 0 ]; do
@@ -77,13 +79,22 @@ mr_exclusive_tag () {
     # - E.g., `skip = mr_exclusive "!foo"`.
     local nonnegated
     nonnegated="$(echo "${tag}" | sed 's/^!//')"
-    if [ "${tag}" != "${nonnegated}" ] \
-      && [ "${MR_INCLUDE}" != "${nonnegated}" ] \
-    ; then
+    if [ "${tag}" != "${nonnegated}" ]; then
+      # Found !negative tag
+      if [ "${MR_INCLUDE}" = "${nonnegated}" ]; then
+        # MR_INCLUDE is the !tag, so skip this repo.
 
-      return 1
+        return 0
+      fi
+
+      negative_matches=true
     fi
   done
+
+  if ${negative_matches}; then
+
+    return 1
+  fi
 
   # MR_INCLUDE tag didn't match.
   # - Returns 0 (skip) by default.
