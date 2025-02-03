@@ -3,3 +3,6 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
+[DEFAULT]
+skip = mr_exclusive ""
+
