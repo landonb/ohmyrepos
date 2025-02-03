@@ -44,19 +44,32 @@ mr_exclusive_tag () {
   # - Returns 1, aka false, aka don't skip.
   [ -z "${MR_INCLUDE+x}" ] && return 1
 
-  # If no tags specified for project, don't skip (user must specify
-  # `skip = mr_exclusive "<tag>"` in their config to exclude projects;
-  # and to check MR_INCLUDE before calling `mr_cat` on specific files).
-  [ $# -eq 0 ] && return 1
+  # If a project uses the default `skip = mr_exclusive` action — so no
+  # tag(s) are explicitly defined for the project — and if user hasn't
+  # defined $MR_EXCLUSIVE_TAGS — to apply the same tags to one or more
+  # projects (and without having to copy-paste the same `skip =` lines
+  # to each project) — return truthy, telling `mr` to skip the project.
+  if [ $# -eq 0 ] && [ -z "${MR_EXCLUSIVE_TAGS}" ]; then
+
+    return 0
+  fi
+
+  local exclusive_tags="$@"
+  if [ $# -eq 0 ]; then
+    exclusive_tags="${MR_EXCLUSIVE_TAGS}"
+  fi
 
   # Sort negated tags first.
+  # - SAVVY: Space are not supported, "nor is 'quoted input'".
   local sorted_tags
   sorted_tags="$(
-    for tag in "$@"; do echo "${tag}" | sed '/^[^!]/d'; done
-    for tag in "$@"; do echo "${tag}" | sed '/^!/d'; done
+    for tag in ${exclusive_tags}; do echo "${tag}" | sed '/^[^!]/d'; done
+    for tag in ${exclusive_tags}; do echo "${tag}" | sed '/^!/d'; done
   )"
 
   local negative_matches=false
+
+  set -- ${sorted_tags}
 
   # Check tags, and return 1 (don't skip) if MR_INCLUDE
   # matches input tag, or if a negated tag and doesn't.
