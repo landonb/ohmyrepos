@@ -31,8 +31,16 @@ lib =
       # Skip
       return 0
     else
+      # User can use no_travel and specify tags the normal way,
+      # but they have to OR the two commands, e.g.,
+      #   no_travel || mr_exclusive "foo" "bar"
+      # Otherwise, user can pass tags to no_travel, e.g.,
+      #   no_travel "foo" "bar"
+      # Or just use plain, e.g.,
+      #   no_travel
+      #
       # Check MR_INCLUDE_REMOTE
-      mr_exclusive
+      mr_exclusive "$@"
     fi
   }
 
