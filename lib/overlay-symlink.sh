@@ -216,7 +216,8 @@ infuser_prepare () {
   shift
 
   infuser_set_envs "${repodir}"
-  info "Infusing $(repo_highlight ${repodir}) [for ‘$(basename -- "$0")’]"
+  info "🧶 Infusing $(repo_highlight ${repodir})" \
+    "╪ $(font_info_updated "$(realpath -- "$0" | sed "s#^${HOME}/#\~/#")")"
   myrepostravel_opts_parse "$@"
 }
 
