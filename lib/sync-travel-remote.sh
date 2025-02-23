@@ -482,7 +482,7 @@ git_travel_cache_setup () {
   git_travel_verify_mr_action || return 0
 
   # Crap out if MR_REMOTE unreachable.
-  test_ssh_or_kill_ssh
+  test_ssh_or_kill_mr
 
   # Cleanup old temp files, possibly orphaned if user Ctrl-c's an action.
   # (Mostly being tidy — OS clears temp files every reboot — but there's
@@ -534,7 +534,7 @@ git_travel_cache_teardown () {
 
 # ***
 
-test_ssh_or_kill_ssh () {
+test_ssh_or_kill_mr () {
   [ "${MR_ACTION}" = 'ffssh' ] || return
 
   # BWARE/2023-05-01: Currently, `mr` doesn't set MR_ACTION on setup or teardown.
