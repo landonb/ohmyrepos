@@ -468,9 +468,9 @@ git_travel_verify_mr_action () {
   #   run on any command (hence the empty string check).
   false \
     || [ "${MR_ACTION}" = '' ] \
-    || [ "${MR_ACTION}" = 'ffmirror' ] \
     || [ "${MR_ACTION}" = 'ffssh' ] \
-    || [ "${MR_ACTION}" = 'ffdefault' ]
+    || [ "${MR_ACTION}" = 'travel' ] \
+    || [ "${MR_ACTION}" = 'unpack' ]
 }
 
 git_travel_cache_setup () {
