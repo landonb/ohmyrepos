@@ -207,14 +207,14 @@ _github_url_according_to_user () {
   # Strip trailing comment character and project emoji, if set.
   # - E.g., change "https://github.com/landonb/ohmyrepos#😤"
   #             to "https://github.com/landonb/ohmyrepos"
-  local santized_url_or_path
-  santized_url_or_path="$( \
+  local sanitized_url_or_path
+  sanitized_url_or_path="$( \
     echo "${remote_url_or_local_path}" | sed 's/^\(.*\)\(#[^#]*\)$/\1/'
   )"
 
   # Leave "/"-prefixed local file path remote URLs as-is.
-  if [ "${santized_url_or_path#/}" != "${santized_url_or_path}" ]; then
-    printf "%s" "${santized_url_or_path}"
+  if [ "${sanitized_url_or_path#/}" != "${sanitized_url_or_path}" ]; then
+    printf "%s" "${sanitized_url_or_path}"
 
     return 0
   fi
@@ -222,7 +222,7 @@ _github_url_according_to_user () {
   # ***
 
   # We know the remote is a URL and not a local path.
-  local remote_url="${santized_url_or_path}"
+  local remote_url="${sanitized_url_or_path}"
 
   # Determine base HTTP URL, e.g., "https://github.com/", or
   # "https://gitlab.com/", etc.
