@@ -13,8 +13,14 @@ remote_add () {
   # BWARE: Leave the last 2 args unquoted, because unset has meaning
   # in the called function.
   local git_url
-  git_url="$(_github_url_according_to_user "${remote_url_or_path}")"
-
+  # ISOFF/2025-03-03: This should be unnecessary/redundant,
+  # and it overrides one-off MR_GITHUB_HOST_ORIGIN usage.
+  # - E.g., if you need to force remote to use https:// instead
+  #   of git@, such as for lazy.nvim, you can run something like
+  #     lib = MR_GITHUB_HOST_ORIGIN=https://github.com remote_add origin {url}
+  #  git_url="$(_github_url_according_to_user "${remote_url_or_path}")"
+  git_url="${remote_url_or_path}"
+  
   # Avoid remove if remote exists. Otherwise breaks the remote HEAD
   # and tracking branch. And then user may have to git-fetch and
   # maybe `git branch -u` to restore things.
