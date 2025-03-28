@@ -67,7 +67,7 @@ GIT_BARE_REPO='--bare'
 
 _sync_travel_remote_sh__this_filename="sync-travel-remote.sh"
 
-_sync_travel_remote_sh__source_deps () {
+_sync_travel_remote_sh__source_deps() {
   local sourced_all=true
 
   # On Bash, user can source this file from anywhere.
@@ -96,9 +96,9 @@ _sync_travel_remote_sh__source_deps () {
   ${sourced_all}
 }
 
-_sync_travel_remote_sh__smells_like_bash () { declare -p BASH_SOURCE > /dev/null 2>&1; }
+_sync_travel_remote_sh__smells_like_bash() { declare -p BASH_SOURCE >/dev/null 2>&1; }
 
-_sync_travel_remote_sh__print_this_fullpath () {
+_sync_travel_remote_sh__print_this_fullpath() {
   if _sync_travel_remote_sh__smells_like_bash; then
     echo "$(realpath -- "${BASH_SOURCE[0]}")"
   elif [ "$(basename -- "$0")" = "${_sync_travel_remote_sh__this_filename}" ]; then
@@ -112,11 +112,11 @@ _sync_travel_remote_sh__print_this_fullpath () {
 
 _sync_travel_remote_sh__this_fullpath="$(_sync_travel_remote_sh__print_this_fullpath)"
 
-_sync_travel_remote_sh__shell_sourced () {
+_sync_travel_remote_sh__shell_sourced() {
   [ "$(realpath -- "$0")" != "${_sync_travel_remote_sh__this_fullpath}" ]
 }
 
-_sync_travel_remote_sh__source_file () {
+_sync_travel_remote_sh__source_file() {
   local prfx="${1:-.}"
   local depd="${2:-.}"
   local file="${3:-.}"
@@ -157,10 +157,10 @@ _sync_travel_remote_sh__source_file () {
 
 # BONUS: You can use these aliases instead of the uniquely-named functions,
 # just be aware not to call any alias after calling _source_deps.
-_shell_sourced () { _sync_travel_remote_sh__shell_sourced; }
-_source_deps () { _sync_travel_remote_sh__source_deps; }
+_shell_sourced() { _sync_travel_remote_sh__shell_sourced; }
+_source_deps() { _sync_travel_remote_sh__source_deps; }
 
-_sync_travel_remote_sh__source_deps_unset_cleanup () {
+_sync_travel_remote_sh__source_deps_unset_cleanup() {
   unset -v _sync_travel_remote_sh__this_filename
   unset -f _sync_travel_remote_sh__print_this_fullpath
   unset -f _sync_travel_remote_sh__shell_sourced
@@ -183,7 +183,7 @@ _sync_travel_remote_sh__source_deps_unset_cleanup () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_travel_reveal_biz_vars () {
+_travel_reveal_biz_vars() {
   local mrpid
   mrpid="$(mr_process_id)"
 
@@ -198,9 +198,9 @@ _travel_reveal_biz_vars () {
   #   - CXREF: https://unix.stackexchange.com/questions/484789/
   #              testing-if-a-file-descriptor-is-valid-for-input
   local file_descriptor_stdout=1
-  if [ ! -d "/proc/${mrpid}/fd/${file_descriptor_stdout}" ] \
-    && grep -sq '^flags.*[02]$' "/proc/${mrpid}/fdinfo/${file_descriptor_stdout}" \
-  ; then
+  if [ ! -d "/proc/${mrpid}/fd/${file_descriptor_stdout}" ] &&
+    grep -sq '^flags.*[02]$' "/proc/${mrpid}/fdinfo/${file_descriptor_stdout}" \
+    ; then
     SHCOLORS_OFF=false
   fi
 
@@ -229,12 +229,12 @@ _travel_reveal_biz_vars () {
 
 # ***
 
-is_single_project_mr_command () {
+is_single_project_mr_command() {
   print_ppid_command_args | grep -q " -n( |$)"
 }
 
 # Print the parent process (`mr`) command args.
-print_ppid_command_args () {
+print_ppid_command_args() {
   ps -ocommand= -p ${PPID} | sed 's/^perl //'
 }
 
@@ -284,28 +284,29 @@ _echo_en() (
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_git_echo_long_op_start () {
+_git_echo_long_op_start() {
   ! is_multiprocessing || return 0
 
   local right_now="$(date "+%Y-%m-%d @ %T")"
 
-  LONG_OP_MSG="$( _echo_e \
-    "$(fg_lightorange)[WAIT]$(attr_reset) ${right_now} "\
-    "$(fg_lightorange)⏳ ${1}$(attr_reset)" \
-    "$(fg_lightorange)${MR_REPO}...$(attr_reset)" \
+  LONG_OP_MSG="$(
+    _echo_e \
+      "$(fg_lightorange)[WAIT]$(attr_reset) ${right_now} " \
+      "$(fg_lightorange)⏳ ${1}$(attr_reset)" \
+      "$(fg_lightorange)${MR_REPO}...$(attr_reset)"
   )"
 
   _echo_en "${LONG_OP_MSG}"
 }
 
-_git_echo_long_op_finis () {
+_git_echo_long_op_finis() {
   ! is_multiprocessing || return 0
 
   _echo_en "\r"
   # Clear out the previous message (lest ellipses remain in terminal) e.g., clear:
   #      "[WAIT] 2019-10-30 @ 19:34:04 ⏳ fetchin’  /..." → 43 chars
   #                                       fetched🤙 /kit/Coldsprints
-  _echo_en "                                           "  # add one extra for Unicode, or something.
+  _echo_en "                                           " # add one extra for Unicode, or something.
   _echo_en "$(printf "${MR_REPO}..." | /usr/bin/env sed -E "s/./ /g")"
   _echo_en "\r"
 
@@ -323,14 +324,14 @@ _git_echo_long_op_finis () {
 #     (by more than one process calling `echo ... >> tmp-file`).
 #     - If you disable this mutex, it's easy to observe this behavior.
 # - We use `mkdir` to implement the mutex, because it's just so easy.
-travel_process_chores_file_lock_acquire () {
+travel_process_chores_file_lock_acquire() {
   is_multiprocessing || return 0
 
   local tries=0
 
   while true; do
     # mkdir is atomic, how convenient.
-    if $(mkdir -- "${MR_TMP_TRAVEL_LOCK_DIR}" 2> /dev/null); then
+    if $(mkdir -- "${MR_TMP_TRAVEL_LOCK_DIR}" 2>/dev/null); then
 
       return
     fi
@@ -346,7 +347,7 @@ travel_process_chores_file_lock_acquire () {
   done
 }
 
-travel_process_chores_file_lock_release () {
+travel_process_chores_file_lock_release() {
   is_multiprocessing || return 0
 
   rmdir -- "${MR_TMP_TRAVEL_LOCK_DIR}"
@@ -356,11 +357,11 @@ travel_process_chores_file_lock_release () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-is_ssh_path () {
+is_ssh_path() {
   [ "${1#ssh://}" != "${1}" ] && return 0 || return 1
 }
 
-lchop_sep () {
+lchop_sep() {
   printf "$1" | /usr/bin/env sed "s#^/##"
 }
 
@@ -368,7 +369,7 @@ lchop_sep () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-warn_repo_problem_9char () {
+warn_repo_problem_9char() {
   status_adj="$1"
   opt_prefix="$2"
   opt_suffix="$3"
@@ -378,7 +379,7 @@ warn_repo_problem_9char () {
     "   $(fg_mintgreen)${MR_REPO}$(attr_reset)"
 }
 
-git_dir_check () {
+git_dir_check() {
   local repo_path="$1"
   local repo_type="$2"
 
@@ -396,7 +397,7 @@ git_dir_check () {
 
     if [ "${repo_type}" = 'travel' ]; then
       touch -- "${MR_TMP_TRAVEL_HINT_FILE}"
-    else  # "${repo_type}" = 'local'
+    else # "${repo_type}" = 'local'
       # (lb): This should be unreacheable, because $repo_path is $MR_REPO,
       # and `mr` will have failed before now.
 
@@ -437,7 +438,7 @@ git_dir_check () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-must_be_git_dirs () {
+must_be_git_dirs() {
   local source_repo="$1"
   local target_repo="$2"
   local source_type="$3"
@@ -462,18 +463,18 @@ must_be_git_dirs () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_travel_verify_mr_action () {
+git_travel_verify_mr_action() {
   # The action name is the variable name from lib/sync-travel-remote.
   # - Older `mr` doesn't specify MR_ACTION, in which case must always
   #   run on any command (hence the empty string check).
-  false \
-    || [ "${MR_ACTION}" = '' ] \
-    || [ "${MR_ACTION}" = 'ffssh' ] \
-    || [ "${MR_ACTION}" = 'travel' ] \
-    || [ "${MR_ACTION}" = 'unpack' ]
+  false ||
+    [ "${MR_ACTION}" = '' ] ||
+    [ "${MR_ACTION}" = 'ffssh' ] ||
+    [ "${MR_ACTION}" = 'travel' ] ||
+    [ "${MR_ACTION}" = 'unpack' ]
 }
 
-git_travel_cache_setup () {
+git_travel_cache_setup() {
   # BWARE/2023-05-01: Orig. `mr` leaves MR_ACTION unset on setup and teardown.
   # - Author will try to merge this upstream, we'll see.
   # - In the meantime, just know that every setup and every teardown may run
@@ -493,10 +494,10 @@ git_travel_cache_setup () {
   command rm -f -- "${MR_TMP_TRAVEL_HINT_FILE_BASE}-"*
   command rm -f -- "${MR_TMP_TRAVEL_CHORES_FILE_BASE}-"*
 
-  rmdir -- "${MR_TMP_TRAVEL_LOCK_DIR_BASE}-"* 2> /dev/null || true
+  rmdir -- "${MR_TMP_TRAVEL_LOCK_DIR_BASE}-"* 2>/dev/null || true
 }
 
-git_travel_cache_teardown () {
+git_travel_cache_teardown() {
   git_travel_verify_mr_action || return 0
 
   # KLUGE: When not multiprocessing (`mr -j 1`), `mr` uses the final
@@ -534,7 +535,7 @@ git_travel_cache_teardown () {
 
 # ***
 
-test_ssh_or_kill_mr () {
+test_ssh_or_kill_mr() {
   [ "${MR_ACTION}" = 'ffssh' ] || return
 
   # BWARE/2023-05-01: Currently, `mr` doesn't set MR_ACTION on setup or teardown.
@@ -564,11 +565,11 @@ test_ssh_or_kill_mr () {
   fi
 }
 
-test_ssh () {
+test_ssh() {
   ssh -q -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=1 "${MR_REMOTE}" 'exit 0'
 }
 
-kill_mr () {
+kill_mr() {
   >&2 echo
   >&2 echo "Killing \`mr\` because you got work to do"
   >&2 echo "  🥩 🥩 chop chop"
@@ -589,7 +590,7 @@ kill_mr () {
 
 # ***
 
-git_travel_process_hint_file () {
+git_travel_process_hint_file() {
   [ -e "${MR_TMP_TRAVEL_HINT_FILE}" ] || return 0
 
   info
@@ -602,7 +603,7 @@ git_travel_process_hint_file () {
   command rm -- "${MR_TMP_TRAVEL_HINT_FILE}"
 }
 
-git_travel_process_chores_file () {
+git_travel_process_chores_file() {
   [ -e "${MR_TMP_TRAVEL_CHORES_FILE}" ] || return 0
 
   git_travel_process_chores_notify
@@ -616,16 +617,16 @@ git_travel_process_chores_file () {
 }
 
 # COPYD/2023-04-29: MAYBE: DRY this: Copied from git-my-merge-status.sh.
-git_travel_process_chores_notify () {
+git_travel_process_chores_notify() {
   # Note that some hints are multiple lines, but all hints' first line
   # starts with the cd command, e.g., "  cd /path/to/repo && ...".
-  local untidy_count=$( \
-    cat "${MR_TMP_TRAVEL_CHORES_FILE}" \
-      | grep \
+  local untidy_count=$(
+    cat "${MR_TMP_TRAVEL_CHORES_FILE}" |
+      grep \
         -e "^  ${OMR_CPYST_CD}" \
         -e "MR_REMOTE=<fixme>" \
-        -e "ssh ${MR_REMOTE} " \
-      | wc -l \
+        -e "ssh ${MR_REMOTE} " |
+      wc -l
   )
 
   local infl=''
@@ -641,23 +642,23 @@ git_travel_process_chores_notify () {
 
 # Add empties before and after multiple chore lines for the same repo,
 # to make easier for user to track which chore they're on.
-travel_chores_file_delineate_chore_block_beg () {
-  if [ -e "${MR_TMP_TRAVEL_CHORES_FILE}" ] \
-    && [ -n "$(tail -1 "${MR_TMP_TRAVEL_CHORES_FILE}")" ] \
-  ; then
-    echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+travel_chores_file_delineate_chore_block_beg() {
+  if [ -e "${MR_TMP_TRAVEL_CHORES_FILE}" ] &&
+    [ -n "$(tail -1 "${MR_TMP_TRAVEL_CHORES_FILE}")" ] \
+    ; then
+    echo >>"${MR_TMP_TRAVEL_CHORES_FILE}"
   fi
 }
 
-travel_chores_file_delineate_chore_block_end () {
-  echo >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+travel_chores_file_delineate_chore_block_end() {
+  echo >>"${MR_TMP_TRAVEL_CHORES_FILE}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-travel_ops_reset_stats () {
+travel_ops_reset_stats() {
   DID_CLONE_REPO=0
   DID_SET_REMOTE=0
   DID_BRANCH_CHANGE=0
@@ -668,7 +669,7 @@ travel_ops_reset_stats () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_ensure_or_clone_target () {
+git_ensure_or_clone_target() {
   local source_repo="$1"
   local target_repo="$2"
 
@@ -755,7 +756,7 @@ git_ensure_or_clone_target () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_checkedout_branch_name_direct () {
+git_checkedout_branch_name_direct() {
   local target_repo="$1"
 
   (
@@ -765,7 +766,7 @@ git_checkedout_branch_name_direct () {
   )
 }
 
-git_checkedout_branch_name_remote () {
+git_checkedout_branch_name_remote() {
   local target_repo="$1"
 
   (
@@ -779,7 +780,7 @@ git_checkedout_branch_name_remote () {
   )
 }
 
-git_source_branch_deduce () {
+git_source_branch_deduce() {
   local source_repo="$1"
   local target_repo="$2"
 
@@ -820,30 +821,30 @@ git_source_branch_deduce () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_commit_object_name () {
+git_commit_object_name() {
   local gitref="${1:-HEAD}"
   local opts="$2"
 
   git rev-parse ${opts} "${gitref}"
 }
 
-git_reflog_latest_epoch_ts () {
+git_reflog_latest_epoch_ts() {
   local gitref="${1:-HEAD}"
 
-  git --no-pager reflog -1 --format=%at "${gitref}" 2> /dev/null
+  git --no-pager reflog -1 --format=%at "${gitref}" 2>/dev/null
 }
 
-git_reflog_latest_iso_time () {
+git_reflog_latest_iso_time() {
   local gitref="${1:-HEAD}"
 
-  git --no-pager reflog -1 --format=%ai "${gitref}" 2> /dev/null
+  git --no-pager reflog -1 --format=%ai "${gitref}" 2>/dev/null
 }
 
-git_is_bare_repository () {
+git_is_bare_repository() {
   [ $(git rev-parse --is-bare-repository) = 'true' ] && return 0 || return 1
 }
 
-git_must_be_tidy () {
+git_must_be_tidy() {
   # If a bare repository, no working status... so inherently clean, er, negative.
   git_is_bare_repository && return 0 || true
 
@@ -857,9 +858,9 @@ git_must_be_tidy () {
   travel_process_chores_file_lock_acquire
 
   echo \
-      "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
-      "&& $(fg_lightorange)git my-merge-status$(attr_reset)" \
-        >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+    "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
+    "&& $(fg_lightorange)git my-merge-status$(attr_reset)" \
+    >>"${MR_TMP_TRAVEL_CHORES_FILE}"
 
   travel_process_chores_file_lock_release
 
@@ -868,7 +869,7 @@ git_must_be_tidy () {
   return 1
 }
 
-print_graph_width_cfg () {
+print_graph_width_cfg() {
   printf "%s" "-c diff.statGraphWidth=${MR_GIT_DIFF_STAT_GRAPH_WIDTH:-40}"
 }
 
@@ -876,7 +877,7 @@ print_graph_width_cfg () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_set_remote_travel () {
+git_set_remote_travel() {
   local source_repo="$1"
   local target_repo="${2:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
@@ -1017,19 +1018,19 @@ git_set_remote_travel () {
 # So we'll preemptively remove that pointer, so it doesn't
 # grief us on `git fetch --prune`.
 
-git_remote_delete_head () {
+git_remote_delete_head() {
   local git_resp
 
-  git_resp="$(git rev-parse "${MR_REMOTE}" 2>&1 > /dev/null)" || true
+  git_resp="$(git rev-parse "${MR_REMOTE}" 2>&1 >/dev/null)" || true
 
   # If no stderr, means success, i.e., remote/HEAD exists.
   # - Likewise if call failed and stderr says dangling,
   #   then also exists.
   # - Which is basically a long way to test if the file exists:
   #     [ -f .git/refs/${MR_REMOTE}/HEAD ]
-  if [ -z "${git_resp}" ] \
-    || echo "${git_resp}" | grep -q "^warning: ignoring dangling symref " \
-  ; then
+  if [ -z "${git_resp}" ] ||
+    echo "${git_resp}" | grep -q "^warning: ignoring dangling symref " \
+    ; then
     # This is always quiet, whether or not it deletes the file.
     git remote set-head "${MR_REMOTE}" --delete
 
@@ -1069,7 +1070,7 @@ git_remote_delete_head () {
 #   So either way will need grep pipeline matches below to squash whatever
 #   message from leaking through to stdout.
 
-git_fetch_remote_travel () {
+git_fetch_remote_travel() {
   local target_repo="${1:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
   #   local target_repo="${1:-${MR_REPO}}"
@@ -1100,14 +1101,14 @@ git_fetch_remote_travel () {
   local remote_name_invalid=false
   local remote_path_invalid=false
 
-  if printf %s "${git_resp}" \
-    | grep -q -e "^ssh: Could not resolve hostname ${MR_REMOTE}: Name or service not known\s*$" \
-  ; then
+  if printf %s "${git_resp}" |
+    grep -q -e "^ssh: Could not resolve hostname ${MR_REMOTE}: Name or service not known\s*$" \
+    ; then
     # Invalid remote.
     remote_name_invalid=true
-  elif printf %s "${git_resp}" \
-    | grep -q -e "^fatal: '\([^']*\)' does not appear to be a git repository$" \
-  ; then
+  elif printf %s "${git_resp}" |
+    grep -q -e "^fatal: '\([^']*\)' does not appear to be a git repository$" \
+    ; then
     # Valid remote, invalid path.
     remote_path_invalid=true
   fi
@@ -1128,29 +1129,27 @@ git_fetch_remote_travel () {
   #
   # - Note that `local` always returns true. So even when `grep -v` returns
   #   nonzero, it won't tickle errexit (so long as within `local` context).
-  local culled="$(printf %s "${git_resp}" \
-    | grep -v "^Fetching " \
-    | grep -v "^From " \
-    | grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" \
-    | grep -v -E '\* \[new branch\] +.* -> .*' \
-    | grep -v -E '\* \[new tag\] +.* -> .*' \
-    | grep -v "^ \?- \[deleted\] \+(none) \+-> .*" \
-    | grep -v "^Auto packing the repository in background for optimum performance.$" \
-    | grep -v '^See "git help gc" for manual housekeeping.$' \
-    \
-    | grep -v "^fatal: '\([^']*\)' does not appear to be a git repository$" \
-    | grep -v '^fatal: Could not read from remote repository.$' \
-    | grep -v '^Please make sure you have the correct access rights$' \
-    | grep -v '^and the repository exists.$' \
-    \
-    | grep -v "^ssh: Could not resolve hostname ${MR_REMOTE}: Name or service not known\s*$" \
-    | grep -v '^fatal: Could not read from remote repository.$' \
-    | grep -v '^Please make sure you have the correct access rights$' \
-    | grep -v '^and the repository exists.$' \
-    \
-    | grep -v "^warning: it took .* seconds to check forced updates; you can use$" \
-    | grep -v "^'--no-show-forced-updates' or run 'git config fetch.showForcedUpdates false'$" \
-    | grep -v "^to avoid this check$" \
+  local culled="$(
+    printf %s "${git_resp}" |
+      grep -v "^Fetching " |
+      grep -v "^From " |
+      grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" |
+      grep -v -E '\* \[new branch\] +.* -> .*' |
+      grep -v -E '\* \[new tag\] +.* -> .*' |
+      grep -v "^ \?- \[deleted\] \+(none) \+-> .*" |
+      grep -v "^Auto packing the repository in background for optimum performance.$" |
+      grep -v '^See "git help gc" for manual housekeeping.$' |
+      grep -v "^fatal: '\([^']*\)' does not appear to be a git repository$" |
+      grep -v '^fatal: Could not read from remote repository.$' |
+      grep -v '^Please make sure you have the correct access rights$' |
+      grep -v '^and the repository exists.$' |
+      grep -v "^ssh: Could not resolve hostname ${MR_REMOTE}: Name or service not known\s*$" |
+      grep -v '^fatal: Could not read from remote repository.$' |
+      grep -v '^Please make sure you have the correct access rights$' |
+      grep -v '^and the repository exists.$' |
+      grep -v "^warning: it took .* seconds to check forced updates; you can use$" |
+      grep -v "^'--no-show-forced-updates' or run 'git config fetch.showForcedUpdates false'$" |
+      grep -v "^to avoid this check$"
   )"
 
   if [ -n "${culled}" ]; then
@@ -1206,8 +1205,8 @@ git_fetch_remote_travel () {
     echo \
       "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
       "&& $(fg_lightorange)git fetch ${MR_REMOTE}$(attr_reset)" \
-        >> "${MR_TMP_TRAVEL_CHORES_FILE}"
-    travel_process_chores_file_lock_release
+      >>"${MR_TMP_TRAVEL_CHORES_FILE}"
+    tra/OMR_vel_process_chores_file_lock_release
 
     error "Unexpected fetch failure!\n${git_resp}"
 
@@ -1228,7 +1227,7 @@ git_fetch_remote_travel () {
   cd "${before_cd}"
 }
 
-print_fetchfail_msg () {
+print_fetchfail_msg() {
   local target_repo="$1"
   local source_repo="$2"
   local rel_repo="$3"
@@ -1237,28 +1236,31 @@ print_fetchfail_msg () {
 
   local hintful_msg=""
   if ${remote_name_invalid}; then
-    hintful_msg="$(echo \
-      "The remote host is unreachable: “${MR_REMOTE}”\n" \
-      "- The full URL is: $(git remote get-url ${MR_REMOTE})\n" \
-      "- Use $(bg_orange)MR_REMOTE$(bg_maroon) to specify a different remote name, e.g.,$(bg_forest)\n" \
-      "    MR_REMOTE=<remote> mr ...$(bg_maroon)\n" \
-      "- If you need to remove the errant remotes, try:$(bg_forest)\n" \
-      "    mr -d / run git remote remove ${MR_REMOTE}$(attr_reset)" \
+    hintful_msg="$(
+      echo \
+        "The remote host is unreachable: “${MR_REMOTE}”\n" \
+        "- The full URL is: $(git remote get-url ${MR_REMOTE})\n" \
+        "- Use $(bg_orange)MR_REMOTE$(bg_maroon) to specify a different remote name, e.g.,$(bg_forest)\n" \
+        "    MR_REMOTE=<remote> mr ...$(bg_maroon)\n" \
+        "- If you need to remove the errant remotes, try:$(bg_forest)\n" \
+        "    mr -d / run git remote remove ${MR_REMOTE}$(attr_reset)"
     )"
   elif ${remote_path_invalid}; then
-    hintful_msg="$(echo \
-      "It's likely the path is incorrect: “/${rel_repo}”\n" \
-      "- The full URL is: $(git remote get-url ${MR_REMOTE})\n" \
-      "- Use $(bg_orange)MR_REMOTE_HOME$(bg_maroon) to specify a custom home path substitution, e.g.,$(bg_forest)\n" \
-      "    MR_REMOTE=${MR_REMOTE} MR_REMOTE_HOME=/home/<remote-user> mr ...$(bg_maroon)\n" \
-      "- If that's not the solution, your remotes might not be mirrored (don't share a common path)$(attr_reset)" \
+    hintful_msg="$(
+      echo \
+        "It's likely the path is incorrect: “/${rel_repo}”\n" \
+        "- The full URL is: $(git remote get-url ${MR_REMOTE})\n" \
+        "- Use $(bg_orange)MR_REMOTE_HOME$(bg_maroon) to specify a custom home path substitution, e.g.,$(bg_forest)\n" \
+        "    MR_REMOTE=${MR_REMOTE} MR_REMOTE_HOME=/home/<remote-user> mr ...$(bg_maroon)\n" \
+        "- If that's not the solution, your remotes might not be mirrored (don't share a common path)$(attr_reset)"
     )"
   else
     # Unreachable.
-    hintful_msg="$(echo \
-      "There's a bug in the code — this message should be unreachable.\n" \
-      "- Inspect and fix the source:\n" \
-      "  ${OHMYREPOS_LIB}/sync-travel-remote.sh$(attr_reset)" \
+    hintful_msg="$(
+      echo \
+        "There's a bug in the code — this message should be unreachable.\n" \
+        "- Inspect and fix the source:\n" \
+        "  ${OHMYREPOS_LIB}/sync-travel-remote.sh$(attr_reset)"
     )"
   fi
 
@@ -1281,7 +1283,7 @@ print_fetchfail_msg () {
   if ${remote_name_invalid}; then
     echo \
       "  $(fg_lightorange)MR_REMOTE=<fixme>$(attr_reset) mr -d $(fg_lightorange)${MR_REPO}$(attr_reset) -n ffssh" \
-        >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+      >>"${MR_TMP_TRAVEL_CHORES_FILE}"
   elif ${remote_path_invalid}; then
     # On the other hand, if it's the path that's incorrect, then it's
     # likely a MR_REMOTE_HOME issue, and it's likely to affect all
@@ -1290,7 +1292,7 @@ print_fetchfail_msg () {
     echo \
       "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
       "&& $(fg_lightorange)git remote get-url ${MR_REMOTE}$(attr_reset)" \
-        >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+      >>"${MR_TMP_TRAVEL_CHORES_FILE}"
   fi
 
   travel_process_chores_file_lock_release
@@ -1313,7 +1315,7 @@ print_fetchfail_msg () {
 #     replaces it (effectively moves it).
 #     - Otherwise, if not found on both hosts, don't worry about it.
 # USAGE: Specify list of floating tags using MR_FLOATING_TAGS.
-git_delete_floating_tags_also_found_on_remote () {
+git_delete_floating_tags_also_found_on_remote() {
   # DUNNO: Is it just me, or does this function seem overly complex?
   if [ -z "${MR_FLOATING_TAGS}" ]; then
 
@@ -1330,7 +1332,7 @@ git_delete_floating_tags_also_found_on_remote () {
   #         && echo {}'
   #   )"
   # Another approach:
-  print_floating_tags_reduce_to_existing () {
+  print_floating_tags_reduce_to_existing() {
     local tag_name=""
     for tag_name in ${MR_FLOATING_TAGS}; do
       if git_tag_exists "${tag_name}"; then
@@ -1346,17 +1348,17 @@ git_delete_floating_tags_also_found_on_remote () {
   fi
 
   local prefixed_tag_names=""
-  prefixed_tag_names="$( \
-    printf '%s' "${floating_tags}" \
-      | xargs -I {} echo refs/tags/{} \
-      | tr $'\n' ' '
+  prefixed_tag_names="$(
+    printf '%s' "${floating_tags}" |
+      xargs -I {} echo refs/tags/{} |
+      tr $'\n' ' '
   )"
 
   local matching_tags
   matching_tags="$(
-    git ls-remote ${MR_REMOTE} ${prefixed_tag_names} \
-      | awk '{ print $2 }' \
-      | sed 's#^refs/tags/##'
+    git ls-remote ${MR_REMOTE} ${prefixed_tag_names} |
+      awk '{ print $2 }' |
+      sed 's#^refs/tags/##'
   )"
 
   # One approach:
@@ -1366,31 +1368,31 @@ git_delete_floating_tags_also_found_on_remote () {
   # Another approach:
   local tag_name=""
   for tag_name in ${matching_tags}; do
-    git tag -d "${tag_name}" > /dev/null
+    git tag -d "${tag_name}" >/dev/null
   done
 }
 
 # COPYD: Poached from: https://github.com/landonb/sh-git-nubs#🌰
 # - CXREF: Found locally in DepoXy environment at:
 #   ~/.kit/sh/sh-git-nubs/lib/git-nubs.sh
-git_tag_exists () {
+git_tag_exists() {
   local tag_name="$1"
 
-  git rev-parse --verify --end-of-options "refs/tags/${tag_name}" > /dev/null 2>&1
+  git rev-parse --verify --end-of-options "refs/tags/${tag_name}" >/dev/null 2>&1
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_show_ref_branch_sha8 () {
+git_show_ref_branch_sha8() {
   local target_branch="${1:-release}"
 
   git show-ref -s refs/heads/${target_branch} |
     /usr/bin/env sed 's/^\(.\{8\}\).*/\1/'
 }
 
-git_change_branches_if_necessary () {
+git_change_branches_if_necessary() {
   local source_branch="$1"
   local target_branch="$2"
   local target_repo="${3:-$(pwd -L)}"
@@ -1440,9 +1442,10 @@ git_change_branches_if_necessary () {
   # NOTE/2020-09-21: This case block might not fire any more, if the change
   # to `git_checkedout_branch_name_direct` works (I set --abbrev-ref=loose).
   case "${source_branch}" in
-    "heads/"*) 
-      >&2 error "ERROR?: Try \`cd <source_repo> &&" \
-        "git remote set-head ${target_branch} --delete\`"
+  "heads/"*)
+    >&2 error "ERROR?: Try \`cd <source_repo> &&" \
+      "git remote set-head ${target_branch} --delete\`"
+    ;;
   esac
 
   # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
@@ -1486,8 +1489,8 @@ git_change_branches_if_necessary () {
             "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)"
 
           warn "  $ checkout --track \"${MR_REMOTE}/${source_branch}\""
-          git checkout --track "${MR_REMOTE}/${source_branch}" 2>&1 \
-            | while IFS= read -r line; do
+          git checkout --track "${MR_REMOTE}/${source_branch}" 2>&1 |
+            while IFS= read -r line; do
               warn "$(echo "$line" | sed 's/^/  /')"
             done
         fi
@@ -1522,7 +1525,7 @@ git_change_branches_if_necessary () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_move_local_branch_if_safe () {
+git_move_local_branch_if_safe() {
   local source_branch="$1"
   local target_repo="${2:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
@@ -1564,9 +1567,9 @@ git_move_local_branch_if_safe () {
       # Local ahead of remote; tell user how to ff the remote.
       print_mergefail_msg_localahead "${target_repo}"
     else
-      if ( \
-        ${MR_NO_RESET_HARD:-false} \
-        || ! _git_merge_reset_hard_if_local_unchanged "${target_repo}" "${to_commit}"
+      if (
+        ${MR_NO_RESET_HARD:-false} ||
+          ! _git_merge_reset_hard_if_local_unchanged "${target_repo}" "${to_commit}"
       ); then
         # Branches diverged. If MR_NO_RESET_HARD=true, means there's likely
         # new work locally (sussed by checking the remote/branch@{n} reflog).
@@ -1581,7 +1584,7 @@ git_move_local_branch_if_safe () {
   fi
 }
 
-_git_merge_ff_only_safe_and_complicated () {
+_git_merge_ff_only_safe_and_complicated() {
   local target_repo="$1"
   local to_commit="$2"
 
@@ -1630,27 +1633,28 @@ _git_merge_ff_only_safe_and_complicated () {
   #        - Remove --no-progress and restore this rule to see for yourself:
   #           | grep -E -v "^Updating files: 100% \([[:digit:]]+/[[:digit:]]+\), done\.$" \
   local culled
-  culled="$(printf "%s" "${git_resp}" \
-    | grep -v "^Already up to date.$" \
-    | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
-    | grep -v "^Fast-forward$" \
-    | grep -v "^Auto packing the repository in background for optimum performance.$" \
-    | grep -v '^See "git help gc" for manual housekeeping.$' \
-    | grep -E -v "^Checking out files: " \
-    | grep -E -v "^ [[:digit:]]+ files? changed, [[:digit:]]+ insertions?\(\+\), [[:digit:]]+ deletions?\(-\)$" \
-    | grep -E -v "^ [[:digit:]]+ files? changed, [[:digit:]]+ insertions?\(\+\)$" \
-    | grep -E -v "^ [[:digit:]]+ files? changed, [[:digit:]]+ deletions?\(-\)$" \
-    | grep -E -v "^ [[:digit:]]+ insertions?\(\+\), [[:digit:]]+ deletions?\(-\)$" \
-    | grep -E -v "^ [[:digit:]]+ files? changed$" \
-    | grep -E -v " rename .* \([[:digit:]]+%\)$" \
-    | grep -E -v " create mode [[:digit:]]+ \S+" \
-    | grep -E -v " delete mode [[:digit:]]+ \S+" \
-    | grep -E -v " mode change [[:digit:]]+ => [[:digit:]]+ \S+" \
-    | grep -E -v "^ [[:digit:]]+ insertions?\(\+\)$" \
-    | grep -E -v "^ [[:digit:]]+ deletions?\(-\)$" \
-    | grep -E -v "${PATTERN_TXT}" \
-    | grep -E -v "${PATTERN_BIN}" \
-    | grep -v "^fatal: Not possible to fast-forward, aborting.$" \
+  culled="$(
+    printf "%s" "${git_resp}" |
+      grep -v "^Already up to date.$" |
+      grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" |
+      grep -v "^Fast-forward$" |
+      grep -v "^Auto packing the repository in background for optimum performance.$" |
+      grep -v '^See "git help gc" for manual housekeeping.$' |
+      grep -E -v "^Checking out files: " |
+      grep -E -v "^ [[:digit:]]+ files? changed, [[:digit:]]+ insertions?\(\+\), [[:digit:]]+ deletions?\(-\)$" |
+      grep -E -v "^ [[:digit:]]+ files? changed, [[:digit:]]+ insertions?\(\+\)$" |
+      grep -E -v "^ [[:digit:]]+ files? changed, [[:digit:]]+ deletions?\(-\)$" |
+      grep -E -v "^ [[:digit:]]+ insertions?\(\+\), [[:digit:]]+ deletions?\(-\)$" |
+      grep -E -v "^ [[:digit:]]+ files? changed$" |
+      grep -E -v " rename .* \([[:digit:]]+%\)$" |
+      grep -E -v " create mode [[:digit:]]+ \S+" |
+      grep -E -v " delete mode [[:digit:]]+ \S+" |
+      grep -E -v " mode change [[:digit:]]+ => [[:digit:]]+ \S+" |
+      grep -E -v "^ [[:digit:]]+ insertions?\(\+\)$" |
+      grep -E -v "^ [[:digit:]]+ deletions?\(-\)$" |
+      grep -E -v "${PATTERN_TXT}" |
+      grep -E -v "${PATTERN_BIN}" |
+      grep -v "^fatal: Not possible to fast-forward, aborting.$"
     # OMITD: See note above:
     #  | grep -v "^merge: [-a-z0-9]+/ - not something we can merge$"
   )" || true
@@ -1705,9 +1709,10 @@ _git_merge_ff_only_safe_and_complicated () {
     #     - But until we decide otherwise, here's another robust grep
     #       check to ensure we recognize every line of output.
     local culled_check
-    culled_check="$(printf "%s" "${git_resp}" \
-      | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
-      | grep -v "^Fast-forward$" \
+    culled_check="$(
+      printf "%s" "${git_resp}" |
+        grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" |
+        grep -v "^Fast-forward$"
     )" || true
     if [ -n "${culled_check}" ]; then
       # A ✗ warning, so you can update the grep above and recognize this output.
@@ -1739,7 +1744,7 @@ PATTERN_BIN='^ [^\|]+\| +Bin( [[:digit:]]+ -> [[:digit:]]+ bytes)?$'
 # - Be sure color is enabled, lest:
 #     /usr/bin/env sed: -e expression #1, char 7: unterminated `s' command
 #   because $() returns empty.
-colorize_diff () {
+colorize_diff() {
   local git_resp="$1"
   local pattern="$2"
 
@@ -1767,7 +1772,7 @@ colorize_diff () {
   fi
 }
 
-debug_mline () {
+debug_mline() {
   local changes="$1"
 
   if ! ${MR_DIFF_REPORT_MULTIPLE_TRACE:-true}; then
@@ -1807,7 +1812,7 @@ debug_mline () {
 #   The user has been working on and rebasing remote/branch, which is the
 #   only reason why histories have diverged.
 
-_git_merge_reset_hard_if_local_unchanged () {
+_git_merge_reset_hard_if_local_unchanged() {
   local target_repo="$1"
   # E.g., '<remote>/<branch>'
   local to_commit="$2"
@@ -1820,7 +1825,7 @@ _git_merge_reset_hard_if_local_unchanged () {
     local reflog_ref="${to_commit}@{${reflog_depth}}"
 
     local reflog_id
-    if ! reflog_id="$(git_commit_object_name "${reflog_ref}" 2> /dev/null)"; then
+    if ! reflog_id="$(git_commit_object_name "${reflog_ref}" 2>/dev/null)"; then
       # No more reflog entries.
       break
     fi
@@ -1832,16 +1837,16 @@ _git_merge_reset_hard_if_local_unchanged () {
       #   pointer, no questions asked.
       _trace_reflog_time_checks "${reflog_ref}"
 
-      git reset --hard "${to_commit}" > /dev/null
+      git reset --hard "${to_commit}" >/dev/null
 
       if [ $? -eq 0 ]; then
         info "  $(bg_red)$(fg_white)RESET-HRD$(attr_reset)  " \
           "$(fg_hotpink)${MR_REPO}$(attr_reset)"
 
         # Cut off the final summary line (which merge doesn't report, either).
-        local git_diff="$( \
-          git $(print_graph_width_cfg) diff --compact-summary ${head_sha}..HEAD \
-          | $(_gnu_head) -n -1
+        local git_diff="$(
+          git $(print_graph_width_cfg) diff --compact-summary ${head_sha}..HEAD |
+            $(_gnu_head) -n -1
         )"
         local pattern=""
 
@@ -1866,10 +1871,14 @@ _git_merge_reset_hard_if_local_unchanged () {
   return 1
 }
 
-_gnu_head () {
+_gnu_head() {
   for cmd in "ghead" "head"; do
-    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
-      && break
+    (
+      unset -f ${cmd}
+      unalias ${cmd}
+      command -v ${cmd}
+    ) 2>/dev/null &&
+      break
   done
 }
 
@@ -1886,7 +1895,7 @@ _gnu_head () {
 # - This check seems completely unnecessary. But I'm curious if the
 #   statements would ever disagree. MAYBE: Though I expect they might
 #   disagree by 1 sec. if the wall time clicks over.
-_trace_reflog_time_checks () {
+_trace_reflog_time_checks() {
   local reflog_ref="$1"
 
   local head_ref_changed
@@ -1909,7 +1918,7 @@ _trace_reflog_time_checks () {
 
 # ***
 
-print_mergefail_msg_diverged () {
+print_mergefail_msg_diverged() {
   local target_repo="$1"
   local to_commit="$2"
   local git_resp="$3"
@@ -1960,23 +1969,23 @@ print_mergefail_msg_diverged () {
   echo \
     "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
     "&& $(fg_lightorange)git diff ${local_head_sha}..${to_commit}$(attr_reset)" \
-      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+    >>"${MR_TMP_TRAVEL_CHORES_FILE}"
   echo \
     "  └─▶ THEN" \
-      "$(fg_mintgreen)git rebase ${to_commit}$(attr_reset) OR" \
-      "$(fg_mintgreen)git reset --hard ${to_commit}$(attr_reset) OR"\
-      "$(fg_mintgreen)< Your choice >$(attr_reset)" \
-      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+    "$(fg_mintgreen)git rebase ${to_commit}$(attr_reset) OR" \
+    "$(fg_mintgreen)git reset --hard ${to_commit}$(attr_reset) OR" \
+    "$(fg_mintgreen)< Your choice >$(attr_reset)" \
+    >>"${MR_TMP_TRAVEL_CHORES_FILE}"
   travel_chores_file_delineate_chore_block_end
 
   travel_process_chores_file_lock_release
 
   # ***
 
-  false  # So caller doesn't have to
+  false # So caller doesn't have to
 }
 
-shorten_sha () {
+shorten_sha() {
   PW_SHA1SUM_LENGTH=7
 
   printf "$1" | sed -E 's/^(.{'${PW_SHA1SUM_LENGTH}'}).*/\1/g'
@@ -1987,7 +1996,7 @@ shorten_sha () {
 # - Because normally users run `ff` to pull changes to a host they expect
 #   to be behind. So this alert means user may want to run `ff` on the
 #   remote host they were pulling from.
-print_mergefail_msg_localahead () {
+print_mergefail_msg_localahead() {
   local target_repo="$1"
 
   warn " $(fg_lightorange)✗ $(attr_underline)localchg$(res_underline) $(attr_reset) " \
@@ -1999,12 +2008,12 @@ print_mergefail_msg_localahead () {
   echo \
     "  $(fg_lightorange)ssh ${MR_REMOTE}" \
     "'cd ${rem_repo} && MR_REMOTE=$(hostname) ${mr_repo} -d . -n ffssh'$(attr_reset)" \
-      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+    >>"${MR_TMP_TRAVEL_CHORES_FILE}"
 
-  false  # So caller doesn't have to
+  false # So caller doesn't have to
 }
 
-print_mergefail_msg_dangling () {
+print_mergefail_msg_dangling() {
   local target_repo="$1"
   local to_commit="$2"
 
@@ -2018,23 +2027,23 @@ print_mergefail_msg_dangling () {
   travel_chores_file_delineate_chore_block_beg
   echo "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
     "&& $(fg_lightorange)git checkout < You-figure-it-out >$(attr_reset)" \
-      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+    >>"${MR_TMP_TRAVEL_CHORES_FILE}"
   echo "  └─▶ OR: Run this task again, but checkout remote HEAD:" \
-      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+    >>"${MR_TMP_TRAVEL_CHORES_FILE}"
   echo "        $(fg_mintgreen)MR_NO_CHECKOUT=false $(print_ppid_command_args)$(attr_reset)" \
-      >> "${MR_TMP_TRAVEL_CHORES_FILE}"
+    >>"${MR_TMP_TRAVEL_CHORES_FILE}"
   travel_chores_file_delineate_chore_block_end
 
   travel_process_chores_file_lock_release
 
   # ***
 
-  false  # So caller doesn't have to
+  false # So caller doesn't have to
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_fetch_n_cobr () {
+git_fetch_n_cobr() {
   local source_repo="$1"
   local target_repo="$2"
   local source_type="$3"
@@ -2053,15 +2062,15 @@ git_fetch_n_cobr () {
   # ***
 
   must_be_git_dirs "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
-  [ $? -ne 0 ] && return $? || true  # Obviously unreacheable if caller used `set -e`.
+  [ $? -ne 0 ] && return $? || true # Obviously unreacheable if caller used `set -e`.
 
   # ***
 
   local before_cd="$(pwd -L)"
-  cd "${target_repo}"  # (lb): Probably $MR_REPO, which is already cwd.
+  cd "${target_repo}" # (lb): Probably $MR_REPO, which is already cwd.
 
-  git_must_be_tidy \
-    || return 1
+  git_must_be_tidy ||
+    return 1
 
   # ***
 
@@ -2070,8 +2079,8 @@ git_fetch_n_cobr () {
 
   git_remote_delete_head
 
-  git_fetch_remote_travel "${target_repo}" "${target_type}" "${source_repo}" "${rel_repo}" \
-    || return 1
+  git_fetch_remote_travel "${target_repo}" "${target_type}" "${source_repo}" "${rel_repo}" ||
+    return 1
 
   # ***
 
@@ -2100,7 +2109,7 @@ git_fetch_n_cobr () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_fetch_n_cobr_n_merge () {
+git_fetch_n_cobr_n_merge() {
   local source_repo="$1"
   local target_repo="$2"
   local source_type="$3"
@@ -2114,14 +2123,14 @@ git_fetch_n_cobr_n_merge () {
   git_fetch_n_cobr \
     "${source_repo}" "${target_repo}" \
     "${source_type}" "${target_type}" \
-    "${rel_repo}" \
-    || return 0
+    "${rel_repo}" ||
+    return 0
 
   # Try to fast-forward merge, or use reset-hard if safe, otherwise complain.
   git_move_local_branch_if_safe "${MR_ACTIVE_BRANCH}" "${target_repo}"
 }
 
-git_pack_travel_device () {
+git_pack_travel_device() {
   local source_repo="$1"
   local target_repo="$2"
 
@@ -2129,21 +2138,21 @@ git_pack_travel_device () {
   git_ensure_or_clone_target "${source_repo}" "${target_repo}"
   git_fetch_n_cobr \
     "${source_repo}" "${target_repo}" \
-    "local" "travel" \
-    || return 0
+    "local" "travel" ||
+    return 0
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_merge_check_env_remote () {
+git_merge_check_env_remote() {
   [ -z "${MR_REMOTE}" ] && error 'You must set MR_REMOTE!' && exit 1 || true
 }
 
-git_merge_check_env_repo () {
+git_merge_check_env_repo() {
   [ -z "${MR_REPO}" ] && error 'You must set MR_REPO!' && exit 1 || true
 }
 
-git_merge_check_env_travel () {
+git_merge_check_env_travel() {
   [ -z "${MR_TRAVEL}" ] && error 'You must set MR_TRAVEL!' && exit 1 || true
 }
 
@@ -2155,7 +2164,7 @@ git_merge_check_env_travel () {
 #                      and /home/linux_user -> /Users/macos_user on @macOS,
 #   - But adding symlink requires root privileges, among other concerns,
 #     so prefer MR_REMOTE_HOME.
-print_path_for_remote_user () {
+print_path_for_remote_user() {
   local local_repo="$1"
 
   if [ -n "${MR_REMOTE_PATH}" ]; then
@@ -2191,7 +2200,7 @@ print_path_for_remote_user () {
 }
 
 # The `mr ffssh` action.
-git_merge_ffonly_ssh_mirror () {
+git_merge_ffonly_ssh_mirror() {
   set -e
 
   sync_travel_remote_setup
@@ -2207,12 +2216,12 @@ git_merge_ffonly_ssh_mirror () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_update_ensure_ready () {
+git_update_ensure_ready() {
   git_merge_check_env_travel
   git_merge_check_env_repo
 }
 
-git_update_dev_path () {
+git_update_dev_path() {
   local rem_repo="$(print_path_for_remote_user)"
   # 2019-10-30: To avoid mixing git-dir subdirectories and my subdirs,
   # add a path postfix to the repo path.
@@ -2225,13 +2234,13 @@ git_update_dev_path () {
 }
 
 # Guard against Homebrew missing from PATH (macOS), or coreutils not installed (Debian).
-realpath_m () {
-  if ! realpath -m "$@" 2> /dev/null; then
+realpath_m() {
+  if ! realpath -m "$@" 2>/dev/null; then
     local grealpath
     # Side-effect: Triggers errexit if print_homebrew_prefix cannot suss.
     grealpath="$(print_homebrew_prefix)/bin/grealpath"
 
-    if ! ${grealpath} -m "$@" 2> /dev/null; then
+    if ! ${grealpath} -m "$@" 2>/dev/null; then
       >&2 error "ERROR: \`realpath -m\` failed: Is GNU coreutils installed/on PATH?"
 
       exit 1
@@ -2240,7 +2249,7 @@ realpath_m () {
 }
 
 # The `mr travel` action.
-git_update_device_fetch_from_local () {
+git_update_device_fetch_from_local() {
   set -e
 
   sync_travel_remote_setup
@@ -2254,7 +2263,7 @@ git_update_device_fetch_from_local () {
 }
 
 # The `mr unpack` action.
-git_update_local_fetch_from_device () {
+git_update_local_fetch_from_device() {
   set -e
 
   sync_travel_remote_setup
@@ -2320,13 +2329,13 @@ git_update_local_fetch_from_device () {
 
 # Shared setup function: source dependencies, and set file VARS.
 
-sync_travel_remote_setup () {
+sync_travel_remote_setup() {
   _sync_travel_remote_sh__source_deps
 
   _travel_reveal_biz_vars
 }
 
-main () {
+main() {
   # Bail if MR_REPO set, because its action has already run.
   # - See previous long comment about how `mr` forks processes.
   # - It actually doesn't matter if the setup function runs, but
@@ -2346,4 +2355,3 @@ main "$@"
 #  _sync_travel_remote_sh__source_deps_unset_cleanup
 #  unset -f _travel_reveal_biz_vars
 #  unset -f sync_travel_remote_setup
-
