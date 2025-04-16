@@ -431,7 +431,7 @@ git_auto_commit_all() {
 
     exit 1
   fi
-  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-myrepos: autoci: Add All Changes [@$(hostname)].}"
+  local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-update(aci): commit all changes [@$(hostname)].}"
 
   # We ignore untracked files here because they cannot be added
   # by a generic `git add -u` -- in fact, git should complain.
