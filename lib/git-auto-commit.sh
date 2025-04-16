@@ -10,7 +10,7 @@
 
 _git_auto_commit_sh__this_filename="git-auto-commit.sh"
 
-_git_auto_commit_sh__source_deps () {
+_git_auto_commit_sh__source_deps() {
   local sourced_all=true
 
   # On Bash, user can source this file from anywhere.
@@ -35,9 +35,9 @@ _git_auto_commit_sh__source_deps () {
   ${sourced_all}
 }
 
-_git_auto_commit_sh__smells_like_bash () { declare -p BASH_SOURCE > /dev/null 2>&1; }
+_git_auto_commit_sh__smells_like_bash() { declare -p BASH_SOURCE >/dev/null 2>&1; }
 
-_git_auto_commit_sh__print_this_fullpath () {
+_git_auto_commit_sh__print_this_fullpath() {
   if _git_auto_commit_sh__smells_like_bash; then
     echo "$(realpath -- "${BASH_SOURCE[0]}")"
   elif [ "$(basename -- "$0")" = "${_git_auto_commit_sh__this_filename}" ]; then
@@ -51,11 +51,11 @@ _git_auto_commit_sh__print_this_fullpath () {
 
 _git_auto_commit_sh__this_fullpath="$(_git_auto_commit_sh__print_this_fullpath)"
 
-_git_auto_commit_sh__shell_sourced () {
+_git_auto_commit_sh__shell_sourced() {
   [ "$(realpath -- "$0")" != "${_git_auto_commit_sh__this_fullpath}" ]
 }
 
-_git_auto_commit_sh__source_file () {
+_git_auto_commit_sh__source_file() {
   local prfx="${1:-.}"
   local depd="${2:-.}"
   local file="${3:-.}"
@@ -96,10 +96,10 @@ _git_auto_commit_sh__source_file () {
 
 # BONUS: You can use these aliases instead of the uniquely-named functions,
 # just be aware not to call any alias after calling _source_deps.
-_shell_sourced () { _git_auto_commit_sh__shell_sourced; }
-_source_deps () { _git_auto_commit_sh__source_deps; }
+_shell_sourced() { _git_auto_commit_sh__shell_sourced; }
+_source_deps() { _git_auto_commit_sh__source_deps; }
 
-_git_auto_commit_sh__source_deps_unset_cleanup () {
+_git_auto_commit_sh__source_deps_unset_cleanup() {
   unset -v _git_auto_commit_sh__this_filename
   unset -f _git_auto_commit_sh__print_this_fullpath
   unset -f _git_auto_commit_sh__shell_sourced
@@ -122,11 +122,11 @@ _git_auto_commit_sh__source_deps_unset_cleanup () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-reveal_biz_vars () {
+reveal_biz_vars() {
   MR_GIT_AUTO_COMMIT_SAID_HELLO=false
 }
 
-must_git_nothing_staged () {
+must_git_nothing_staged() {
   if git_nothing_staged; then
     return
   fi
@@ -137,7 +137,7 @@ must_git_nothing_staged () {
   exit 1
 }
 
-git_auto_commit_parse_args () {
+git_auto_commit_parse_args() {
   # Note that both `shift` and `set -- $@` are scoped to this function,
   # so we'll process all args in one go (rather than splitting into two
   # functions, because myrepostravel_opts_parse complains on unknown args).
@@ -158,7 +158,7 @@ git_auto_commit_parse_args () {
   MR_GIT_AUTO_COMMIT_FIXUP=""
 }
 
-git_auto_commit_cd_mrrepo () {
+git_auto_commit_cd_mrrepo() {
   # Only print the "examining" message once, e.g., affects calls such as:
   #     autocommit =
   #       git_auto_commit_one 'some/file' "$@"
@@ -172,16 +172,16 @@ git_auto_commit_cd_mrrepo () {
   MR_GIT_AUTO_COMMIT_SAID_HELLO=true
 }
 
-git_auto_commit_cd_return () {
+git_auto_commit_cd_return() {
   cd "${MR_GIT_AUTO_COMMIT_BEFORE_CD}"
 }
 
-git_auto_commit_noop () {
+git_auto_commit_noop() {
   debug "  $(fg_mintgreen)$(attr_emphasis)excluding$(attr_reset)  " \
     "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
 }
 
-git_auto_commit_one () {
+git_auto_commit_one() {
   must_git_nothing_staged
   git_auto_commit_cd_mrrepo
 
@@ -199,7 +199,7 @@ git_auto_commit_one () {
 # history, or if it changes often and you don't want to suffer a noisy
 # log, or maybe it's a binary item and you don't want to waste a lot of
 # disk space tracking object states you don't care about.
-git_auto_fixup_one () {
+git_auto_fixup_one() {
   local repo_file="$1"
   local fixup_msg="$2"
 
@@ -239,7 +239,7 @@ git_auto_fixup_one () {
   git_auto_commit_cd_return
 }
 
-git_auto_commit_path_one () {
+git_auto_commit_path_one() {
   local repo_file="$1"
   local skip_commit=${2:-false}
 
@@ -293,10 +293,14 @@ git_auto_commit_path_one () {
   fi
 }
 
-gnu_stat () {
+gnu_stat() {
   for cmd in "gstat" "stat"; do
-    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
-      && break
+    (
+      unset -f ${cmd}
+      unalias ${cmd}
+      command -v ${cmd}
+    ) 2>/dev/null &&
+      break
   done
 }
 
@@ -310,7 +314,7 @@ gnu_stat () {
 #   but I'd rather start strict and see if the latter is
 #   something for which I eventually yearn.
 # - Note that a path with spaces or special characters will be quoted.
-git_status_unstaged_or_untracked () {
+git_status_unstaged_or_untracked() {
   local repo_file="$1"
   local inclT="$2"
 
@@ -321,11 +325,11 @@ git_status_unstaged_or_untracked () {
     grep -q -E -e "^(${inclT} M|\?\?) \"?${repo_file}\"?$"
 }
 
-git_nothing_staged () {
+git_nothing_staged() {
   git diff --cached --quiet
 }
 
-git_auto_commit_path_one_or_many () {
+git_auto_commit_path_one_or_many() {
   local commit_msg="$1"
 
   if [ -z "${commit_msg}" ]; then
@@ -336,14 +340,14 @@ git_auto_commit_path_one_or_many () {
 
   # ***
 
-  git_auto_commit_resolve_fixup_commit () {
+  git_auto_commit_resolve_fixup_commit() {
     if [ -z "${MR_GIT_AUTO_COMMIT_FIXUP}" ]; then
       return 0
 
     fi
 
-    git --no-pager log -1 --format=%H ":/^${MR_GIT_AUTO_COMMIT_FIXUP}\$" 2> /dev/null \
-      || true
+    git --no-pager log -1 --format=%H ":/^${MR_GIT_AUTO_COMMIT_FIXUP}\$" 2>/dev/null ||
+      true
   }
 
   local commit_opts=""
@@ -362,8 +366,8 @@ git_auto_commit_path_one_or_many () {
   if ! eval git commit ${commit_opts} >/dev/null 2>&1; then
     error "Commit failed:"
 
-    eval git commit ${commit_opts} 2>&1 \
-      | while IFS= read -r line; do
+    eval git commit ${commit_opts} 2>&1 |
+      while IFS= read -r line; do
         error "  ${line}"
       done
 
@@ -375,7 +379,7 @@ git_auto_commit_path_one_or_many () {
   fi
 }
 
-git_auto_commit_many () {
+git_auto_commit_many() {
   must_git_nothing_staged
   git_auto_commit_cd_mrrepo
 
@@ -400,7 +404,7 @@ git_auto_commit_many () {
   git_auto_commit_cd_return
 }
 
-git_auto_commit_path_many () {
+git_auto_commit_path_many() {
   local repo_file="$1"
   if [ -z "${repo_file}" ]; then
     fatal "ERROR: Expecting a path to git_auto_commit_path_many."
@@ -410,14 +414,14 @@ git_auto_commit_path_many () {
 
   local skip_commit=true
 
-  [ -z "${MR_GIT_AUTO_COMMIT_FILES_ADDED}" ] \
-    || MR_GIT_AUTO_COMMIT_FILES_ADDED="${MR_GIT_AUTO_COMMIT_FILES_ADDED}, "
+  [ -z "${MR_GIT_AUTO_COMMIT_FILES_ADDED}" ] ||
+    MR_GIT_AUTO_COMMIT_FILES_ADDED="${MR_GIT_AUTO_COMMIT_FILES_ADDED}, "
   MR_GIT_AUTO_COMMIT_FILES_ADDED="${MR_GIT_AUTO_COMMIT_FILES_ADDED}“$(basename -- "${repo_file}")”"
 
   git_auto_commit_path_one "${repo_file}" ${skip_commit}
 }
 
-git_auto_commit_all () {
+git_auto_commit_all() {
   must_git_nothing_staged
   git_auto_commit_cd_mrrepo
 
@@ -481,11 +485,11 @@ git_auto_commit_all () {
   git_auto_commit_cd_return
 }
 
-git_auto_commit_path_all () {
-  :  # pass/no-op.
+git_auto_commit_path_all() {
+  : # pass/no-op.
 }
 
-git_auto_commit_new () {
+git_auto_commit_new() {
   must_git_nothing_staged
   git_auto_commit_cd_mrrepo
 
@@ -498,7 +502,7 @@ git_auto_commit_new () {
   git_auto_commit_cd_return
 }
 
-git_auto_commit_process_rest () {
+git_auto_commit_process_rest() {
   local processor="$1"
   shift
 
@@ -511,35 +515,35 @@ git_auto_commit_process_rest () {
     # These options were previously processed by params_register_switches.
     # Here we just need to ignore them.
     case $1 in
-      -f)
-        shift
-        ;;
-      --force)
-        shift
-        ;;
-      -s)
-        shift
-        ;;
-      --safe)
-        shift
-        ;;
-      -y)
-        shift
-        ;;
-      --yes)
-        shift
-        ;;
-      -m)
-        shift 2
-        ;;
-      --message)
-        shift 2
-        ;;
-      *)
-        eval "${processor} \"$1\""
-        shift
-        processed_path=true
-        ;;
+    -f)
+      shift
+      ;;
+    --force)
+      shift
+      ;;
+    -s)
+      shift
+      ;;
+    --safe)
+      shift
+      ;;
+    -y)
+      shift
+      ;;
+    --yes)
+      shift
+      ;;
+    -m)
+      shift 2
+      ;;
+    --message)
+      shift 2
+      ;;
+    *)
+      eval "${processor} \"$1\""
+      shift
+      processed_path=true
+      ;;
     esac
   done
 
@@ -555,7 +559,7 @@ git_auto_commit_process_rest () {
   ${processed_path}
 }
 
-git_auto_commit_path_new () {
+git_auto_commit_path_new() {
   local add_path="${1:-.}"
 
   local msg_prefix="myrepos: autoci: Add Untracked [@$(hostname)]"
@@ -604,7 +608,7 @@ git_auto_commit_path_new () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   # Only source deps when not included by OMR.
   # - This supports user sourcing this file directly,
   #   and it helps OMR avoid re-sourcing the same files.
@@ -620,4 +624,3 @@ main "$@"
 _git_auto_commit_sh__source_deps_unset_cleanup
 unset -f main
 unset -f reveal_biz_vars
-
