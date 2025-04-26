@@ -7,17 +7,17 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-os_is_macos () {
+os_is_macos() {
   [ "$(uname)" = "Darwin" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Preserve tty flags
-_TTY_FLAGS="$([ -t 0 ] && stty -g)" \
-  || true
+_TTY_FLAGS="$([ -t 0 ] && stty -g)" ||
+  true
 
-clear_traps () {
+clear_traps() {
   local normal_exit="${1:-true}"
   local return_value="${2:-0}"
 
@@ -26,29 +26,29 @@ clear_traps () {
   err_trap_user_hook "${normal_exit}" "${return_value}"
 }
 
-set_traps () {
+set_traps() {
   trap -- trap_exit EXIT
   trap -- trap_int INT
 }
 
-set_traps_safe () {
+set_traps_safe() {
   trap -- trap_exit_safe EXIT
   trap -- trap_int INT
 }
 
-exit_0 () {
+exit_0() {
   clear_traps true 0
 
   exit 0
 }
 
-exit_1 () {
+exit_1() {
   clear_traps true 1
 
   exit 1
 }
 
-trap_exit () {
+trap_exit() {
   local return_value=$?
 
   clear_traps false ${return_value}
@@ -69,7 +69,7 @@ trap_exit () {
   exit ${return_value}
 }
 
-trap_exit_safe () {
+trap_exit_safe() {
   local return_value=$?
 
   >&2 echo "ALERT: "$(basename -- "$0")" tossed an error! (err-trap: ${return_value})"
@@ -87,7 +87,7 @@ trap_exit_safe () {
 #   https://unix.stackexchange.com/a/386856
 #   https://unix.stackexchange.com/questions/386836/
 #     why-is-doing-an-exit-130-is-not-the-same-as-dying-of-sigint
-trap_int () {
+trap_int() {
   local return_value=$?
 
   clear_traps
@@ -100,8 +100,8 @@ trap_int () {
   #     to the terminal and hopefully that'll right the sh'ip.
   # - Note that `stty sane` also works here, but that's more like a reset.
   #   We use save-load to show that we restored the original tty settings.
-  [ -t 0 ] && stty "${_TTY_FLAGS}" \
-    || true
+  [ -t 0 ] && stty "${_TTY_FLAGS}" ||
+    true
 
   exit ${return_value}
 }
@@ -110,15 +110,14 @@ trap_int () {
 
 SH_ERR_TRAP_USER_HOOK="${SH_ERR_TRAP_USER_HOOK:-sh_err_trap_user_hook}"
 
-err_trap_user_hook () {
+err_trap_user_hook() {
   local normal_exit="$1"
   local return_value="$2"
 
   # Bashism: typeset -f ${SH_ERR_TRAP_USER_HOOK} > /dev/null
-  if type ${SH_ERR_TRAP_USER_HOOK} > /dev/null 2>&1; then
+  if type ${SH_ERR_TRAP_USER_HOOK} >/dev/null 2>&1; then
     ${SH_ERR_TRAP_USER_HOOK} "$@"
   fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
