@@ -1252,6 +1252,17 @@ symlink_mrinfuse_typed () {
   # really is.
   if ${MRT_MRINFUSE_EXPAND_LINK:-true}; then
     sourcep="$(realpath -- "${sourcep}")"
+
+    # USAGE/2025-08-26: Set MRT_MRINFUSE_NORMALIZE_HOME to replace user home
+    # path prefix with a different path.
+    # - UCASE: If you deploy a repo on different OSes or for different users,
+    #   the absolute user home path may differ between hosts, e.g.,
+    #   /Users/user on macOS, and /home/user on Linux.
+    #   - Here you can change that to a special path, e.g., the author has
+    #     /private/user defined on macOS and Linux to point to user home.
+    if [ -n "${MRT_MRINFUSE_NORMALIZE_HOME}" ]; then
+      sourcep="$(echo "${sourcep}" | $(gnu_sed) "s#^${HOME}#${MRT_MRINFUSE_NORMALIZE_HOME}#")"
+    fi
   fi
 
   symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
