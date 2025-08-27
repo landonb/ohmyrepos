@@ -217,7 +217,7 @@ infuser_prepare () {
 
   infuser_set_envs "${repodir}"
   info "🧶 Infusing $(repo_highlight ${repodir})" \
-    "╪ $(font_info_updated "$(realpath -- "$0" | sed "s#^${HOME}/#\~/#")")"
+    "╪ $(font_info_updated "$(realpath -- "$0" | $(gnu_sed) "s#^${HOME}/#\~/#")")"
   myrepostravel_opts_parse "$@"
 }
 
@@ -749,18 +749,18 @@ print_common_path_prefix () {
   local sourcep="$1"
   local targetp="$2"
 
-  gnu_sed () {
-    for cmd in "gsed" "sed"; do
-      ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
-        && break
-    done
-  }
-
   # Note POSIX printf recognizes \0 but not \x0
   printf '%s\0%s\n' "${sourcep}" "${targetp}" \
     | $(gnu_sed) 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/' \
     | head -n 1 \
     | tr -d '\n'
+}
+
+gnu_sed () {
+  for cmd in "gsed" "sed"; do
+    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
+      && break
+  done
 }
 
 symlink_adjusted_source_verify_target () {
