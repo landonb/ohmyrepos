@@ -693,6 +693,23 @@ print_sourcep_relative_targetp () {
   echo "${sourcep}"
 }
 
+# USAGE/2025-08-26: Set MRT_SYMLINK_NORMALIZE_HOME to replace user home
+# path prefix with a different path.
+# - UCASE: If you deploy a repo on different OSes or for different users,
+#   the absolute user home path may differ between hosts, e.g.,
+#   /Users/user on macOS, and /home/user on Linux.
+#   - Here you can change that to a special path, e.g., the author has
+#     /private/user defined on macOS and Linux to point to user home.
+print_path_normalize_home() {
+  local sourcep="$1"
+
+  if [ -n "${MRT_SYMLINK_NORMALIZE_HOME}" ]; then
+    sourcep="$(echo "${sourcep}" | $(gnu_sed) "s#^${HOME}#${MRT_SYMLINK_NORMALIZE_HOME}#")"
+  fi
+
+  printf '%s' "${sourcep}"
+}
+
 # SAVVY: S/O article gives following regex to find common prefix:
 #     printf ... | sed 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/'
 # - THANX: https://stackoverflow.com/a/6973268
@@ -793,6 +810,8 @@ makelink_clobber_typed () {
 
     return 1
   fi
+
+  sourcep="$(print_path_normalize_home "${sourcep}")"
 
   local errcode
   # Check if target does not exist (and be sure not broken symlink).
@@ -1253,16 +1272,7 @@ symlink_mrinfuse_typed () {
   if ${MRT_MRINFUSE_EXPAND_LINK:-true}; then
     sourcep="$(realpath -- "${sourcep}")"
 
-    # USAGE/2025-08-26: Set MRT_MRINFUSE_NORMALIZE_HOME to replace user home
-    # path prefix with a different path.
-    # - UCASE: If you deploy a repo on different OSes or for different users,
-    #   the absolute user home path may differ between hosts, e.g.,
-    #   /Users/user on macOS, and /home/user on Linux.
-    #   - Here you can change that to a special path, e.g., the author has
-    #     /private/user defined on macOS and Linux to point to user home.
-    if [ -n "${MRT_MRINFUSE_NORMALIZE_HOME}" ]; then
-      sourcep="$(echo "${sourcep}" | $(gnu_sed) "s#^${HOME}#${MRT_MRINFUSE_NORMALIZE_HOME}#")"
-    fi
+    sourcep="$(print_path_normalize_home "${sourcep}")"
   fi
 
   symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
