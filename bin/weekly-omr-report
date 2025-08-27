@@ -316,6 +316,8 @@ email_report() {
 
   local pre_style="style=\"font-family: 'Hack', 'DejaVu Sans Mono', 'monospace'; font-size: 13px;\""
 
+  local alert_style="style=\"font-style: italic; font-weight: bold;\""
+
   local report_time_0=$(date +%s.%N)
 
   # `mailx` works from Debian, but not from macOS, e.g.,:
@@ -343,7 +345,7 @@ $(${REPORT_FAILED} && echo "<p>The \`omr-report\` command itself failed!</p>" ||
 $(${CACHE_FRESHENED} && echo "<p>Generated new cache file: ${CACHE_CAPTURE}</p>" || true)
 
 $( (! ${DIFF_FAILED} || ${CACHE_FRESHENED}) && echo " \
-$(${CACHE_FRESHENED} || echo "<p>Diff passed</p>")
+$(${CACHE_FRESHENED} || echo "<p ${alert_style}>Diff passed</p>")
 <p>Summary on @$(hostname):</p>
 <p><pre ${pre_style}>
 $(cat "${CAPTURE_PATH}" | grep "Number of")
@@ -353,7 +355,7 @@ $(cat "${CAPTURE_PATH}" | grep "Number of")
 $(${ALWAYS_EMAIL} && echo "<p>If you don't always want this email, set ALWAYS_EMAIL=false</p>" || true)
 
 $(${DIFF_FAILED} && echo " \
-<p>Diff failed on @$(hostname)!</p>
+<p ${alert_style}>Diff failed on @$(hostname)!</p>
 
 <p>Please update the reference file:</p>
 <p><pre ${pre_style}>${CACHE_CAPTURE}</pre></p>
