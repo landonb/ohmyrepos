@@ -51,7 +51,7 @@ DRY_ECHO=${DRY_ECHO:-}
 #
 # - Run the next time anacron runs (per `crontab -l`):
 #
-#     echo '19991231' > ~/.anacron/spool/cron.weekly 
+#     echo '19991231' > ~/.anacron/spool/cron.weekly
 #
 #   Or if you've wired it to run monthly instead:
 #
@@ -69,18 +69,18 @@ DRY_ECHO=${DRY_ECHO:-}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
+source_deps() {
   # insist_cmd 'mailx' '- E.g., `apt install bsd-mailx`'
   insist_cmd 'sendmail' '- E.g., `apt install postfix`'
 
   insist_find_mr_and_append_path
 }
 
-insist_cmd () {
+insist_cmd() {
   local cmd_name="$1"
   local install_hint="$2"
 
-  command -v "${cmd_name}" > /dev/null && return || true
+  command -v "${cmd_name}" >/dev/null && return || true
 
   >&2 echo "ERROR: Missing system command ‘${cmd_name}’"
   if [ -n "${install_hint}" ]; then
@@ -91,18 +91,18 @@ insist_cmd () {
 }
 
 # So that omr-report's `mr` command works.
-insist_find_mr_and_append_path () {
+insist_find_mr_and_append_path() {
   local found_path=""
 
   local try_path
   for try_path in \
     "${HOME}/.local/bin" \
-    "${GITMYREPOSPATH:-${GITREPOSPATH:-${HOME}/.kit/git}/myrepos}" \
-  ; do
+    "${GITMYREPOSPATH:-${GITREPOSPATH:-${HOME}/.kit/git}/myrepos}"; do
+
     if [ -x "${try_path}/mr" ]; then
       found_path="${try_path}"
 
-      break;
+      break
     fi
   done
 
@@ -119,15 +119,15 @@ insist_find_mr_and_append_path () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-desktop_notify () {
+desktop_notify() {
   local summary="$1"
   local body="$2"
   local icon_linux="$3"
 
-  if command -v notify-send > /dev/null; then
+  if command -v notify-send >/dev/null; then
     # Linux
     notify-send -i "${icon_linux}" "${summary}" "${body}"
-  elif command -v terminal-notifier > /dev/null; then
+  elif command -v terminal-notifier >/dev/null; then
     # macOS — e.g., /opt/homebrew/bin/terminal-notifier
     #  Or /usr/local/bin/terminal-notifier
     # - Without `-title`, prints "Terminal".
@@ -145,7 +145,7 @@ CACHE_CAPTURE_DIR="${HOME}/.local/share/weekly-omr-report"
 CACHE_CAPTURE_LOCALHOST="${CACHE_CAPTURE_DIR}/omr-report--localhost"
 CACHE_CAPTURE="${CACHE_CAPTURE_DIR}/omr-report-$(hostname)"
 
-weekly_omr_report () {
+weekly_omr_report() {
   local CAPTURE_PATH=""
   local ELAPSED_TIME_0="0.0"
   begin_capture
@@ -153,15 +153,15 @@ weekly_omr_report () {
   ensure_cache_capture_dir
 
   local REPORT_FAILED=false
-  capture_omr_report \
-    || REPORT_FAILED=true
+  capture_omr_report ||
+    REPORT_FAILED=true
 
   normalize_omr_report
 
   local CACHE_FRESHENED=false
   local DIFF_FAILED=false
-  process_report \
-    || DIFF_FAILED=true
+  process_report ||
+    DIFF_FAILED=true
 
   email_capture
 
@@ -172,12 +172,12 @@ weekly_omr_report () {
   fi
 }
 
-capture_omr_report () {
-  if ! command -v omr-report > /dev/null; then
+capture_omr_report() {
+  if ! command -v omr-report >/dev/null; then
     PATH="${PATH}:$(realpath -- "$(dirname -- "$0")")"
   fi
 
-  if ! command -v omr-report > /dev/null; then
+  if ! command -v omr-report >/dev/null; then
     >&2 echo "ERROR: Cannot find \`omr-report\`"
 
     exit_1
@@ -188,13 +188,13 @@ capture_omr_report () {
   #   OMR_VERBOSE=false: command not found
   if [ -z "${DRY_ECHO}" ]; then
     # CXREF: ~/.kit/git/ohmyrepos/bin/omr-report
-    OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report > "${CAPTURE_PATH}" 2>&1
+    OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report >"${CAPTURE_PATH}" 2>&1
   else
     ${DRY_ECHO} "OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report > \"${CAPTURE_PATH}\" 2>&1"
   fi
 }
 
-normalize_omr_report () {
+normalize_omr_report() {
   # Set this for testing; not intended for normal use.
   if ${OMR_NO_NORMALIZE:-false}; then
 
@@ -205,13 +205,13 @@ normalize_omr_report () {
 
   local summary="$(${DRY_ECHO} tail -2 "${CAPTURE_PATH}")"
 
-  ${DRY_ECHO} head -n -2 "${CAPTURE_PATH}" \
-    | ${DRY_ECHO} sort -k1,1 -t' ' -o "${CAPTURE_PATH}"
+  ${DRY_ECHO} head -n -2 "${CAPTURE_PATH}" |
+    ${DRY_ECHO} sort -k1,1 -t' ' -o "${CAPTURE_PATH}"
 
-  ${DRY_ECHO} echo "${summary}" >> "${CAPTURE_PATH}"
+  ${DRY_ECHO} echo "${summary}" >>"${CAPTURE_PATH}"
 }
 
-process_report () {
+process_report() {
   if [ ! -f "${CACHE_CAPTURE}" ]; then
     command cp -- "${CAPTURE_PATH}" "${CACHE_CAPTURE}"
 
@@ -225,14 +225,14 @@ process_report () {
   diff -q \
     <(scrub_count_lines "${CAPTURE_PATH}") \
     <(scrub_count_lines "${CACHE_CAPTURE}") \
-    > /dev/null
+    >/dev/null
 }
 
 # Exclude the final one or two lines that include the registered
 # and skipped counts, and unregistered count. Otherwise user would
 # be troubled with maintaining the reference file whenever that add
 # or remove OMR project config.
-scrub_count_lines () {
+scrub_count_lines() {
   local file="$1"
 
   cat -- "${file}" | grep -v "^\(- \)\?Number of "
@@ -240,7 +240,7 @@ scrub_count_lines () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-ensure_cache_capture_dir () {
+ensure_cache_capture_dir() {
   local cache_capture_dir="$(dirname -- "${CACHE_CAPTURE}")"
 
   if [ ! -e "${cache_capture_dir}" ]; then
@@ -252,7 +252,7 @@ ensure_cache_capture_dir () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-begin_capture () {
+begin_capture() {
   ELAPSED_TIME_0=$(date +%s.%N)
 
   # SAVVY: Need --tmpdir when specifying TEMPLATE-XXX so file goes to /tmp, not $(pwd).
@@ -261,7 +261,7 @@ begin_capture () {
   touch -- "${CAPTURE_PATH}"
 }
 
-cleanup_capture () {
+cleanup_capture() {
   if ! ${DIFF_FAILED} && [ -f "${CAPTURE_PATH}" ]; then
     command rm -- "${CAPTURE_PATH}"
   fi
@@ -269,7 +269,7 @@ cleanup_capture () {
   unset -v CAPTURE_PATH
 }
 
-set_elapsed_time () {
+set_elapsed_time() {
   local elapsed_time_1=$(date +%s.%N)
 
   ELAPSED_MINUTES=$(
@@ -277,11 +277,11 @@ set_elapsed_time () {
   )
 }
 
-echo_elapsed () {
+echo_elapsed() {
   echo "Your task took <em>${ELAPSED_MINUTES} mins.</em>"
 }
 
-print_elapsed_mins () {
+print_elapsed_mins() {
   local setup_time_0=$1
   local setup_time_n=${2:-$(date +%s.%N)}
 
@@ -291,29 +291,30 @@ print_elapsed_mins () {
 # ***
 
 # Remember that [ -t 1 ] is false when called in a $(subprocess).
-stdout_isatty () {
+stdout_isatty() {
   [ -t 1 ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-email_capture () {
+email_capture() {
   local ELAPSED_MINUTES="0.0"
   set_elapsed_time
 
-  if ${REPORT_FAILED} \
-    || ${CACHE_FRESHENED} \
-    || ${DIFF_FAILED} \
-    || ${ALWAYS_EMAIL} \
-  ; then
+  if ${REPORT_FAILED} ||
+    ${CACHE_FRESHENED} ||
+    ${DIFF_FAILED} ||
+    ${ALWAYS_EMAIL} \
+    ; then
+
     email_report
   fi
 }
 
-email_report () {
+email_report() {
   local subject="OMR says hi 🙋 from $(hostname)"
 
-  local pre_style="style=\"font-family: 'Hack', 'DejaVu Sans Mono', 'monospace'; font-size: 13px;\"";
+  local pre_style="style=\"font-family: 'Hack', 'DejaVu Sans Mono', 'monospace'; font-size: 13px;\""
 
   local report_time_0=$(date +%s.%N)
 
@@ -325,7 +326,7 @@ email_report () {
   #     "${SEND_EMAIL_TO_FRIENDLY}" <<EOF
   # - So use `sendmail` instead of `mailx`.
   sendmail -oi "${SEND_EMAIL_TO}" \
-<<EOF
+    <<EOF
 From: ${SEND_EMAIL_FROM}
 To: ${SEND_EMAIL_TO_FRIENDLY}
 Subject: ${subject}
@@ -380,7 +381,7 @@ EOF
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   set -e
 
   # Load: set_traps, clear_traps, exit_0, exit_1, os_is_macos.
@@ -408,4 +409,3 @@ fi
 
 unset -f main
 unset -f source_deps
-
