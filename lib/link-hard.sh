@@ -5,7 +5,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
+source_deps() {
   local before_cd="$(pwd -L)"
 
   # Load the logger library, from github.com/landonb/sh-logger
@@ -43,7 +43,7 @@ source_deps () {
 #   might consider adding update-faithful.sh-type awareness
 #   to this feature.)
 
-link_hard () {
+link_hard() {
   # The reference file.
   local canon_file="$1"
   local chase_file="${2:-${MR_REPO}/$(basename -- "${canon_file}")}"
@@ -52,7 +52,7 @@ link_hard () {
   #   $ ls -i ${canon_file}
   #   55182863 /path/to/file
 
-  file_index_number_or_warn () {
+  file_index_number_or_warn() {
     local file_path="$1"
     local file_inode=""
 
@@ -62,7 +62,7 @@ link_hard () {
       return 1
     fi
 
-    file_inode=$(command ls -i "${file_path}" | cut -d' ' -f1 2> /dev/null)
+    file_inode=$(command ls -i "${file_path}" | cut -d' ' -f1 2>/dev/null)
     if [ $? -ne 0 ] || [ -z "${file_inode}" ]; then
       >&2 error "No file index for: ${file_path}"
 
@@ -89,7 +89,7 @@ link_hard () {
         "$(font_highlight "$(print_unresolved_path "${chase_file}")")"
 
       return 0
-    elif ! diff -q "${chase_file}" "${canon_file}" > /dev/null; then
+    elif ! diff -q "${chase_file}" "${canon_file}" >/dev/null; then
       # Different inode, and different file contents.
       # - If local file has no changes, then it's safe to assume its
       #   last commit was a normal "Update dependency" commit, and we
@@ -99,7 +99,7 @@ link_hard () {
 
       local changed_file="${chase_file}"
       local status
-      if ! status="$(git status --porcelain=v1 -- "${chase_file}" 2> /dev/null)"; then
+      if ! status="$(git status --porcelain=v1 -- "${chase_file}" 2>/dev/null)"; then
         # The chase_file is outside the repo.
         warn "The two files are different, and the destination is outside the repo"
         warn "- Compare the files and make equal, or remove the target,"
@@ -158,7 +158,7 @@ link_hard () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   source_deps
 }
 
@@ -171,4 +171,3 @@ fi
 
 unset -f main
 unset -f source_deps
-
