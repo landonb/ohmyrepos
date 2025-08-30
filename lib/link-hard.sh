@@ -115,7 +115,7 @@ link_hard() {
         warn "The two files are different, and the local file has uncommitted changes"
         warn "- Compare the files and try again"
         warn "- Depending on your workflow, this might help:"
-        warn "    cd \"$(pwd -L)'"
+        warn "    cd \"$(pwd -L)\""
         warn "    meld \"${chase_file}\" \"${canon_file}\" &"
         warn "    git add \"${chase_file}\""
         warn "    git commit -m 'Deps: Update dependency ($(basename -- "${chase_file}"))'"
