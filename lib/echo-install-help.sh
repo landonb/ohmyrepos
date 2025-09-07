@@ -7,7 +7,7 @@
 # This fcn. used by slather-defaults (macOS-onboarder) to print list
 # of copy-paste OMR install tasks.
 
-echoInstallHelp () {
+echoInstallHelp() {
   local which_os="${1:-os_all}"
   local dxy_scope="${2:-dxy_all}"
   local addendum="$3"
@@ -37,7 +37,7 @@ echoInstallHelp () {
 }
 
 # Some checkboxes, checkmarks, and cross marks: ✅ ☑  ✔  ✔️  ❌ ❎
-echoInstallHelpWidget () {
+echoInstallHelpWidget() {
   local which_os="${1:-os_all}"
   local dxy_scope="${2:-dxy_all}"
   local is_installed="$3"
@@ -58,11 +58,12 @@ echoInstallHelpWidget () {
     fi
   elif [ "${which_os}" = "os_maybe" ]; then
     checkbox="❓"
-  elif false \
-    || [ "${which_os}" = "os_false" ] \
-    || [ "${which_os}" = "os_none" ] \
-    || [ "${which_os}" = "os_off" ] \
-  ; then
+  elif false ||
+    [ "${which_os}" = "os_false" ] ||
+    [ "${which_os}" = "os_none" ] ||
+    [ "${which_os}" = "os_off" ] \
+    ; then
+
     checkbox="❌"
   elif [ "${which_os}" != "os_all" ]; then
     >&2 echo "ERROR: Unknown \`echoInstallHelp\` OS target: ${which_os}"
@@ -80,11 +81,12 @@ echoInstallHelpWidget () {
     fi
   elif [ "${dxy_scope}" = "dxy_maybe" ]; then
     checkbox="❓"
-  elif false \
-    || [ "${dxy_scope}" = "dxy_false" ] \
-    || [ "${dxy_scope}" = "dxy_none" ] \
-    || [ "${dxy_scope}" = "dxy_off" ] \
-  ; then
+  elif false ||
+    [ "${dxy_scope}" = "dxy_false" ] ||
+    [ "${dxy_scope}" = "dxy_none" ] ||
+    [ "${dxy_scope}" = "dxy_off" ] \
+    ; then
+
     checkbox="❌"
   elif [ "${dxy_scope}" != "dxy_all" ]; then
     >&2 echo "ERROR: Unknown \`echoInstallHelp\` env. scope: ${dxy_scope}"
@@ -93,9 +95,10 @@ echoInstallHelpWidget () {
   fi
 
   if [ "${checkbox}" = "🔳" ]; then
-    if ( [ -z "${is_installed}" ] && mr -d . -n isInstalled > /dev/null 2>&1 ) \
-      || ${is_installed:-false} \
-    ; then
+    if ([ -z "${is_installed}" ] && mr -d . -n isInstalled >/dev/null 2>&1) ||
+      ${is_installed:-false} \
+      ; then
+
       # "👍"
       checkbox="✅"
     fi
@@ -103,4 +106,3 @@ echoInstallHelpWidget () {
 
   printf "%s" "${checkbox}"
 }
-
