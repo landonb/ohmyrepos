@@ -15,3 +15,10 @@ install_os_specific() {
   fi
 }
 
+isInstalled_os_specific() {
+  if os_is_macos; then
+    mr -d ${MR_REPO} -n isInstalledDarwin
+  else
+    mr -d ${MR_REPO} -n isInstalledLinux
+  fi
+}
