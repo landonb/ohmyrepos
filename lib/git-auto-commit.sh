@@ -363,10 +363,20 @@ git_auto_commit_path_one_or_many() {
 
   # ***
 
-  if ! eval git commit ${commit_opts} >/dev/null 2>&1; then
+  # BWARE: Be careful to preserve newlines in the message
+  # when composing the eval.
+  # - HSTRY/2025-09-09: The quotes around the eval string are new.
+  #   - If that doesn't work for all cases, make the -m arg inline.
+  #     - E.g., disable `commit_opts="-m ..."` above, and use this:
+  #         if ! eval git commit ${commit_opts} "$(
+  #           test -n "${commit_opts}" \
+  #             || echo "-m \"${MR_GIT_AUTO_COMMIT_FIXUP:-${commit_msg}}\""
+  #           )" >/dev/null 2>&1; then
+
+  if ! eval "git commit ${commit_opts}" >/dev/null 2>&1; then
     error "Commit failed:"
 
-    eval git commit ${commit_opts} 2>&1 |
+    eval "git commit ${commit_opts}" 2>&1 |
       while IFS= read -r line; do
         error "  ${line}"
       done
