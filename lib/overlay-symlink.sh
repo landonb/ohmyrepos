@@ -10,7 +10,7 @@
 
 _overlay_symlink_sh__this_filename="overlay-symlink.sh"
 
-_overlay_symlink_sh__source_deps () {
+_overlay_symlink_sh__source_deps() {
   local sourced_all=true
 
   # On Bash, user can source this file from anywhere.
@@ -36,9 +36,9 @@ _overlay_symlink_sh__source_deps () {
   ${sourced_all}
 }
 
-_overlay_symlink_sh__smells_like_bash () { declare -p BASH_SOURCE > /dev/null 2>&1; }
+_overlay_symlink_sh__smells_like_bash() { declare -p BASH_SOURCE >/dev/null 2>&1; }
 
-_overlay_symlink_sh__print_this_fullpath () {
+_overlay_symlink_sh__print_this_fullpath() {
   if _overlay_symlink_sh__smells_like_bash; then
     echo "$(realpath -- "${BASH_SOURCE[0]}")"
   elif [ "$(basename -- "$0")" = "${_overlay_symlink_sh__this_filename}" ]; then
@@ -52,11 +52,11 @@ _overlay_symlink_sh__print_this_fullpath () {
 
 _overlay_symlink_sh__this_fullpath="$(_overlay_symlink_sh__print_this_fullpath)"
 
-_overlay_symlink_sh__shell_sourced () {
+_overlay_symlink_sh__shell_sourced() {
   [ "$(realpath -- "$0")" != "${_overlay_symlink_sh__this_fullpath}" ]
 }
 
-_overlay_symlink_sh__source_file () {
+_overlay_symlink_sh__source_file() {
   local prfx="${1:-.}"
   local depd="${2:-.}"
   local file="${3:-.}"
@@ -97,10 +97,10 @@ _overlay_symlink_sh__source_file () {
 
 # BONUS: You can use these aliases instead of the uniquely-named functions,
 # just be aware not to call any alias after calling _source_deps.
-_shell_sourced () { _overlay_symlink_sh__shell_sourced; }
-_source_deps () { _overlay_symlink_sh__source_deps; }
+_shell_sourced() { _overlay_symlink_sh__shell_sourced; }
+_source_deps() { _overlay_symlink_sh__source_deps; }
 
-_overlay_symlink_sh__source_deps_unset_cleanup () {
+_overlay_symlink_sh__source_deps_unset_cleanup() {
   unset -v _overlay_symlink_sh__this_filename
   unset -f _overlay_symlink_sh__print_this_fullpath
   unset -f _overlay_symlink_sh__shell_sourced
@@ -123,7 +123,7 @@ _overlay_symlink_sh__source_deps_unset_cleanup () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-params_register_defaults () {
+params_register_defaults() {
   # Note that these names are backwards, or maybe it's the internal
   # values. We're using 0 to represent truthy, and 1 to signal off.
   MRT_LINK_SAFE=${MRT_LINK_SAFE:-1}
@@ -133,7 +133,7 @@ params_register_defaults () {
   MRT_INFUSE_DIR="${MRT_INFUSE_DIR:-.mrinfuse}"
 }
 
-params_register_switches () {
+params_register_switches() {
   while [ "$1" != '' ]; do
     if [ "$1" = '--' ]; then
       shift
@@ -141,62 +141,62 @@ params_register_switches () {
       break
     fi
     case "$1" in
-      -f)
-        MRT_LINK_FORCE=0
-        shift
-        ;;
-      --force)
-        MRT_LINK_FORCE=0
-        shift
-        ;;
-      -s)
-        MRT_LINK_SAFE=0
-        shift
-        ;;
-      --safe)
-        MRT_LINK_SAFE=0
-        shift
-        ;;
-      -y)
-        MRT_AUTO_YES=0
-        shift
-        ;;
-      --yes)
-        MRT_AUTO_YES=0
-        shift
-        ;;
-      -m)
-        shift
-        MR_GIT_AUTO_COMMIT_MSG="$1"
-        shift
-        ;;
-      --message)
-        shift
-        MR_GIT_AUTO_COMMIT_MSG="$1"
-        shift
-        ;;
-      *)
-        # Test if starts with prefix and assume an --option.
-        # User can -- to specify filenames that start with dash.
-        if [ "${1#-}" != "$1" ]; then
-          >&2 error "ERROR: Unrecognized argument: $1"
+    -f)
+      MRT_LINK_FORCE=0
+      shift
+      ;;
+    --force)
+      MRT_LINK_FORCE=0
+      shift
+      ;;
+    -s)
+      MRT_LINK_SAFE=0
+      shift
+      ;;
+    --safe)
+      MRT_LINK_SAFE=0
+      shift
+      ;;
+    -y)
+      MRT_AUTO_YES=0
+      shift
+      ;;
+    --yes)
+      MRT_AUTO_YES=0
+      shift
+      ;;
+    -m)
+      shift
+      MR_GIT_AUTO_COMMIT_MSG="$1"
+      shift
+      ;;
+    --message)
+      shift
+      MR_GIT_AUTO_COMMIT_MSG="$1"
+      shift
+      ;;
+    *)
+      # Test if starts with prefix and assume an --option.
+      # User can -- to specify filenames that start with dash.
+      if [ "${1#-}" != "$1" ]; then
+        >&2 error "ERROR: Unrecognized argument: $1"
 
-          return 1
-        fi
-        shift
-        ;;
+        return 1
+      fi
+      shift
+      ;;
     esac
   done
 }
 
-myrepostravel_opts_parse () {
+myrepostravel_opts_parse() {
   params_register_defaults
   params_register_switches "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-infuser_set_envs () {
+infuser_set_envs() {
   local repodir="${1:-"${MR_REPO}"}"
 
   # Ensure MR_REPO set so script can be called manually,
@@ -206,11 +206,11 @@ infuser_set_envs () {
 
 # 2019-10-26: This does not belong here. But all my infusers at least
 # include this file. So. Being lazy.
-repo_highlight () {
+repo_highlight() {
   echo "$(fg_mintgreen)${1}$(attr_reset)"
 }
 
-infuser_prepare () {
+infuser_prepare() {
   local repodir="${1:-"${MR_REPO}"}"
   shift
 
@@ -222,41 +222,41 @@ infuser_prepare () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-font_emphasize () {
+font_emphasize() {
   echo "$(attr_emphasis)$@$(attr_reset)"
 }
 
-font_highlight () {
+font_highlight() {
   echo "$(fg_lightorange)$@$(attr_reset)"
 }
 
 # ***
 
-font_info_checked () {
+font_info_checked() {
   echo "$(fg_lightyellow)$@$(attr_reset)"
 }
 
-font_info_created () {
+font_info_created() {
   echo "$(fg_lightcyan)$@$(attr_reset)"
 }
 
-font_info_updated () {
+font_info_updated() {
   echo "$(fg_lavender)$@$(attr_reset)"
 }
 
-font_info_skipped () {
+font_info_skipped() {
   echo "$(fg_lightred)$@$(attr_reset)"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-is_relative_path () {
+is_relative_path() {
   # POSIX does not support pattern matching, e.g.,
   #   if [[ "$DIR" = /* ]]; then ... fi
   # but we can use a case statement.
   case $1 in
-    /*) return 1 ;;
-    *) return 0 ;;
+  /*) return 1 ;;
+  *) return 0 ;;
   esac
 
   >&2 error "GAFFE: Unreachable code"
@@ -264,19 +264,19 @@ is_relative_path () {
   return 1
 }
 
-path_exists_and_not_symlink () {
+path_exists_and_not_symlink() {
   [ -e "$1" ] && [ ! -h "$1" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # Source verification.
 
-symlink_verify_source () {
+symlink_verify_source() {
   local sourcep="$1"
   local srctype="$2"
   local targetp="$3"
 
-  emit_error () {
+  emit_error() {
     local type_name="$1"
 
     >&2 error "ERROR: Cannot create symbolic link:"
@@ -292,13 +292,13 @@ symlink_verify_source () {
     if [ ! -f "${sourcep}" ]; then
       emit_error "file"
 
-    return 1
+      return 1
     fi
   elif [ "${srctype}" = 'dir' ]; then
     if [ ! -d "${sourcep}" ]; then
       emit_error "directory"
 
-    return 1
+      return 1
     fi
   else
     >&2 error "GAFFE: Not a known srctype: ${srctype}"
@@ -310,7 +310,7 @@ symlink_verify_source () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # Target verification.
 
-safe_backup_existing_target () {
+safe_backup_existing_target() {
   local targetp="$1"
   local targetf="$(basename -- "${targetp}")"
   local backup_postfix=$(date +%Y.%m.%d.%H.%M.%S)
@@ -321,7 +321,7 @@ safe_backup_existing_target () {
   info "Collision resolved: Moved existing ‘${targetf}’ to: ${backup_targetp}"
 }
 
-emit_error_target_exists_not_symlink () {
+emit_error_target_exists_not_symlink() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
@@ -336,7 +336,7 @@ emit_error_target_exists_not_symlink () {
   >&2 error "  or edit overlay-symlink.sh, which could be broken"
 }
 
-safe_backup_if_not_forced () {
+safe_backup_if_not_forced() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
@@ -352,7 +352,7 @@ safe_backup_if_not_forced () {
 
 # ***
 
-ensure_symlink_target_overwritable () {
+ensure_symlink_target_overwritable() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
@@ -385,7 +385,7 @@ ensure_symlink_target_overwritable () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # Symlink creation.
 
-makelink_create_informative () {
+makelink_create_informative() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
@@ -409,15 +409,15 @@ makelink_create_informative () {
 
   # Created new symlink.
   local info_msg
-  info_msg="$( \
+  info_msg="$(
     symlink_get_msg_informative \
-      " $(font_info_created "Created")" "${srctype}" "${targetp}" "${symlink}" \
+      " $(font_info_created "Created")" "${srctype}" "${targetp}" "${symlink}"
   )"
 
   info "${info_msg}"
 }
 
-makelink_update_informative () {
+makelink_update_informative() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
@@ -429,8 +429,9 @@ makelink_update_informative () {
   local info_msg
   if [ -h "${targetp}" ]; then
     # (Will be) Overwriting existing symlink.
-    info_msg="$(symlink_get_msg_informative \
-      " $(font_info_updated "Updated")" "${srctype}" "${targetp}" "${symlink}" \
+    info_msg="$(
+      symlink_get_msg_informative \
+        " $(font_info_updated "Updated")" "${srctype}" "${targetp}" "${symlink}"
     )"
   elif [ -f "${targetp}" ]; then
     # SAVVY: -ef true when checking symlink and its link path.
@@ -441,8 +442,9 @@ makelink_update_informative () {
       #   safe_backup_if_not_forced.
       info_msg=" Clobbered file with ${link_type} $(font_highlight "$(realpath_s "${targetp}")")"
     else
-      info_msg="$(symlink_get_msg_informative \
-        " $(font_info_checked "Checked")" "${srctype}" "${targetp}" "${symlink}" \
+      info_msg="$(
+        symlink_get_msg_informative \
+          " $(font_info_checked "Checked")" "${srctype}" "${targetp}" "${symlink}"
       )"
       info "${info_msg}"
 
@@ -478,7 +480,7 @@ makelink_update_informative () {
 # via sudo, but assume user is overwriting existing symlink.
 # - The current/only use case (currently) is to replace
 #     macOS:/var/select/sh
-print_command_or_sudo () {
+print_command_or_sudo() {
   local command_or_sudo="command"
 
   if [ "${MRT_SUDO}" = "sudo" ]; then
@@ -488,7 +490,7 @@ print_command_or_sudo () {
   printf "%s" "${command_or_sudo}"
 }
 
-symlink_get_msg_informative () {
+symlink_get_msg_informative() {
   local what="$1"
   local srctype="$2"
   local targetp="$3"
@@ -506,12 +508,13 @@ symlink_get_msg_informative () {
   [ "${srctype}" = 'dir' ] && srctype='dir.' || true
 
   local info_msg
-  info_msg="${what} $( \
-    font_emphasize "${srctype}") ${link_type} $(\
-      font_highlight "$( \
-        realpath_s "${targetp}"
-      )${targetd}"
-    )"
+  info_msg="${what} $(
+    font_emphasize "${srctype}"
+  ) ${link_type} $(
+    font_highlight "$(
+      realpath_s "${targetp}"
+    )${targetd}"
+  )"
 
   printf "%s" "${info_msg}"
 }
@@ -611,7 +614,7 @@ symlink_get_msg_informative () {
 #       Such that the symlink will be:
 #         foo/bat/qux/quux -> ../../bar/baz
 
-print_sourcep_relative_targetp () {
+print_sourcep_relative_targetp() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
@@ -631,9 +634,9 @@ print_sourcep_relative_targetp () {
     # Check that caller has cd'd to targetp base dir (common
     # symlink_overlay_* flow). If not, switch to full path
     # (e.g., `symlink_mrinfuse_file "file" "/path/to/target"`).
-    if ( \
-      cd "$(dirname -- "${targetp}")" 2> /dev/null \
-        && test -e "${sourcep}" \
+    if (
+      cd "$(dirname -- "${targetp}")" 2>/dev/null &&
+        test -e "${sourcep}"
     ); then
       printf "%s" "${sourcep}"
     else
@@ -761,25 +764,29 @@ print_path_normalize_home() {
 # REFER/2024-12-19: Here's a great sed example — with comments!:
 #   https://github.com/preservim/vim-markdown/blob/8f6cb3a/Makefile#L49-L75
 
-print_common_path_prefix () {
+print_common_path_prefix() {
   local sourcep="$1"
   local targetp="$2"
 
   # Note POSIX printf recognizes \0 but not \x0
-  printf '%s\0%s\n' "${sourcep}" "${targetp}" \
-    | $(gnu_sed) 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/' \
-    | head -n 1 \
-    | tr -d '\n'
+  printf '%s\0%s\n' "${sourcep}" "${targetp}" |
+    $(gnu_sed) 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/' |
+    head -n 1 |
+    tr -d '\n'
 }
 
-gnu_sed () {
+gnu_sed() {
   for cmd in "gsed" "sed"; do
-    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
-      && break
+    (
+      unset -f ${cmd}
+      unalias ${cmd}
+      command -v ${cmd}
+    ) 2>/dev/null &&
+      break
   done
 }
 
-symlink_adjusted_source_verify_target () {
+symlink_adjusted_source_verify_target() {
   local targetp="$1"
   # Double-check that print_sourcep_relative_targetp worked!
   if [ ! -e "${targetp}" ]; then
@@ -791,7 +798,7 @@ symlink_adjusted_source_verify_target () {
   return 0
 }
 
-makelink_clobber_typed () {
+makelink_clobber_typed() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
@@ -841,7 +848,7 @@ makelink_clobber_typed () {
 
 # ***
 
-symlink_file_clobber () {
+symlink_file_clobber() {
   local sourcep="$1"
   local targetp="${2:-$(basename -- "${sourcep}")}"
 
@@ -850,7 +857,7 @@ symlink_file_clobber () {
 
 # NOTE: (lb): I have nothing that calls symlink_dir_clobber,
 #       but it's provided to complement symlink_file_clobber.
-symlink_dir_clobber () {
+symlink_dir_clobber() {
   local sourcep="$1"
   local targetp="${2:-$(basename -- "${sourcep}")}"
 
@@ -859,7 +866,7 @@ symlink_dir_clobber () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-symlink_overlay_typed () {
+symlink_overlay_typed() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="${3:-$(basename -- "${sourcep}")}"
@@ -874,7 +881,7 @@ symlink_overlay_typed () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-symlink_overlay_path () {
+symlink_overlay_path() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="${3:-$(basename -- "${sourcep}")}"
@@ -886,8 +893,8 @@ symlink_overlay_path () {
   #   absoluete target, so we can truly verify if sourcep exists.
   # - See comments atop print_sourcep_relative_targetp for more.
   local before_cd="$(pwd -L)"
-  if is_relative_path "${sourcep}" \
-    && ! is_relative_path "${targetp}"; then
+  if is_relative_path "${sourcep}" &&
+    ! is_relative_path "${targetp}"; then
     # So that relative sourcep works.
     cd "$(dirname -- "${targetp}")"
   fi
@@ -897,11 +904,11 @@ symlink_overlay_path () {
   cd "${before_cd}"
 }
 
-symlink_overlay_file () {
+symlink_overlay_file() {
   symlink_overlay_path 'file' "$@"
 }
 
-symlink_overlay_dir () {
+symlink_overlay_dir() {
   symlink_overlay_path 'dir' "$@"
 }
 
@@ -926,7 +933,7 @@ symlink_overlay_dir () {
 #
 #     ( cd && symlink_overlay_path_rel "path/to/foo" "foo" )
 
-symlink_overlay_path_rel () {
+symlink_overlay_path_rel() {
   local srctype="$1"
   local sourcep="$2"
   local targetp="${3:-$(basename -- "${sourcep}")}"
@@ -955,11 +962,11 @@ symlink_overlay_path_rel () {
   cd "${before_cd}"
 }
 
-symlink_overlay_file_rel () {
+symlink_overlay_file_rel() {
   symlink_overlay_path_rel 'file' "$@"
 }
 
-symlink_overlay_dir_rel () {
+symlink_overlay_dir_rel() {
   symlink_overlay_path_rel 'dir' "$@"
 }
 
@@ -970,7 +977,7 @@ symlink_overlay_dir_rel () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-symlink_overlay_file_first_handler () {
+symlink_overlay_file_first_handler() {
   local optional="$1"
   local targetp="$2"
   shift 2
@@ -987,18 +994,18 @@ symlink_overlay_file_first_handler () {
     fi
   done
 
-  if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
+  if ! ${found_one} && [ "${optional}" -eq 0 ]; then
     >&2 warn "Did not find existing source file to symlink as: ${targetp}"
 
     return 1
   fi
 }
 
-symlink_overlay_file_first () {
+symlink_overlay_file_first() {
   symlink_overlay_file_first_handler '0' "$@"
 }
 
-symlink_overlay_file_first_optional () {
+symlink_overlay_file_first_optional() {
   symlink_overlay_file_first_handler '1' "$@"
 }
 
@@ -1006,7 +1013,7 @@ symlink_overlay_file_first_optional () {
 # Find proper .mrinfuse/ path
 
 # Prints relative path to .mrinfuse/ dir found in or above start_dir.
-mrinfuse_findup () {
+mrinfuse_findup() {
   local start_dir="$1"
 
   if [ -n "${start_dir}" ]; then
@@ -1044,7 +1051,7 @@ mrinfuse_findup () {
 # USAGE: Store private files under a directory named .mrinfuse/
 # located in the same directory as the project (MR_REPO), or along
 # the path between the project and user home (including user home).
-# 
+#
 # - Within the .mrinfuse/ directory, mimic the directory hierarchy
 #   leading to the symlink target.
 #
@@ -1134,7 +1141,7 @@ mrinfuse_findup () {
 #       and not have to worry about wiring individual files.
 
 # Prints the found path, if any, to stdout.
-path_to_mrinfuse_resolve () {
+path_to_mrinfuse_resolve() {
   local fpath="$1"
 
   local canonicalized
@@ -1165,7 +1172,7 @@ path_to_mrinfuse_resolve () {
       return 1
     fi
 
-    set_mrinfuse_path () {
+    set_mrinfuse_path() {
       local mrinfuse_root="$1"
       local mrinfuse_hole="$2"
 
@@ -1236,7 +1243,7 @@ path_to_mrinfuse_resolve () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-symlink_mrinfuse_typed () {
+symlink_mrinfuse_typed() {
   local srctype="$1"
   local optional="$2"
   local lnkpath="$3"
@@ -1281,21 +1288,21 @@ symlink_mrinfuse_typed () {
 
 # ***
 
-symlink_mrinfuse_file () {
+symlink_mrinfuse_file() {
   symlink_mrinfuse_typed 'file' '0' "$@"
 }
 
-symlink_mrinfuse_file_optional () {
+symlink_mrinfuse_file_optional() {
   symlink_mrinfuse_typed 'file' '1' "$@"
 }
 
-symlink_mrinfuse_dir () {
+symlink_mrinfuse_dir() {
   symlink_mrinfuse_typed 'dir' 0 "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-symlink_mrinfuse_file_first_handler () {
+symlink_mrinfuse_file_first_handler() {
   local optional="$1"
   local targetp="$2"
   shift 2
@@ -1318,24 +1325,24 @@ symlink_mrinfuse_file_first_handler () {
     fi
   done
 
-  if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
+  if ! ${found_one} && [ "${optional}" -eq 0 ]; then
     >&2 warn "Did not find existing source file to symlink as: ${targetp}"
 
     return 1
   fi
 }
 
-symlink_mrinfuse_file_first () {
+symlink_mrinfuse_file_first() {
   symlink_mrinfuse_file_first_handler '0' "$@"
 }
 
-symlink_mrinfuse_file_first_optional () {
+symlink_mrinfuse_file_first_optional() {
   symlink_mrinfuse_file_first_handler '1' "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   _source_deps
   # Caller will call functions explicitly as appropriate.
 }
@@ -1349,4 +1356,3 @@ fi
 
 _overlay_symlink_sh__source_deps_unset_cleanup
 unset -f main
-
