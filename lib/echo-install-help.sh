@@ -24,14 +24,16 @@ echoInstallHelp() {
 
   local checkbox="$(echoInstallHelpWidget "${which_os}" "${dxy_scope}" ${is_installed})"
 
-  local app_name="\`$(basename -- "${MR_REPO}")\`"
+  # If you want the app name to be double-click selectable in
+  # the terminal, use `backticks` and not “‘curly’ quotes”.
+  local app_name="‘$(basename -- "${MR_REPO}")’"
 
   local addendum_txt=""
   if [ -n "${addendum}" ]; then
     addendum_txt=" (${addendum})"
   fi
 
-  echo "${checkbox} DepoXy [${MR_ORDER}]: Install ${alt_name:-${app_name}} from source${addendum_txt}::
+  echo "${checkbox} DepoXy [${MR_ORDER}]: Install ${alt_name:-${app_name}} project${addendum_txt}::
    mr -d \"${MR_REPO}\" -n install
 "
 }
