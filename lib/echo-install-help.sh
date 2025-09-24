@@ -96,10 +96,10 @@ echoInstallHelpWidget() {
     checkbox="❌"
   fi
 
-  if [ "${checkbox}" = "🔳" ]; then
-    if ([ -z "${is_installed}" ] && mr -d . -n isInstalled >/dev/null 2>&1) ||
-      ${is_installed:-false} \
-      ; then
+  if ([ -z "${is_installed}" ] && mr -d . -n isInstalled >/dev/null 2>&1) ||
+    ${is_installed:-false} \
+    ; then
+    if [ "${checkbox}" = "🔳" ]; then
 
       # "👍"
       checkbox="✅"
