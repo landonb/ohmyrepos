@@ -44,67 +44,75 @@ echoInstallHelpWidget() {
   local dxy_scope="${2:-dxy_all}"
   local is_installed="$3"
 
-  local checkbox="🔳"
+  OMR_REMINDER_AWAITING="${OMR_REMINDER_AWAITING:-🔳}"
+  OMR_REMINDER_COMPLETE="${OMR_REMINDER_COMPLETE:-✅}"
+  OMR_REMINDER_OPTIONAL="${OMR_REMINDER_OPTIONAL:-❓}"
+  OMR_REMINDER_DISABLED="${OMR_REMINDER_DISABLED:-❌}"
+  OMR_REMINDER_OFFBUTON="${OMR_REMINDER_OFFBUTON:-❎}"
+
+  local checkbox="${OMR_REMINDER_AWAITING}"
 
   if [ "${which_os}" = "os_linux" ]; then
     if [ "$(uname)" != 'Linux' ]; then
-      checkbox="❌"
+      checkbox="${OMR_REMINDER_DISABLED}"
     fi
   elif [ "${which_os}" = "os_macos" ]; then
     if [ "$(uname)" != 'Darwin' ]; then
-      checkbox="❌"
+      checkbox="${OMR_REMINDER_DISABLED}"
     fi
   elif [ "${which_os}" = "os_macos_maybe" ]; then
     if [ "$(uname)" = 'Darwin' ]; then
-      checkbox="❓"
+      checkbox="${OMR_REMINDER_OPTIONAL}"
     fi
   elif [ "${which_os}" = "os_maybe" ]; then
-    checkbox="❓"
+    checkbox="${OMR_REMINDER_OPTIONAL}"
   elif false ||
     [ "${which_os}" = "os_false" ] ||
     [ "${which_os}" = "os_none" ] ||
     [ "${which_os}" = "os_off" ] \
     ; then
 
-    checkbox="❌"
+    checkbox="${OMR_REMINDER_DISABLED}"
   elif [ "${which_os}" != "os_all" ]; then
     >&2 echo "ERROR: Unknown \`echoInstallHelp\` OS target: ${which_os}"
 
-    checkbox="❌"
+    checkbox="${OMR_REMINDER_DISABLED}"
   fi
 
   if [ "${dxy_scope}" = "dxy_limit" ]; then
     if [ "${OMR_ECHO_INSTALL_DXY_SCOPE:-dxy_all}" != "dxy_all" ]; then
-      checkbox="❌"
+      checkbox="${OMR_REMINDER_DISABLED}"
     fi
   elif [ "${dxy_scope}" = "dxy_limit_maybe" ]; then
     if [ "${OMR_ECHO_INSTALL_DXY_SCOPE:-dxy_all}" = "dxy_limit" ]; then
-      checkbox="❓"
+      checkbox="${OMR_REMINDER_OPTIONAL}"
     fi
   elif [ "${dxy_scope}" = "dxy_maybe" ]; then
-    checkbox="❓"
+    checkbox="${OMR_REMINDER_OPTIONAL}"
   elif false ||
     [ "${dxy_scope}" = "dxy_false" ] ||
     [ "${dxy_scope}" = "dxy_none" ] ||
     [ "${dxy_scope}" = "dxy_off" ] \
     ; then
 
-    checkbox="❌"
+    checkbox="${OMR_REMINDER_DISABLED}"
   elif [ "${dxy_scope}" != "dxy_all" ]; then
     >&2 echo "ERROR: Unknown \`echoInstallHelp\` env. scope: ${dxy_scope}"
 
-    checkbox="❌"
+    checkbox="${OMR_REMINDER_DISABLED}"
   fi
 
   if ([ -z "${is_installed}" ] && mr -d . -n isInstalled >/dev/null 2>&1) ||
     ${is_installed:-false} \
     ; then
-    if [ "${checkbox}" = "🔳" ] || [ "${checkbox}" = "❓" ]; then
+    if [ "${checkbox}" = "${OMR_REMINDER_AWAITING}" ] ||
+      [ "${checkbox}" = "${OMR_REMINDER_OPTIONAL}" ] \
+      ; then
 
       # "👍"
-      checkbox="✅"
-    elif [ "${checkbox}" = "❌" ]; then
-      checkbox="❎"
+      checkbox="${OMR_REMINDER_COMPLETE}"
+    elif [ "${checkbox}" = "${OMR_REMINDER_DISABLED}" ]; then
+      checkbox="${OMR_REMINDER_OFFBUTON}"
     fi
   fi
 
