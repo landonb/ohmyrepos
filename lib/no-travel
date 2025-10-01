@@ -28,7 +28,7 @@
 lib =
   no_travel() {
     if [ -z "${MR_ARCHIVED+x}" ] && [ -n "${MR_TRAVEL}" ]; then
-      # Skip
+      # Skip.
       return 0
     else
       # User can use no_travel and specify tags the normal way,
@@ -36,10 +36,8 @@ lib =
       #   no_travel || mr_exclusive "foo" "bar"
       # Otherwise, user can pass tags to no_travel, e.g.,
       #   no_travel "foo" "bar"
-      # Or just use plain, e.g.,
-      #   no_travel
       #
-      # Check MR_INCLUDE_REMOTE
+      # Check MR_INCLUDE_REMOTE.
       mr_exclusive "$@"
     fi
   }
