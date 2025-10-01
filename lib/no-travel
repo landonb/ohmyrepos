@@ -30,7 +30,7 @@ lib =
     if [ -z "${MR_ARCHIVED+x}" ] && [ -n "${MR_TRAVEL}" ]; then
       # Skip.
       return 0
-    else
+    elif [ $# -gt 0 ]; then
       # User can use no_travel and specify tags the normal way,
       # but they have to OR the two commands, e.g.,
       #   no_travel || mr_exclusive "foo" "bar"
@@ -39,5 +39,19 @@ lib =
       #
       # Check MR_INCLUDE_REMOTE.
       mr_exclusive "$@"
+    else
+      # Assume user will handle appropriately, e.g.,
+      #   no_travel || mr_exclusive
+      # Or,
+      #   no_travel || mr_exclusive "foo" "bar"
+      # etc.
+      # - I.e., Don't call `mr_exlusive` here, because if a tag
+      #   is used (MR_INCLUDE=foo), then a bare `mr_exclusive`
+      #   returns true (telling caller to "skip"), but user's
+      #   config might be chaining this call (e.g.,
+      #   `no_travel || mr_exclusive "foo" "bar"`).
+      #   - Because we don't know, return false (don't skip,
+      #     at least not because no_travel).
+      false
     fi
   }
