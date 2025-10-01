@@ -26,7 +26,7 @@
 # no_travel: The project will be synced between hosts, but it won't be
 # archived to the travel device.
 lib =
-  no_travel () {
+  no_travel() {
     if [ -z "${MR_ARCHIVED+x}" ] && [ -n "${MR_TRAVEL}" ]; then
       # Skip
       return 0
@@ -43,4 +43,3 @@ lib =
       mr_exclusive "$@"
     fi
   }
-
