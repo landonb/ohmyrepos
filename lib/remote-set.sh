@@ -3,7 +3,7 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-remote_set () {
+remote_set() {
   local rem_name="$1"
   local rem_path="$2"
   local dst_path="$3"
@@ -34,7 +34,6 @@ remote_set () {
 
 # ***
 
-mr_repo_remotes_complete () {
+mr_repo_remotes_complete() {
   echo "${MR_REPO_REMOTES}" | tr -d '\n'
 }
-

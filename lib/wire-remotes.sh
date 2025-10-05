@@ -26,7 +26,7 @@
 # 'dest-dir/'. But when using `remote_set`, it may be omitted (e.g.,
 # 'dest-dir').
 
-wire_remotes () {
+wire_remotes() {
   _wire_remotes_exit_if_not_a_repo
 
   eval "set -- $(mr_repo_remotes_complete)"
@@ -72,7 +72,7 @@ wire_remotes () {
 
 # ***
 
-_wire_remotes_exit_if_not_a_repo () {
+_wire_remotes_exit_if_not_a_repo() {
   if git_is_git_repo_root; then
 
     return 0
@@ -85,7 +85,7 @@ _wire_remotes_exit_if_not_a_repo () {
 
 # ***
 
-_wire_remotes_exit_if_no_remotes_configured () {
+_wire_remotes_exit_if_no_remotes_configured() {
   if [ -n "$1" ]; then
 
     return 0
@@ -99,7 +99,7 @@ _wire_remotes_exit_if_no_remotes_configured () {
 
 # ***
 
-_wire_remotes_exit_if_missing_url () {
+_wire_remotes_exit_if_missing_url() {
   local remote_name="$1"
   local url_or_path="$2"
 
@@ -116,12 +116,12 @@ _wire_remotes_exit_if_missing_url () {
 
 # ***
 
-report_remotes () {
+report_remotes() {
   _wire_remotes_exit_if_not_a_repo
 
   local alert_msg=""
 
-  alert_msg_add_comma () {
+  alert_msg_add_comma() {
     if [ -n "${alert_msg}" ]; then
       alert_msg="${alert_msg}, "
     fi
@@ -182,12 +182,12 @@ report_remotes () {
 
   local tmp_file="$(mktemp --tmpdir "omr-report-remotes-XXXXXXX")"
 
-  echo "${known_remotes}$(echo "${MR_KNOWN_REMOTES}" | tr ' ' '\n')" \
-    | sed '/^$/d' | LC_COLLATE=C sort >${tmp_file}
+  echo "${known_remotes}$(echo "${MR_KNOWN_REMOTES}" | tr ' ' '\n')" |
+    sed '/^$/d' | LC_COLLATE=C sort >${tmp_file}
 
   local diff_remotes
 
-  diff_remotes="$( \
+  diff_remotes="$(
     git remote | LC_COLLATE=C sort | LC_COLLATE=C comm -1 -3 "${tmp_file}" -
   )"
 
@@ -202,11 +202,11 @@ report_remotes () {
 # ***
 
 # COPYD: ~/.kit/sh/sh-git-nubs/lib/git-nubs.sh
-git_is_git_repo_root () {
+git_is_git_repo_root() {
   local proj_path="${1:-$(pwd)}"
 
   local repo_root
-  if ! repo_root="$(git rev-parse --show-toplevel 2> /dev/null)"; then
+  if ! repo_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
 
     return 1
   fi
@@ -218,4 +218,3 @@ git_is_git_repo_root () {
 
   return 0
 }
-
