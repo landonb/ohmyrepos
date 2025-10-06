@@ -11,7 +11,7 @@
 
 _link_private_exclude_sh__this_filename="link-private-exclude.sh"
 
-_link_private_exclude_sh__source_deps () {
+_link_private_exclude_sh__source_deps() {
   local sourced_all=true
 
   # On Bash, user can source this file from anywhere.
@@ -33,9 +33,9 @@ _link_private_exclude_sh__source_deps () {
   ${sourced_all}
 }
 
-_link_private_exclude_sh__smells_like_bash () { declare -p BASH_SOURCE > /dev/null 2>&1; }
+_link_private_exclude_sh__smells_like_bash() { declare -p BASH_SOURCE >/dev/null 2>&1; }
 
-_link_private_exclude_sh__print_this_fullpath () {
+_link_private_exclude_sh__print_this_fullpath() {
   if _link_private_exclude_sh__smells_like_bash; then
     echo "$(realpath -- "${BASH_SOURCE[0]}")"
   elif [ "$(basename -- "$0")" = "${_link_private_exclude_sh__this_filename}" ]; then
@@ -49,11 +49,11 @@ _link_private_exclude_sh__print_this_fullpath () {
 
 _link_private_exclude_sh__this_fullpath="$(_link_private_exclude_sh__print_this_fullpath)"
 
-_link_private_exclude_sh__shell_sourced () {
+_link_private_exclude_sh__shell_sourced() {
   [ "$(realpath -- "$0")" != "${_link_private_exclude_sh__this_fullpath}" ]
 }
 
-_link_private_exclude_sh__source_file () {
+_link_private_exclude_sh__source_file() {
   local prfx="${1:-.}"
   local depd="${2:-.}"
   local file="${3:-.}"
@@ -94,10 +94,10 @@ _link_private_exclude_sh__source_file () {
 
 # BONUS: You can use these aliases instead of the uniquely-named functions,
 # just be aware not to call any alias after calling _source_deps.
-_shell_sourced () { _link_private_exclude_sh__shell_sourced; }
-_source_deps () { _link_private_exclude_sh__source_deps; }
+_shell_sourced() { _link_private_exclude_sh__shell_sourced; }
+_source_deps() { _link_private_exclude_sh__source_deps; }
 
-_link_private_exclude_sh__source_deps_unset_cleanup () {
+_link_private_exclude_sh__source_deps_unset_cleanup() {
   unset -v _link_private_exclude_sh__this_filename
   unset -f _link_private_exclude_sh__print_this_fullpath
   unset -f _link_private_exclude_sh__shell_sourced
@@ -142,7 +142,7 @@ MRT_SILENT="${MRT_SILENT:-false}"
 
 # ***
 
-_info_path_exclude () {
+_info_path_exclude() {
   local testing=false
   # Uncomment to spew vars and exit:
   testing=true
@@ -178,7 +178,7 @@ _info_path_exclude () {
 
 _OMR_XSUM_FRESH_EXCLUDE="6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
 
-try_clobbering_exclude_otherwise_try_normal_overlay () {
+try_clobbering_exclude_otherwise_try_normal_overlay() {
   local sourcep="$1"
 
   mkdir -p .git/info
@@ -208,7 +208,7 @@ try_clobbering_exclude_otherwise_try_normal_overlay () {
 
 # ***
 
-link_exclude_resolve_source_and_overlay () {
+link_exclude_resolve_source_and_overlay() {
   local targetf="${1:-".gitignore.local"}"
 
   local sourcep
@@ -235,7 +235,7 @@ link_exclude_resolve_source_and_overlay () {
 
 # ***
 
-link_private_exclude () {
+link_private_exclude() {
   local retcode=0
 
   local was_link_force="${MRT_LINK_FORCE}"
@@ -247,24 +247,24 @@ link_private_exclude () {
 
   # _info_path_exclude
 
-  link_exclude_resolve_source_and_overlay \
-    || retcode=$?
+  link_exclude_resolve_source_and_overlay ||
+    retcode=$?
 
   cd "${before_cd}"
 
   MRT_LINK_FORCE="${was_link_force}"
   MRT_LINK_SAFE="${was_link_safe}"
-  
+
   return ${retcode}
 }
 
-link_private_exclude_force () {
+link_private_exclude_force() {
   link_private_exclude --force
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   # Only source deps when not included by OMR.
   # - This supports user sourcing this file directly,
   #   and it helps OMR avoid re-sourcing the same files.
@@ -285,4 +285,3 @@ main "$@"
 
 _link_private_exclude_sh__source_deps_unset_cleanup
 unset -f main
-
