@@ -239,8 +239,6 @@ link_exclude_resolve_source_and_overlay() {
 # ***
 
 link_private_exclude() {
-  local retcode=0
-
   local was_link_force="${MRT_LINK_FORCE}"
   local was_link_safe="${MRT_LINK_SAFE}"
   myrepostravel_opts_parse "$@"
@@ -250,15 +248,13 @@ link_private_exclude() {
 
   # _info_path_exclude
 
-  link_exclude_resolve_source_and_overlay ||
-    retcode=$?
+  # Short-circuits on errexit.
+  link_exclude_resolve_source_and_overlay
 
   cd "${before_cd}"
 
   MRT_LINK_FORCE="${was_link_force}"
   MRT_LINK_SAFE="${was_link_safe}"
-
-  return ${retcode}
 }
 
 link_private_exclude_force() {
