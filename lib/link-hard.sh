@@ -72,6 +72,13 @@ link_hard() {
     printf '%s' "${file_inode}"
   }
 
+  # Don't hard link a symlink.
+  # - UCASE: If user trying to hard link a .gitignore file,
+  #   it must be the resolved path, not a symlink.
+  if [ -h "${canon_file}" ]; then
+    canon_file="$(realpath -- "${canon_file}")"
+  fi
+
   local msg_action="Placed new"
 
   if [ -e "${chase_file}" ]; then
