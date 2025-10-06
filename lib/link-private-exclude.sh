@@ -37,7 +37,10 @@ _link_private_exclude_sh__smells_like_bash() { declare -p BASH_SOURCE >/dev/null
 
 _link_private_exclude_sh__print_this_fullpath() {
   if _link_private_exclude_sh__smells_like_bash; then
-    echo "$(realpath -- "${BASH_SOURCE[0]}")"
+    # Technically an arry:
+    #   echo "$(realpath -- "${BASH_SOURCE[0]}")"
+    # but this file is POSIX-compatible.
+    echo "$(realpath -- "${BASH_SOURCE}")"
   elif [ "$(basename -- "$0")" = "${_link_private_exclude_sh__this_filename}" ]; then
     # Assumes this script being executed, and $0 is its path.
     echo "$(realpath -- "$0")"
