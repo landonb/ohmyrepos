@@ -874,7 +874,10 @@ symlink_overlay_typed() {
   # At this point, expect targetp exists relative to the current
   # working directory.
   # - Uses CLI params to check -s/--safe or -f/--force.
-  ensure_symlink_target_overwritable "${srctype}" "${sourcep}" "${targetp}"
+  if ! ensure_symlink_target_overwritable "${srctype}" "${sourcep}" "${targetp}"; then
+
+    return 1
+  fi
 
   makelink_clobber_typed "${srctype}" "${sourcep}" "${targetp}" '-s'
 }
@@ -899,9 +902,13 @@ symlink_overlay_path() {
     cd "$(dirname -- "${targetp}")"
   fi
 
-  symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
+  local retcode=0
+  symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}" ||
+    retcode=$?
 
   cd "${before_cd}"
+
+  return ${retcode}
 }
 
 symlink_overlay_file() {
@@ -957,9 +964,13 @@ symlink_overlay_path_rel() {
 
   cd "${common_prefix}"
 
-  symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
+  local retcode=0
+  symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}" ||
+    retcode=$?
 
   cd "${before_cd}"
+
+  return ${retcode}
 }
 
 symlink_overlay_file_rel() {
@@ -1281,9 +1292,13 @@ symlink_mrinfuse_typed() {
     sourcep="$(print_path_normalize_home "${sourcep}")"
   fi
 
-  symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
+  local retcode=0
+  symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}" ||
+    retcode=$?
 
   cd "${before_cd}"
+
+  return ${retcode}
 }
 
 # ***
