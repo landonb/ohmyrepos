@@ -10,7 +10,7 @@
 
 _git_my_merge_status_sh__this_filename="git-my-merge-status.sh"
 
-_git_my_merge_status_sh__source_deps () {
+_git_my_merge_status_sh__source_deps() {
   local sourced_all=true
 
   # On Bash, user can source this file from anywhere.
@@ -43,9 +43,9 @@ _git_my_merge_status_sh__source_deps () {
   ${sourced_all}
 }
 
-_git_my_merge_status_sh__smells_like_bash () { declare -p BASH_SOURCE > /dev/null 2>&1; }
+_git_my_merge_status_sh__smells_like_bash() { declare -p BASH_SOURCE >/dev/null 2>&1; }
 
-_git_my_merge_status_sh__print_this_fullpath () {
+_git_my_merge_status_sh__print_this_fullpath() {
   if _git_my_merge_status_sh__smells_like_bash; then
     echo "$(realpath -- "${BASH_SOURCE[0]}")"
   elif [ "$(basename -- "$0")" = "${_git_my_merge_status_sh__this_filename}" ]; then
@@ -59,11 +59,11 @@ _git_my_merge_status_sh__print_this_fullpath () {
 
 _git_my_merge_status_sh__this_fullpath="$(_git_my_merge_status_sh__print_this_fullpath)"
 
-_git_my_merge_status_sh__shell_sourced () {
+_git_my_merge_status_sh__shell_sourced() {
   [ "$(realpath -- "$0")" != "${_git_my_merge_status_sh__this_fullpath}" ]
 }
 
-_git_my_merge_status_sh__source_file () {
+_git_my_merge_status_sh__source_file() {
   local prfx="${1:-.}"
   local depd="${2:-.}"
   local file="${3:-.}"
@@ -104,10 +104,10 @@ _git_my_merge_status_sh__source_file () {
 
 # BONUS: You can use these aliases instead of the uniquely-named functions,
 # just be aware not to call any alias after calling _source_deps.
-_shell_sourced () { _git_my_merge_status_sh__shell_sourced; }
-_source_deps () { _git_my_merge_status_sh__source_deps; }
+_shell_sourced() { _git_my_merge_status_sh__shell_sourced; }
+_source_deps() { _git_my_merge_status_sh__source_deps; }
 
-_git_my_merge_status_sh__source_deps_unset_cleanup () {
+_git_my_merge_status_sh__source_deps_unset_cleanup() {
   unset -v _git_my_merge_status_sh__this_filename
   unset -f _git_my_merge_status_sh__print_this_fullpath
   unset -f _git_my_merge_status_sh__shell_sourced
@@ -128,7 +128,7 @@ _git_my_merge_status_sh__source_deps_unset_cleanup () {
 #                                                                   |
 # *** end boilerplate `source_deps`> -------------------------------|
 
-_my_merge_status_reveal_biz_vars () {
+_my_merge_status_reveal_biz_vars() {
   local mrpid
   mrpid="$(mr_process_id)"
 
@@ -168,7 +168,7 @@ _my_merge_status_reveal_biz_vars () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-print_status () {
+print_status() {
   # Originally used debug mechanism:
   #   debug "${@}"
   # but that takes valuable line space; and who cares about today's YYYY-MM-DD?
@@ -176,17 +176,17 @@ print_status () {
   #   echo "${@}"
   # but I do sorta like knowing how fast the operation is going, so add a short
   # elapsed time report to each line. So defaulting to not showing progress time.
-  _print_status_show_elapsed_time () {
+  _print_status_show_elapsed_time() {
     local time_n=$(print_nanos_now)
     local file_time_0="${OMR_MYSTATUS_TMP_TIMEIT_FILE}"
-    
+
     local elapsed_frac="$(echo "(${time_n} - $(cat ${file_time_0}))" | bc -l)"
     local elapsed_secs=$(printf "${elapsed_frac}" | xargs printf "%04.1f")
 
     printf %s "(${elapsed_secs}s) "
   }
 
-  _print_status_show_clock_time () {
+  _print_status_show_clock_time() {
     local clock=$(date "+%T")
 
     printf %s "${clock}: "
@@ -195,8 +195,7 @@ print_status () {
   local prefix=''
   if [ -n "${OMR_MYSTATUS_SHOW_PROG}" ]; then
     if [ "${OMR_MYSTATUS_SHOW_PROG}" = 'elapsed' ] &&
-       [ -s ${OMR_MYSTATUS_TMP_TIMEIT_FILE} ]
-    then
+      [ -s ${OMR_MYSTATUS_TMP_TIMEIT_FILE} ]; then
       prefix="$(_print_status_show_elapsed_time)"
     elif [ "${OMR_MYSTATUS_SHOW_PROG}" = 'clock' ]; then
       prefix="$(_print_status_show_clock_time)"
@@ -206,7 +205,7 @@ print_status () {
   if ! ${MR_STRIPING}; then
     echo "${prefix}${@}"
   else
-    # Alternate line backgrounds: Use sed to replace "$(attr_reset)" with 
+    # Alternate line backgrounds: Use sed to replace "$(attr_reset)" with
     # "$(attr_reset)$(bg_other_color)" (insert the next line's background
     # color immediately after the attr_reset).
     printf '%s' "${prefix}${@}" | sed -E "s/\x1b\[0m/\x1b[0m$(bg_ff)/g"
@@ -214,7 +213,7 @@ print_status () {
   fi
 }
 
-git_status_cache_setup () {
+git_status_cache_setup() {
   # The action name is the variable name from lib/git-my-merge-status.
   # - BWARE/2023-05-01: `mr` does not set MR_ACTION for setup and teardown,
   #   regardless of multiprocessing (`mr -j 1` vs. `mr -j [>1]`).
@@ -233,11 +232,11 @@ git_status_cache_setup () {
   command rm -f -- "${OMR_MYSTATUS_TMP_TIMEIT_FILE_BASE}-"*
 
   if [ "${OMR_MYSTATUS_SHOW_PROG}" = 'elapsed' ]; then
-    print_nanos_now > ${OMR_MYSTATUS_TMP_TIMEIT_FILE}
+    print_nanos_now >${OMR_MYSTATUS_TMP_TIMEIT_FILE}
   fi
 }
 
-git_status_notify_chores () {
+git_status_notify_chores() {
   local untidy_count=$(cat "${OMR_MYSTATUS_TMP_CHORES_FILE}" | wc -l)
 
   local infl=''
@@ -251,7 +250,7 @@ git_status_notify_chores () {
   notice "Here's some copy-pasta if you wanna fix it:"
 }
 
-git_status_cache_teardown () {
+git_status_cache_teardown() {
   [ -z "${MR_ACTION}" ] || [ "${MR_ACTION}" = 'mystatus' ] || return 0
 
   local ret_code=0
@@ -277,11 +276,11 @@ git_status_cache_teardown () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-insist_installed () {
+insist_installed() {
   # See:
   #   https://github.com/landonb/git-my-merge-status
-  command -v "git-my-merge-status" > /dev/null \
-    && return
+  command -v "git-my-merge-status" >/dev/null &&
+    return
 
   >&2 echo "MISSING: https://github.com/landonb/git-my-merge-status"
 
@@ -297,17 +296,16 @@ insist_installed () {
 #         is similar to the short output, but will remain stable across
 #         Git versions and regardless of user configuration.
 #
-git_status_check_reset () {
+git_status_check_reset() {
   UNTIDY_REPO=false
 }
 
-git_mrrepo_at_git_root () {
+git_mrrepo_at_git_root() {
   # When a git command runs, the working directory is set to the project root,
   # and $GIT_PREFIX reflects the subdirectory, if any, where the command ran.
   # But this isn't a git command, so check with rev-parse, rather than [ -d .git/ ].
   if [ "$(git rev-parse --show-toplevel)" = "$(pwd)" ] ||
-     [ "$(git rev-parse --show-toplevel)" = "$(pwd -P)" ]; \
-   then
+    [ "$(git rev-parse --show-toplevel)" = "$(pwd -P)" ]; then
 
     return 0
   fi
@@ -321,7 +319,7 @@ git_mrrepo_at_git_root () {
   return 1
 }
 
-git_status_check_blocklisted () {
+git_status_check_blocklisted() {
   ${OMR_MYSTATUS_BLOCKLISTED:-false} || return 0
 
   print_status "  $(attr_emphasis)$(git_status_format_minty "blocklist")  " \
@@ -332,13 +330,13 @@ git_status_check_blocklisted () {
 
 # ***
 
-git_status_format_alert () {
+git_status_format_alert() {
   local text="$1"
 
   echo "$(bg_ff)$(fg_lightorange)${text}$(attr_reset)"
 }
 
-git_status_format_minty () {
+git_status_format_minty() {
   local text="$1"
 
   echo "$(bg_ff)$(fg_mintgreen)${text}$(attr_reset)"
@@ -346,29 +344,29 @@ git_status_format_minty () {
 
 # https://coolors.co/dec5e3-a9f8fb-81f7e5-b0f2b4-a5c4d4
 
-bg_a5c4d4 () {
+bg_a5c4d4() {
   printf "\033[48;2;165;196;212m"
 }
 
-bg_b0f2b4 () {
+bg_b0f2b4() {
   printf "\033[48;2;176;242;180m"
 }
 
-bg_2e2532 () {
+bg_2e2532() {
   printf "\033[48;2;46;37;50m"
 }
 
-bg_2c2730 () {
+bg_2c2730() {
   # Raisin black
   printf "\033[48;2;44;39;48m"
 }
 
-bg_2a2a69 () {
+bg_2a2a69() {
   # St. Patrick's blue
   printf "\033[48;2;42;42;105m"
 }
 
-bg_flipflop () {
+bg_flipflop() {
   touch -- "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
 
   local flipflopflag="$(cat "${OMR_MYSTATUS_TMP_FLPFLP_FILE}")"
@@ -381,10 +379,10 @@ bg_flipflop () {
     bg_2a2a69
   fi
 
-  printf %s "${flipflopflag}" > "${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
+  printf %s "${flipflopflag}" >"${OMR_MYSTATUS_TMP_FLPFLP_FILE}"
 }
 
-bg_ff () {
+bg_ff() {
   ${MR_STRIPING} || return
 
   local flipflopflag="$(cat "${OMR_MYSTATUS_TMP_FLPFLP_FILE}")"
@@ -398,18 +396,18 @@ bg_ff () {
 
 # ***
 
-git_status_check_report_9chars_maybe () {
+git_status_check_report_9chars_maybe() {
   ${OMR_MYSTATUS_FANCY} && return
 
   git_status_check_report_9chars "${@}"
 }
 
-git_status_check_report_9chars () {
+git_status_check_report_9chars() {
   status_adj="$1"
   opt_prefix="$2"
   opt_suffix="$3"
 
-  print_status " "\
+  print_status " " \
     "${opt_prefix}$(attr_underline)$(git_status_format_alert "${status_adj}")${opt_suffix}" \
     "  $(attr_underline)$(git_status_format_alert "${MR_REPO}")  $(fg_hotpink)✗$(attr_reset)"
 }
@@ -419,12 +417,12 @@ git_status_check_report_9chars () {
 # In this function, and in others below, we use a subprocess and return
 # true, otherwise we'd need to wrap the call with set +e and set -e,
 # otherwise the function would fail if no unstaged changes found.
-git_status_check_unstaged () {
+git_status_check_unstaged() {
   local extcd
 
   # ' M' is modified but not added.
-  (git status --porcelain=v1 | grep "^ M " >/dev/null 2>&1) \
-    || extcd=$?
+  (git status --porcelain=v1 | grep "^ M " >/dev/null 2>&1) ||
+    extcd=$?
 
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
@@ -433,12 +431,12 @@ git_status_check_unstaged () {
   fi
 }
 
-git_status_check_uncommitted () {
+git_status_check_uncommitted() {
   local extcd
 
   # 'M ' is added but not committed.
-  (git status --porcelain=v1 | grep "^M  " >/dev/null 2>&1) \
-    || extcd=$?
+  (git status --porcelain=v1 | grep "^M  " >/dev/null 2>&1) ||
+    extcd=$?
 
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
@@ -447,12 +445,12 @@ git_status_check_uncommitted () {
   fi
 }
 
-git_status_check_untracked () {
+git_status_check_untracked() {
   local extcd
 
   # '^?? ' is untracked.
-  (git status --porcelain=v1 | grep "^?? " >/dev/null 2>&1) \
-    || extcd=$?
+  (git status --porcelain=v1 | grep "^?? " >/dev/null 2>&1) ||
+    extcd=$?
 
   if [ -z ${extcd} ]; then
     UNTIDY_REPO=true
@@ -461,7 +459,7 @@ git_status_check_untracked () {
   fi
 }
 
-git_status_check_any_porcelain_output () {
+git_status_check_any_porcelain_output() {
   ${UNTIDY_REPO} && return
 
   local n_bytes=$(git status --porcelain=v1 | wc -c)
@@ -475,7 +473,7 @@ git_status_check_any_porcelain_output () {
   fi
 }
 
-git_report_untidy_repo () {
+git_report_untidy_repo() {
   ! ${UNTIDY_REPO} && return
 
   # This function runs in a subshell, so it's not feasible to maintain the list
@@ -485,11 +483,11 @@ git_report_untidy_repo () {
   if [ -n "${OMR_MYSTATUS_TMP_CHORES_FILE}" ]; then
     echo \
       "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset) && git my-merge-status" \
-      >> "${OMR_MYSTATUS_TMP_CHORES_FILE}"
+      >>"${OMR_MYSTATUS_TMP_CHORES_FILE}"
   fi
 }
 
-git_report_fancy () {
+git_report_fancy() {
   # - The grep -P precludes us from escaping \{\} braces.
   # - The grep -o prints only matching parts.
   # - You get the rest of the regex.
@@ -534,10 +532,14 @@ git_report_fancy () {
     xwid=$((xwid + ((path_bytes - path_chars) * 2 / 3)))
   fi
 
-  gnu_grep () {
+  gnu_grep() {
     for cmd in "ggrep" "grep"; do
-      ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
-        && break
+      (
+        unset -f ${cmd}
+        unalias ${cmd}
+        command -v ${cmd}
+      ) 2>/dev/null &&
+        break
     done
   }
 
@@ -561,21 +563,21 @@ git_report_fancy () {
     rpath="$(git_status_format_minty "${rpath}")"
   fi
 
-  local synop="$( \
+  local synop="$(
     GITSMART_MYST_ALIGN_COLS=true \
-    git-my-merge-status \
-    | head -n 1
+      git-my-merge-status |
+      head -n 1
   )"
 
   print_status "${rpath}  ${synop}"
 }
 
-git_report_short_unchanged () {
+git_report_short_unchanged() {
   print_status "  $(attr_emphasis)$(git_status_format_minty "unchanged")  " \
     "$(git_status_format_minty "${MR_REPO}")"
 }
 
-git_my_merge_status () {
+git_my_merge_status() {
   insist_installed
 
   ${MR_STRIPING} && bg_flipflop
@@ -612,7 +614,7 @@ git_my_merge_status () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   _source_deps
 
   _my_merge_status_reveal_biz_vars
@@ -626,4 +628,3 @@ main "$@"
 _git_my_merge_status_sh__source_deps_unset_cleanup
 unset -f main
 unset -f _my_merge_status_reveal_biz_vars
-
