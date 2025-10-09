@@ -536,7 +536,7 @@ git_travel_cache_teardown() {
 # ***
 
 test_ssh_or_kill_mr() {
-  [ "${MR_ACTION}" = 'ffssh' ] || return
+  [ "${MR_ACTION}" = 'ffssh' ] || return 0
 
   # BWARE/2023-05-01: Currently, `mr` doesn't set MR_ACTION on setup or teardown.
   # - The author's own repo fixes this, but if you are running stock `mr`,
