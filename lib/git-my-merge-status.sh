@@ -383,7 +383,7 @@ bg_flipflop() {
 }
 
 bg_ff() {
-  ${MR_STRIPING} || return
+  ${MR_STRIPING} || return 0
 
   local flipflopflag="$(cat "${OMR_MYSTATUS_TMP_FLPFLP_FILE}")"
 
