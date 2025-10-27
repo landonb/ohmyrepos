@@ -85,6 +85,7 @@ include =
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-grouping"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-unless-archiving"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote"
+  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/upgrade-os-specific"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/wire-remotes"
   
   cd "${_omr_before_cd}"
@@ -121,6 +122,7 @@ lib =
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/skip-grouping.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sorted-commit.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/sync-travel-remote.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/upgrade-os-specific.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/wire-remotes.sh"
   
   # Depdendencies for previous

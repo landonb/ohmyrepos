@@ -1,0 +1,11 @@
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/landonb/ohmyrepos#😤
+# License: MIT
+
+[DEFAULT]
+upgrade = true
+# Defaults for `upgrade_os_specific` function.
+upgradeDarwin = false
+upgradeLinux = false
+
