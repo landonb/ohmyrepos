@@ -9,16 +9,16 @@
 
 install_os_specific() {
   if os_is_macos; then
-    mr -d ${MR_REPO} -n installDarwin
+    mr -d ${MR_REPO} -n installDarwin "$@"
   else
-    mr -d ${MR_REPO} -n installLinux
+    mr -d ${MR_REPO} -n installLinux "$@"
   fi
 }
 
 isInstalled_os_specific() {
   if os_is_macos; then
-    mr -d ${MR_REPO} -n isInstalledDarwin
+    mr -d ${MR_REPO} -n isInstalledDarwin "$@"
   else
-    mr -d ${MR_REPO} -n isInstalledLinux
+    mr -d ${MR_REPO} -n isInstalledLinux "$@"
   fi
 }

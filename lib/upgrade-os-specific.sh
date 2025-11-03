@@ -6,8 +6,8 @@
 
 upgrade_os_specific() {
   if os_is_macos; then
-    mr -d ${MR_REPO} -n upgradeDarwin
+    mr -d ${MR_REPO} -n upgradeDarwin "$@"
   else
-    mr -d ${MR_REPO} -n upgradeLinux
+    mr -d ${MR_REPO} -n upgradeLinux "$@"
   fi
 }
