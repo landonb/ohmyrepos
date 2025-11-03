@@ -262,7 +262,7 @@ git_auto_commit_path_one() {
     exit 1
   fi
 
-  local msg_prefix="myrepos: autoci: Add Favorite: [@$(hostname)]"
+  local msg_prefix="update(aci): Add Favorite: [@$(hostname)]"
   local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} “$(basename -- "${repo_file}")”}"
 
   local inclT=""
@@ -406,7 +406,7 @@ git_auto_commit_many() {
   fi
 
   if [ ${MR_GIT_AUTO_COMMIT_STAGE_COUNT} -gt 0 ]; then
-    local msg_prefix="myrepos: autoci: Add Favorite: [@$(hostname)]"
+    local msg_prefix="update(aci): Add Favorite: [@$(hostname)]"
     local commit_msg="${MR_GIT_AUTO_COMMIT_MSG:-${msg_prefix} ${MR_GIT_AUTO_COMMIT_FILES_ADDED}.}"
     git_auto_commit_path_one_or_many "${commit_msg}"
   fi
@@ -572,7 +572,7 @@ git_auto_commit_process_rest() {
 git_auto_commit_path_new() {
   local add_path="${1:-.}"
 
-  local msg_prefix="myrepos: autoci: Add Untracked [@$(hostname)]"
+  local msg_prefix="update(aci): Add Untracked [@$(hostname)]"
   local msg_postfix
   if [ "${add_path}" != "." ]; then
     msg_postfix=" “${add_path}”"
