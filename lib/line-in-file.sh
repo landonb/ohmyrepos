@@ -16,7 +16,6 @@
 #     /private/etc/ssh/sshd_config \
 #     "^PasswordAuthentication " \
 #     "PasswordAuthentication no"
-# 
 #
 # UCASE: E.g., run line_in_file to comment out "message_size_limit = 10485760"
 #        in /etc/postfix/main.cf (aka /private/etc/postfix/main.cf on macOS):
@@ -51,7 +50,7 @@
 
 # BWARE: Assumes `grep -E` and `awk` compatible ${regexp} pattern.
 
-line_in_file () {
+line_in_file() {
   local path="$1"
   local regexp="$2"
   local line="$3"
@@ -69,7 +68,7 @@ line_in_file () {
     state="absent"
   fi
 
-  local friendly_path="$( \
+  local friendly_path="$(
     echo "${path}" | sed -E "s@^${HOME}(/|$)@~\1@"
   )"
 
@@ -78,7 +77,7 @@ line_in_file () {
       info "Creating $(fg_lightorange)${friendly_path}$(attr_reset)"
 
       # Assigns permissions per umask, e.g., 644 when umask is `0002`.
-      echo "${line}" | ${OMR_BECOME} tee -a "${path}" > /dev/null
+      echo "${line}" | ${OMR_BECOME} tee -a "${path}" >/dev/null
     else
       if grep -qE "^${line}\$" "${path}"; then
         info "Verified $(fg_lightorange)${friendly_path}$(attr_reset)"
@@ -86,7 +85,7 @@ line_in_file () {
         info "Updating $(fg_lightorange)${friendly_path}$(attr_reset)"
 
         if ! grep -qE "${regexp}" "${path}"; then
-          echo "${line}" | ${OMR_BECOME} tee -a "${path}" > /dev/null
+          echo "${line}" | ${OMR_BECOME} tee -a "${path}" >/dev/null
         else
           # Use copy because pipeline truncates redirection target when it starts.
           # - ALTLY: See instead `| sponge "${path}"` vs. `> "${path}"`.
@@ -109,10 +108,10 @@ line_in_file () {
 EOF
           fi
 
-          tac "${tmp_path}" \
-            | awk "/${regexp}/ && !n++ { print gensub(/^.*${regexp}.*\$/, \"${replace}\", \"g\"); next; } 1" \
-            | tac \
-            | ${OMR_BECOME} tee -- "${path}" > /dev/null
+          tac "${tmp_path}" |
+            awk "/${regexp}/ && !n++ { print gensub(/^.*${regexp}.*\$/, \"${replace}\", \"g\"); next; } 1" |
+            tac |
+            ${OMR_BECOME} tee -- "${path}" >/dev/null
 
           ${OMR_BECOME} rm -f -- "${tmp_path}"
         fi
@@ -132,10 +131,10 @@ EOF
         # Use cp, not mv, to preserve hardlinks.
         ${OMR_BECOME} cp --preserve=all -- "${path}" "${tmp_path}"
 
-        tac "${tmp_path}" \
-          | awk "/${regexp}/ && !n++ { next; } 1" \
-          | tac \
-          | ${OMR_BECOME} tee -- "${path}" > /dev/null
+        tac "${tmp_path}" |
+          awk "/${regexp}/ && !n++ { next; } 1" |
+          tac |
+          ${OMR_BECOME} tee -- "${path}" >/dev/null
 
         ${OMR_BECOME} rm -f -- "${tmp_path}"
       fi
@@ -154,7 +153,7 @@ EOF
 #       "/etc/fstab" \
 #       "192.168.11.123:/volume1/homes /private/myvolume nfs proto=tcp,port=2123,resvport"
 
-append_line_unless_exists () {
+append_line_unless_exists() {
   local path="$1"
   local line="$2"
 
@@ -164,7 +163,7 @@ append_line_unless_exists () {
     return 1
   fi
 
-  local friendly_path="$( \
+  local friendly_path="$(
     echo "${path}" | sed -E "s@^${HOME}(/|$)@~\1@"
   )"
 
@@ -179,7 +178,7 @@ append_line_unless_exists () {
     fi
 
     # Assigns permissions per umask, e.g., 644 when umask is `0002`.
-    echo "${line}" | ${OMR_BECOME} tee -a "${path}" > /dev/null
+    echo "${line}" | ${OMR_BECOME} tee -a "${path}" >/dev/null
   fi
 }
 
