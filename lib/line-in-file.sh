@@ -184,3 +184,17 @@ append_line_unless_exists() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# USAGE: E.g.,
+#   OMR_BECOME=sudo /etc/fstab
+# - Note that neither path nor OMR_BECOME is validated, happy flying!
+# CALSO/CRUMB: Less obvious timestamps: date +%s%N, date +%s.%N
+save_backup_file_copy() {
+  local path="$1"
+
+  local backup_timestamp
+  backup_timestamp="$(date +%Y_%m_%d_%Hh%Mm%Ss)"
+
+  ${OMR_BECOME} /bin/cp -- "${path}" "${path}.${backup_timestamp}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
