@@ -1031,7 +1031,7 @@ git_remote_delete_head() {
   if [ -z "${git_resp}" ] ||
     echo "${git_resp}" | grep -q "^warning: ignoring dangling symref " \
     ; then
-    # This is always quiet, whether or not it deletes the file.
+    # This is always quiet, whether or not it deletes the HEAD file.
     git remote set-head "${MR_REMOTE}" --delete
 
     info "  $(bg_red)$(fg_white)$(attr_emphasis)🪓 r/HEAD🤯$(attr_reset)" \
