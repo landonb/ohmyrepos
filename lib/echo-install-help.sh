@@ -26,7 +26,7 @@ echoInstallHelp() {
 
   # If you want the app name to be double-click selectable in
   # the terminal, use `backticks` and not “‘curly’ quotes”.
-  local app_name="‘$(basename -- "${MR_REPO}")’"
+  local app_name="*$(basename -- "${MR_REPO}")*"
 
   local addendum_txt=""
   if [ -n "${addendum}" ]; then
