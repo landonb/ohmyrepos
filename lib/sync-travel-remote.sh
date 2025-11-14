@@ -1019,8 +1019,12 @@ git_set_remote_travel() {
 # grief us on `git fetch --prune`.
 
 git_remote_delete_head() {
-  local git_resp
+  # ISOFF/2025-11-14: The HEAD file always exists here, so the
+  # "🪓 r/HEAD🤯" message always displayed; and I cannot repro-
+  # duce the original issue that this kludge sought to avoid.
+  return 0
 
+  local git_resp
   git_resp="$(git rev-parse "${MR_REMOTE}" 2>&1 >/dev/null)" || true
 
   # If no stderr, means success, i.e., remote/HEAD exists.
