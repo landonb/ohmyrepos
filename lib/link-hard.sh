@@ -116,7 +116,7 @@ link_hard() {
           echo "${spacing}    meld \"${chase_file}\" \\"
           echo "${spacing}      \"${canon_file}\" &"
           echo "${spacing}    # ALTLY: Discard the local file to reset to the remote version:"
-          echo "${spacing}    command rm -- \"${chase_file}\""
+          echo "${spacing}    rm \"${chase_file}\""
           echo "${spacing}    # NTHEN: Retry the command you just ran, or rebuild hard links:"
           echo "${spacing}    mr -d . -n ${MR_ACTION:-infuse}"
         )\n"
@@ -134,7 +134,7 @@ link_hard() {
           echo "${spacing}    git add \"${chase_file}\""
           echo "${spacing}    git commit -m 'Deps: Update dependency ($(basename -- "${chase_file}"))'"
           echo "${spacing}    # ALTLY: Discard the local file and reset to the remote version:"
-          echo "${spacing}    command rm -- \"${chase_file}\""
+          echo "${spacing}    rm \"${chase_file}\""
           echo "${spacing}    # NTHEN: Retry the command you just ran, or rebuild hard links:"
           # Show the command being run, e.g., `mr -d . -n infusePostRebase`, or
           # default to infuse (assumes user uses link_hard from 'infuse' tasks).
