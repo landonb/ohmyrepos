@@ -105,29 +105,34 @@ link_hard() {
       # - Otherwise, if local file has changes, defer to user to resolve.
 
       local changed_file="${chase_file}"
+      local spacing="                            "
       local status
       if ! status="$(git status --porcelain=v1 -- "${chase_file}" 2>/dev/null)"; then
         # The chase_file is outside the repo.
         warn "The two files are different, and the destination is outside the repo"
         warn "- Compare the files and make equal, or remove the target,"
-        warn "  and try again:"
-        warn "    cd \"$(pwd -L)\""
-        warn "    meld \"${chase_file}\" \"${canon_file}\" &"
-        warn "    command rm \"${chase_file}\""
-        warn "    mr -d . -n ${MR_ACTION:-infuse}"
+        warn "  and try again:\n\n$(
+          echo "${spacing}    cd \"$(pwd -L)\""
+          echo "${spacing}    meld \"${chase_file}\" \\"
+          echo "${spacing}      \"${canon_file}\" &"
+          echo "${spacing}    command rm \"${chase_file}\""
+          echo "${spacing}    mr -d . -n ${MR_ACTION:-infuse}"
+        )\n"
 
         return 1
       elif [ -n "${status}" ]; then
         # Cannot proceed.
         warn "The two files are different, and the local file has uncommitted changes"
         warn "- Compare the files and try again"
-        warn "- Depending on your workflow, this might help:"
-        warn "    cd \"$(pwd -L)\""
-        warn "    meld \"${chase_file}\" \"${canon_file}\" &"
-        warn "    git add \"${chase_file}\""
-        warn "    git commit -m 'Deps: Update dependency ($(basename -- "${chase_file}"))'"
-        # This assumes user uses link_hard from 'infuse' tasks.
-        warn "    mr -d . -n ${MR_ACTION:-infuse}"
+        warn "- Depending on your workflow, this might help:\n\n$(
+          echo "${spacing}    cd \"$(pwd -L)\""
+          echo "${spacing}    meld \"${chase_file}\" \\"
+          echo "${spacing}      \"${canon_file}\" &"
+          echo "${spacing}    git add \"${chase_file}\""
+          echo "${spacing}    git commit -m 'Deps: Update dependency ($(basename -- "${chase_file}"))'"
+          # This assumes user uses link_hard from 'infuse' tasks.
+          echo "${spacing}    mr -d . -n ${MR_ACTION:-infuse}"
+        )\n"
 
         return 1
       # else, chase_file belongs to the local repo and is unedited,
