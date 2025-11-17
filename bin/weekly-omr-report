@@ -74,6 +74,8 @@ source_deps() {
   insist_cmd 'sendmail' '- E.g., `apt install postfix`'
 
   insist_or_append_path_find_mr
+
+  insist_or_append_path_find_omr_report
 }
 
 insist_cmd() {
@@ -112,6 +114,18 @@ insist_or_append_path_find_mr() {
     >&2 echo "ERROR: Where's \`mr\`?"
     >&2 echo "- Hint: Symlink from ~/.local/bin, or set"
     >&2 echo "        GITMYREPOSPATH to its parent directory"
+
+    exit_1
+  fi
+}
+
+insist_or_append_path_find_omr_report() {
+  if ! command -v omr-report >/dev/null; then
+    PATH="${PATH}:$(realpath -- "$(dirname -- "$0")")"
+  fi
+
+  if ! command -v omr-report >/dev/null; then
+    >&2 echo "ERROR: Cannot find \`omr-report\`"
 
     exit_1
   fi
@@ -173,16 +187,6 @@ weekly_omr_report() {
 }
 
 capture_omr_report() {
-  if ! command -v omr-report >/dev/null; then
-    PATH="${PATH}:$(realpath -- "$(dirname -- "$0")")"
-  fi
-
-  if ! command -v omr-report >/dev/null; then
-    >&2 echo "ERROR: Cannot find \`omr-report\`"
-
-    exit_1
-  fi
-
   # If DRY_ECHO unset, cannot use before VAR=val, e.g.,
   #   $ ${DRY_ECHO} OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report ...
   #   OMR_VERBOSE=false: command not found
