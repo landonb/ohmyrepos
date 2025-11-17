@@ -21,7 +21,7 @@ OMR_VERBOSE=${OMR_VERBOSE:-false}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_omr_report_source_deps () {
+_omr_report_source_deps() {
   # Load: cache_termimal_width, clear_line, omr_is_registered,
   #       _vendorfs_path_stints_basedir_print
   # CXREF: ~/.kit/git/ohmyrepos/bin/omr-is-registered
@@ -30,7 +30,7 @@ _omr_report_source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-omr_report () {
+omr_report() {
   local start_dirs=()
   local prune_dirs=()
 
@@ -93,7 +93,7 @@ omr_report () {
 
 # ***
 
-scan_for_projects () {
+scan_for_projects() {
   local base_dir="$1"
   local prune_opts="$2"
 
@@ -122,8 +122,8 @@ scan_for_projects () {
     cache_termimal_width
 
     local reg_code=0
-    omr_is_registered "${proj_dir}" \
-      || reg_code=$?
+    omr_is_registered "${proj_dir}" ||
+      reg_code=$?
 
     if [ ${reg_code} -eq 1 ]; then
       let "UNK_CNT += 1"
@@ -135,11 +135,12 @@ scan_for_projects () {
         let "SKP_CNT += 1"
       fi
 
-      if ! ${OMR_VERBOSE:-false} \
-        && ${OMR_PROGGER:-true} \
-        && stdout_isatty \
-        && [ ${TERM_WIDTH} -gt 0 ] \
-      ; then
+      if ! ${OMR_VERBOSE:-false} &&
+        ${OMR_PROGGER:-true} &&
+        stdout_isatty &&
+        [ ${TERM_WIDTH} -gt 0 ] \
+        ; then
+
         local progger_char=${progger_set:${progger_curr}:${progger_width}}
 
         printf "${progger_char}"
@@ -154,7 +155,7 @@ scan_for_projects () {
       clear_line
       dot_cnt=0
     fi
-  done < <(eval "${cmd_find_git_projs}");
+  done < <(eval "${cmd_find_git_projs}")
 }
 
 # ***
@@ -172,7 +173,7 @@ scan_for_projects () {
 #     -name ".git" \
 #     -print
 
-print_cmd_find_git_projs () {
+print_cmd_find_git_projs() {
   local base_dir="$1"
   local prune_opts="$2"
 
@@ -186,7 +187,7 @@ print_cmd_find_git_projs () {
     | sort"
 }
 
-trace_cmd () {
+trace_cmd() {
   local the_cmd="$1"
 
   if ! ${OMR_TRACE_CMD:-false}; then
@@ -198,7 +199,7 @@ trace_cmd () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   set -e
 
   # Load: set_traps, clear_traps, exit_0, exit_1, os_is_macos.
@@ -220,4 +221,3 @@ main () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   main "$@"
 fi
-
