@@ -73,7 +73,7 @@ source_deps() {
   # insist_cmd 'mailx' '- E.g., `apt install bsd-mailx`'
   insist_cmd 'sendmail' '- E.g., `apt install postfix`'
 
-  insist_find_mr_and_append_path
+  insist_or_append_path_find_mr
 }
 
 insist_cmd() {
@@ -91,7 +91,7 @@ insist_cmd() {
 }
 
 # So that omr-report's `mr` command works.
-insist_find_mr_and_append_path() {
+insist_or_append_path_find_mr() {
   local found_path=""
 
   local try_path
