@@ -125,13 +125,13 @@ scan_for_projects() {
     omr_is_registered "${proj_dir}" ||
       reg_code=$?
 
-    if [ ${reg_code} -eq 1 ]; then
+    if [ ${reg_code} -eq ${OMR_IS_REG_FAILED:-1} ]; then
       let "UNK_CNT += 1"
       dot_cnt=0
     else
-      if [ ${reg_code} -eq 0 ]; then
+      if [ ${reg_code} -eq ${OMR_IS_REG_SUCCESS:-0} ]; then
         let "REG_CNT += 1"
-      elif [ ${reg_code} -eq 99 ]; then
+      elif [ ${reg_code} -eq ${OMR_IS_REG_SKIPPED:-99} ]; then
         let "SKP_CNT += 1"
       fi
 
