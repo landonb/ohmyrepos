@@ -109,7 +109,7 @@ insist_or_append_path_find_mr() {
   done
 
   if [ -n "${found_path}" ]; then
-    PATH="${PATH}:${found_path}"
+    export PATH="${PATH}:${found_path}"
   else
     >&2 echo "ERROR: Where's \`mr\`?"
     >&2 echo "- Hint: Symlink from ~/.local/bin, or set"
@@ -121,7 +121,7 @@ insist_or_append_path_find_mr() {
 
 insist_or_append_path_find_omr_report() {
   if ! command -v omr-report >/dev/null; then
-    PATH="${PATH}:$(realpath -- "$(dirname -- "$0")")"
+    export PATH="${PATH}:$(realpath -- "$(dirname -- "$0")")"
   fi
 
   if ! command -v omr-report >/dev/null; then
