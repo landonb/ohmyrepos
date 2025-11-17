@@ -20,23 +20,23 @@ OMR_VERBOSE_NOT_SKIPPED=${OMR_VERBOSE_NOT_SKIPPED:-false}
 TERM_WIDTH=0
 
 # Remember that [ -t 1 ] is false when called in a $(subprocess).
-stdout_isatty () {
+stdout_isatty() {
   [ -t 1 ]
 }
 
-cache_termimal_width () {
+cache_termimal_width() {
   TERM_WIDTH=0
 
   if ! stdout_isatty; then
     return 0
   fi
-  
+
   local terminal=/dev/pts/1
 
   TERM_WIDTH=$(stty -a <"${terminal}" | grep -Po '(?<=columns )\d+')
 }
 
-clear_line () {
+clear_line() {
   if ! stdout_isatty; then
 
     return 0
@@ -58,7 +58,7 @@ clear_line () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-omr_is_registered () {
+omr_is_registered() {
   local proj_path="${1:-$(pwd)}"
 
   local mr_repo_path=""
@@ -68,27 +68,29 @@ omr_is_registered () {
   # Use --force in case current directory is not registered, but parent is
   # registered but skipped.
   # GRIPE/2024-04-03: This is slow. `mr` startup is slow. 10m on 500 repos.
-  if ! cmd_mr_repo_force="$( \
+  if ! cmd_mr_repo_force="$(
     mr -d "${proj_path}" -n --force run sh -c 'echo "${MR_REPO}"' 2>&1
   )"; then
     # E.g., OUTPUT:
     #   (0 secs.) mr run: no repositories found to work on
     # Or perhaps:
     #   (0 secs.) mr run: FAILED: Cannot run action from subdir when -n/--no-recurse
-    if echo "${cmd_mr_repo_force}" \
-      | grep -q -i " mr run: no repositories found to work on$" \
-    ; then
+    if echo "${cmd_mr_repo_force}" |
+      grep -q -i " mr run: no repositories found to work on$" \
+      ; then
+
       >&2 _omr_log_analysis "${proj_path}" "(unregistered)" \
         "✗ unregistered, parentless directory"
 
       return 1
-    elif echo "${cmd_mr_repo_force}" \
-      | grep -q -i "mr run: cannot run action from subdir when -n/--no-recurse$" \
-    ; then
-      mr_repo_path="$( \
-        echo "${cmd_mr_repo_force}" \
-        | grep -i "project root detected at:" \
-        | sed 's/.*project root detected at: //i'
+    elif echo "${cmd_mr_repo_force}" |
+      grep -q -i "mr run: cannot run action from subdir when -n/--no-recurse$" \
+      ; then
+
+      mr_repo_path="$(
+        echo "${cmd_mr_repo_force}" |
+          grep -i "project root detected at:" |
+          sed 's/.*project root detected at: //i'
       )"
     else
       >&2 echo "GAFFE: \`mr --force run\` failed, but *for reasons unknown*"
@@ -117,7 +119,7 @@ omr_is_registered () {
   fi
 
   local cmd_mr_repo_normal
-  cmd_mr_repo_normal="$(mr -d "${proj_path}" -n run sh -c 'echo "${MR_REPO}"' 2> /dev/null)"
+  cmd_mr_repo_normal="$(mr -d "${proj_path}" -n run sh -c 'echo "${MR_REPO}"' 2>/dev/null)"
   # Remove timing/finished message.
   cmd_mr_repo_normal="$(echo "${cmd_mr_repo_normal}" | head -1)"
 
@@ -158,7 +160,7 @@ omr_is_registered () {
   return 0
 }
 
-_omr_log_analysis () {
+_omr_log_analysis() {
   local repo_path="$1"
   local more_simply="$2"
   local analysis="$3"
@@ -176,7 +178,7 @@ _omr_log_analysis () {
   fi
 }
 
-_omr_realpath_cmp () {
+_omr_realpath_cmp() {
   local lhs_path="$1"
   local rhs_path="$2"
 
@@ -185,7 +187,7 @@ _omr_realpath_cmp () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   set -e
 
   # Load: set_traps, clear_traps, exit_0, exit_1, os_is_macos.
@@ -197,8 +199,8 @@ main () {
 
   local ret_code=0
 
-  omr_is_registered "$@" \
-    || ret_code=$?
+  omr_is_registered "$@" ||
+    ret_code=$?
 
   # ***
 
@@ -213,4 +215,3 @@ PROG_NAME="${PROG_NAME:-omr-is-registered}"
 if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME}" ]; then
   main "$@"
 fi
-
