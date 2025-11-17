@@ -194,7 +194,7 @@ capture_omr_report() {
     # CXREF: ~/.kit/git/ohmyrepos/bin/omr-report
     OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report >"${CAPTURE_PATH}" 2>&1
   else
-    ${DRY_ECHO} "OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report > \"${CAPTURE_PATH}\" 2>&1"
+    ${DRY_ECHO} "OMR_VERBOSE=${OMR_VERBOSE:-false} omr-report >\"${CAPTURE_PATH}\" 2>&1"
   fi
 }
 
