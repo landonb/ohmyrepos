@@ -177,6 +177,8 @@ print_cmd_find_git_projs() {
   local base_dir="$1"
   local prune_opts="$2"
 
+  # Meh, the sort here doesn't really matter, at least if
+  # post-processed by ./bin/weekly-omr-report.
   echo "find \\
     \"${base_dir}/\" \\
     ${prune_opts} \\
@@ -184,7 +186,7 @@ print_cmd_find_git_projs() {
     -name \".git\" \\
     -print \\
     | xargs dirname \\
-    | sort"
+    | sort -d"
 }
 
 trace_cmd() {

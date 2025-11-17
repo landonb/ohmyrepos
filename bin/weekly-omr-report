@@ -210,7 +210,7 @@ normalize_omr_report() {
   local summary="$(${DRY_ECHO} tail -2 "${CAPTURE_PATH}")"
 
   ${DRY_ECHO} head -n -2 "${CAPTURE_PATH}" |
-    ${DRY_ECHO} sort -k1,1 -t' ' -o "${CAPTURE_PATH}"
+    ${DRY_ECHO} sort -d -k1,1 -t' ' -o "${CAPTURE_PATH}"
 
   ${DRY_ECHO} echo "${summary}" >>"${CAPTURE_PATH}"
 }
