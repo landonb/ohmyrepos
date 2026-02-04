@@ -219,17 +219,26 @@ process_report() {
   if [ ! -f "${CACHE_CAPTURE}" ]; then
     command cp -- "${CAPTURE_PATH}" "${CACHE_CAPTURE}"
 
+    create_symlink_localhost
+
     CACHE_FRESHENED=true
 
     return 0
   fi
 
-  command ln -sfn -- "$(basename -- "${CACHE_CAPTURE}")" "${CACHE_CAPTURE_LOCALHOST}"
+  create_symlink_localhost
 
   diff -q \
     <(scrub_count_lines "${CAPTURE_PATH}") \
     <(scrub_count_lines "${CACHE_CAPTURE}") \
     >/dev/null
+}
+
+# Just a convenience link, so the capture file can be
+# found at the same path on any host:
+#   ~/.local/state/ohmyrepos/reports/omr-report--localhost
+create_symlink_localhost() {
+  command ln -sfn -- "$(basename -- "${CACHE_CAPTURE}")" "${CACHE_CAPTURE_LOCALHOST}"
 }
 
 # Exclude the final one or two lines that include the registered
