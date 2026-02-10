@@ -963,6 +963,7 @@ git_fetch_remote_travel() {
 
   git_delete_floating_tags_also_found_on_remote
 
+  # SAVVY: `git fetch <remote> --prune` creates .git/refs/remotes/<remote>/HEAD.
   local extcd=0
   local git_resp
   git_resp="$(git fetch ${MR_REMOTE} --prune 2>&1)" || extcd=$?
