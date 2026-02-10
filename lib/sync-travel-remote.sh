@@ -1028,7 +1028,8 @@ git_fetch_remote_travel() {
       grep -v '^and the repository exists.$' |
       grep -v "^warning: it took .* seconds to check forced updates; you can use$" |
       grep -v "^'--no-show-forced-updates' or run 'git config fetch.showForcedUpdates false'$" |
-      grep -v "^to avoid this check$"
+      grep -v "^to avoid this check$" |
+      grep -v "^   refs/remotes/.*/HEAD has become dangling after refs/remotes/.* was deleted$"
   )"
 
   if [ -n "${culled}" ]; then
