@@ -4,8 +4,8 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-# This fcn. used by slather-defaults (macOS-onboarder) to print list
-# of copy-paste OMR install tasks.
+# This fcn. used by slather-defaults (macOS-GNOME-onboarder)
+# to print list of copy-paste OMR install tasks.
 
 echoInstallHelp() {
   local which_os="${1:-os_all}"
