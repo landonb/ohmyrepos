@@ -420,7 +420,7 @@ if [ -n "${BASH_SOURCE}" ] && [ "$0" = "${BASH_SOURCE[0]}" ]; then
   main "$@"
 else
   source_deps
-fi
 
-unset -f main
-unset -f source_deps
+  unset -f main
+  unset -f source_deps
+fi
