@@ -1090,6 +1090,9 @@ git_fetch_remote_travel() {
 
     error "Unexpected fetch failure!\n${git_resp}"
 
+    warn "     $(fg_mediumgrey)failed$(attr_reset)  " \
+      "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
+
     return 1
   fi
 
