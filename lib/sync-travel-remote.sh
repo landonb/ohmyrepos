@@ -1086,7 +1086,7 @@ git_fetch_remote_travel() {
       "  ${OMR_CPYST_CD} $(fg_lightorange)${MR_REPO}$(attr_reset)" \
       "&& $(fg_lightorange)git fetch ${MR_REMOTE}$(attr_reset)" \
       >>"${MR_TMP_TRAVEL_CHORES_FILE}"
-    tra/OMR_vel_process_chores_file_lock_release
+    travel_process_chores_file_lock_release
 
     error "Unexpected fetch failure!\n${git_resp}"
 
