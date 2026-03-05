@@ -1612,8 +1612,8 @@ _git_merge_ff_only_safe_and_complicated() {
 
 # ***
 
-PATTERN_TXT='^ [^\|]+\| +[[:digit:]]+ ?[+-]*$'
-PATTERN_BIN='^ [^\|]+\| +Bin( [[:digit:]]+ -> [[:digit:]]+ bytes)?$'
+PATTERN_TXT='^ [^|]+\| +[[:digit:]]+ ?[+-]*$'
+PATTERN_BIN='^ [^|]+\| +Bin( [[:digit:]]+ -> [[:digit:]]+ bytes)?$'
 
 # NOTE: The grep -E option only works on one pattern grep, so cannot use -e, eh?
 # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
