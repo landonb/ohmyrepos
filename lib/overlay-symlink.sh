@@ -23,8 +23,10 @@ _overlay_symlink_sh__source_deps() {
   #                                                                 |
   # *** stop boilerplate> ------------------------------------------|
 
-  # Load the logger library, from github.com/landonb/sh-logger.
+  # Load: logging funcs (info, warn, error), gnu_sed
+  # https://github.com/landonb/sh-logger#🎮🐸
   # - This also implicitly loads the colors.sh library.
+  #   https://github.com/landonb/sh-colors#🤸
   _overlay_symlink_sh__source_file "${prefix}" "../deps/sh-logger/bin" "logger.sh"
 
   # Load: print_unresolved_path, realpath_s
@@ -773,17 +775,6 @@ print_common_path_prefix() {
     $(gnu_sed) 'H;$!d;g;s/\`.\(.*\/\).*\x0\1.*/\1/' |
     head -n 1 |
     tr -d '\n'
-}
-
-gnu_sed() {
-  for cmd in "gsed" "sed"; do
-    (
-      unset -f ${cmd}
-      unalias ${cmd}
-      command -v ${cmd}
-    ) 2>/dev/null &&
-      break
-  done
 }
 
 symlink_adjusted_source_verify_target() {
