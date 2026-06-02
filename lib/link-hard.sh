@@ -8,12 +8,13 @@
 source_deps() {
   local before_cd="$(pwd -L)"
 
-  # Load the logger library, from github.com/landonb/sh-logger
-  # - Includes print commands: info, warn, error, debug
+  # Load: loggers (info, warn, error), _sh_tilde_for_home; and colors.sh:
+  #   https://github.com/landonb/sh-logger#🎮🐸
+  #   https://github.com/landonb/sh-colors#🤸
   cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/../deps/sh-logger/bin/logger.sh"
 
-  # Load: print_unresolved_path/realpath_s
+  # Load: tilde_realpath_s
   cd -- "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/print-unresolved-path.sh"
 
@@ -93,7 +94,7 @@ link_hard() {
     if [ "${chase_inode}" = "${canon_inode}" ]; then
       # Same inode; already at the desired state.
       info " Hard link $(font_emphasize inode) same" \
-        "$(font_highlight "$(print_unresolved_path "${chase_file}")")"
+        "$(font_highlight "$(tilde_realpath_s "${chase_file}")")"
 
       return 0
     elif ! diff -q "${chase_file}" "${canon_file}" >/dev/null; then
@@ -172,7 +173,7 @@ link_hard() {
   command ln -f "${canon_file}" "${chase_file}"
 
   info " ${msg_action} $(font_emphasize "hard link")" \
-    "$(font_highlight "$(print_unresolved_path "${chase_file}")")"
+    "$(font_highlight "$(tilde_realpath_s "${chase_file}")")"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

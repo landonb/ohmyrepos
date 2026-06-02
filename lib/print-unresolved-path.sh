@@ -89,3 +89,8 @@ realpath_s() {
   print_unresolved_path "$@"
 }
 
+# ***
+
+tilde_realpath_s() {
+  _sh_tilde_for_home "$(realpath_s "$1")"
+}

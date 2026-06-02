@@ -23,13 +23,13 @@ _overlay_symlink_sh__source_deps() {
   #                                                                 |
   # *** stop boilerplate> ------------------------------------------|
 
-  # Load: logging funcs (info, warn, error), gnu_sed
+  # Load: logging funcs (info, warn, error), _sh_tilde_for_home, gnu_sed
   # https://github.com/landonb/sh-logger#🎮🐸
   # - This also implicitly loads the colors.sh library.
   #   https://github.com/landonb/sh-colors#🤸
   _overlay_symlink_sh__source_file "${prefix}" "../deps/sh-logger/bin" "logger.sh"
 
-  # Load: print_unresolved_path, realpath_s
+  # Load: print_unresolved_path, realpath_s, tilde_realpath_s
   _overlay_symlink_sh__source_file "${prefix}" "" "print-unresolved-path.sh"
 
   # *** <more boilerplate: -----------------------------------------|
@@ -209,7 +209,7 @@ infuser_set_envs() {
 # 2019-10-26: This does not belong here. But all my infusers at least
 # include this file. So. Being lazy.
 repo_highlight() {
-  echo "$(fg_mintgreen)${1}$(attr_reset)"
+  echo "$(fg_mintgreen)$(tilde_realpath_s "$1")$(attr_reset)"
 }
 
 infuser_prepare() {
@@ -442,7 +442,7 @@ makelink_update_informative() {
       # that the user specified -f/--force; or else the code didn't care to
       # ask. See:
       #   safe_backup_if_not_forced.
-      info_msg=" Clobbered file with ${link_type} $(font_highlight "$(realpath_s "${targetp}")")"
+      info_msg=" Clobbered file with ${link_type} $(font_highlight "$(tilde_realpath_s "${targetp}")")"
     else
       info_msg="$(
         symlink_get_msg_informative \
@@ -469,7 +469,7 @@ makelink_update_informative() {
   ${command_or_sudo} rm -- "${targetp}"
 
   if ! eval "${command_or_sudo} ln ${symlink} '${sourcep}' '${targetp}'"; then
-    >&2 error "ERROR: ‘ln’ failed to replace symlink at: $(realpath_s "${targetp}")"
+    >&2 error "ERROR: ‘ln’ failed to replace symlink at: $(tilde_realpath_s "${targetp}")"
 
     return 1
   fi
@@ -514,7 +514,7 @@ symlink_get_msg_informative() {
     font_emphasize "${srctype}"
   ) ${link_type} $(
     font_highlight "$(
-      realpath_s "${targetp}"
+      tilde_realpath_s "${targetp}"
     )${targetd}"
   )"
 
