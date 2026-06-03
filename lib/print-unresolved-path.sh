@@ -12,7 +12,7 @@
 #   # -s, --strip, --no-symlinks: don't expand symlinks
 #   realpath -s -- "${local_file}"
 # And use `pwd` instead, with explicit `-L` (the default).
-print_unresolved_path () {
+print_unresolved_path() {
   local item_path="$1"
 
   if [ $# -eq 0 ]; then
@@ -41,7 +41,7 @@ print_unresolved_path () {
 
 # ***
 
-_logical_canonicalize_missing () {
+_logical_canonicalize_missing() {
   local dir_name="$1"
 
   if [ -z "${dir_name}" ]; then
@@ -54,7 +54,7 @@ _logical_canonicalize_missing () {
   local logical_path=""
 
   while [ "${exists_part}" != '.' ] && [ "${exists_part}" != '/' ]; do
-    if logical_path="$(cd "${exists_part}" 2> /dev/null && pwd -L)"; then
+    if logical_path="$(cd "${exists_part}" 2>/dev/null && pwd -L)"; then
 
       break
     fi
@@ -69,7 +69,7 @@ _logical_canonicalize_missing () {
   if [ -z "${logical_path}" ]; then
     if [ "${exists_part}" = '.' ]; then
       logical_path="$(pwd -L)"
-    elif [ "${exists_part}" = '/' ]; then 
+    elif [ "${exists_part}" = '/' ]; then
       logical_path="/"
     else
       >&2 echo "GAFFE: Impossible path"
@@ -85,7 +85,7 @@ _logical_canonicalize_missing () {
 
 # ***
 
-realpath_s () {
+realpath_s() {
   print_unresolved_path "$@"
 }
 
