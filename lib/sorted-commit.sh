@@ -5,6 +5,9 @@
 
 # USAGE: Useful for sorting and saving changes to your ~/.vim/spell/en.utf-8.add
 #   There are probably additional uses, too.
+# - Savvy: Also runs `uniq` on the output to remove duplicate entries.
+#   - Inert: This file should prob. be named sorted-uniq-commit.sh or similar.
+#
 # E.g.,
 #
 #   [${HOME}/.dotfiles]
@@ -145,7 +148,7 @@ sort_file_then_commit() {
     sortedf="$(mktemp --suffix='.ohmyrepos')"
 
     # --dictionary-order: Emoji, A-Z, then a-z.
-    cat "${targetf}" | LC_ALL='C' sort -d >"${sortedf}"
+    cat "${targetf}" | LC_ALL='C' sort -d | uniq >"${sortedf}"
     command mv -f -- "${sortedf}" "${targetf}"
 
     git_auto_commit_one "${targetf}" "$@"
