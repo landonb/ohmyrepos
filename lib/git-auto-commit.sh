@@ -167,7 +167,7 @@ git_auto_commit_cd_mrrepo() {
     MR_GIT_AUTO_COMMIT_BEFORE_CD="$(pwd -L)"
     cd "${MR_REPO}"
     debug "$(fg_mintgreen)$(attr_emphasis)autocommitting$(attr_reset)" \
-      "$(fg_lightorange)${MR_REPO}$(attr_reset)"
+      "$(fg_lightorange)$(_sh_tilde_for_home "${MR_REPO}")$(attr_reset)"
   fi
   MR_GIT_AUTO_COMMIT_SAID_HELLO=true
 }
