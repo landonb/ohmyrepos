@@ -20,7 +20,7 @@
 
 _sorted_commit_sh__this_filename="sorted-commit.sh"
 
-_sorted_commit_sh__source_deps () {
+_sorted_commit_sh__source_deps() {
   local sourced_all=true
 
   # On Bash, user can source this file from anywhere.
@@ -43,9 +43,9 @@ _sorted_commit_sh__source_deps () {
   ${sourced_all}
 }
 
-_sorted_commit_sh__smells_like_bash () { declare -p BASH_SOURCE > /dev/null 2>&1; }
+_sorted_commit_sh__smells_like_bash() { declare -p BASH_SOURCE >/dev/null 2>&1; }
 
-_sorted_commit_sh__print_this_fullpath () {
+_sorted_commit_sh__print_this_fullpath() {
   if _sorted_commit_sh__smells_like_bash; then
     echo "$(realpath -- "${BASH_SOURCE[0]}")"
   elif [ "$(basename -- "$0")" = "${_sorted_commit_sh__this_filename}" ]; then
@@ -59,11 +59,11 @@ _sorted_commit_sh__print_this_fullpath () {
 
 _sorted_commit_sh__this_fullpath="$(_sorted_commit_sh__print_this_fullpath)"
 
-_sorted_commit_sh__shell_sourced () {
+_sorted_commit_sh__shell_sourced() {
   [ "$(realpath -- "$0")" != "${_sorted_commit_sh__this_fullpath}" ]
 }
 
-_sorted_commit_sh__source_file () {
+_sorted_commit_sh__source_file() {
   local prfx="${1:-.}"
   local depd="${2:-.}"
   local file="${3:-.}"
@@ -104,10 +104,10 @@ _sorted_commit_sh__source_file () {
 
 # BONUS: You can use these aliases instead of the uniquely-named functions,
 # just be aware not to call any alias after calling _source_deps.
-_shell_sourced () { _sorted_commit_sh__shell_sourced; }
-_source_deps () { _sorted_commit_sh__source_deps; }
+_shell_sourced() { _sorted_commit_sh__shell_sourced; }
+_source_deps() { _sorted_commit_sh__source_deps; }
 
-_sorted_commit_sh__source_deps_unset_cleanup () {
+_sorted_commit_sh__source_deps_unset_cleanup() {
   unset -v _sorted_commit_sh__this_filename
   unset -f _sorted_commit_sh__print_this_fullpath
   unset -f _sorted_commit_sh__shell_sourced
@@ -130,7 +130,7 @@ _sorted_commit_sh__source_deps_unset_cleanup () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-sort_file_then_commit () {
+sort_file_then_commit() {
   local targetf="$1"
   shift
 
@@ -145,7 +145,7 @@ sort_file_then_commit () {
     sortedf="$(mktemp --suffix='.ohmyrepos')"
 
     # --dictionary-order: Emoji, A-Z, then a-z.
-    cat "${targetf}" | LC_ALL='C' sort -d > "${sortedf}"
+    cat "${targetf}" | LC_ALL='C' sort -d >"${sortedf}"
     command mv -f -- "${sortedf}" "${targetf}"
 
     git_auto_commit_one "${targetf}" "$@"
@@ -163,7 +163,7 @@ sort_file_then_commit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   _source_deps
 }
 
@@ -176,4 +176,3 @@ fi
 
 _sorted_commit_sh__source_deps_unset_cleanup
 unset -f main
-
