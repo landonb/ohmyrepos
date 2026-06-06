@@ -2083,6 +2083,8 @@ print_path_for_remote_user() {
 # The `mr ffssh` action.
 git_merge_ffonly_ssh_mirror() {
   set -e
+  # DEVEL: Uncomment to trace, e.g., if debugging `mr 'ffssh'` action.
+  #  set -x
 
   sync_travel_remote_setup
 
