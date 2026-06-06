@@ -1786,7 +1786,10 @@ _trace_reflog_time_checks() {
   reflog_time_head="$(git_reflog_latest_epoch_ts)"
   reflog_time_remote="$(git_reflog_latest_epoch_ts "${reflog_ref}")"
 
-  if [ ${reflog_time_head} -ne ${reflog_time_remote} ]; then
+  if [ -z "${reflog_time_head}" ] || [ -z "${reflog_time_remote}" ]; then
+    debug "Empty reflog: dates: ‘${reflog_date_head}’ / ‘${reflog_date_remote}’" \
+      "‖ times: ‘${reflog_time_head}’ / ‘${reflog_time_remote}’"
+  elif [ "${reflog_time_head}" -ne "${reflog_time_remote}" ]; then
     local reflog_date_remote
     local reflog_date_remote
     reflog_date_head="$(git_reflog_latest_iso_time)"
