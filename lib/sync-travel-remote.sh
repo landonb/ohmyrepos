@@ -1792,7 +1792,7 @@ _trace_reflog_time_checks() {
     reflog_date_head="$(git_reflog_latest_iso_time)"
     reflog_date_remote="$(git_reflog_latest_iso_time "${reflog_ref}")"
 
-    warn "Reflog diss: (head - remote) =" \
+    warn "Reflog disagreement: (head - remote) =" \
       "(${reflog_date_head} - ${reflog_date_remote}) =" \
       "(${reflog_time_head} - ${reflog_time_remote}) =" \
       "$((${reflog_time_head} - ${reflog_time_remote})) secs."
