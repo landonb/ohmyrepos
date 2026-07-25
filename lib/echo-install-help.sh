@@ -80,6 +80,16 @@ echoInstallHelpWidget() {
   fi
 
   if [ "${dxy_scope}" = "dxy_limit" ]; then
+    # AWARE/2026-07-24: Note that 'dxy_all' used "oppositely" by
+    # ${dxy_scope} compared to ${OMR_ECHO_INSTALL_DXY_SCOPE}.
+    # - `echoInstallHelp 'os_all' 'dxy_all'` means to suggest to
+    #   *always* 'install' the project.
+    # - Whereas OMR_ECHO_INSTALL_DXY_SCOPE=dxy_all means install
+    #   everything, including `echoInstallHelp 'os_all' 'dxy_limit'`
+    #   projects.
+    #   - Whereas OMR_ECHO_INSTALL_DXY_SCOPE=dxy_pro means to only
+    #     suggest `echoInstallHelp 'os_all' 'dxy_all'` but not the
+    #     'dxy_limit' or 'dxy_limit_maybe' projects.
     if [ "${OMR_ECHO_INSTALL_DXY_SCOPE:-dxy_all}" != "dxy_all" ]; then
       checkbox="${OMR_REMINDER_DISABLED}"
     fi
