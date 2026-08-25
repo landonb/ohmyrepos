@@ -828,6 +828,9 @@ git_commit_object_name() {
   git rev-parse ${opts} "${gitref}"
 }
 
+# The git-reflog calls only used for trace/debug; see `reflog_ref=`
+# which uses '<remote>/<branch>@{reflog_depth}' to access reflog.
+
 git_reflog_latest_epoch_ts() {
   local gitref="${1:-HEAD}"
 
