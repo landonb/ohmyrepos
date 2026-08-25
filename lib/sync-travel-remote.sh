@@ -1791,7 +1791,8 @@ _trace_reflog_time_checks() {
 
   if [ -z "${reflog_time_head}" ] || [ -z "${reflog_time_remote}" ]; then
     debug "Empty reflog time(s): '${reflog_ref}':" \
-      "‘${reflog_time_head}’ / ‘${reflog_time_remote}’"
+      "time_head: ${reflog_time_head} / time_remote: ${reflog_time_remote}" \
+      "/ reflog_id: ${reflog_id} / head_sha: ${head_sha}"
   elif [ "${reflog_time_head}" -ne "${reflog_time_remote}" ]; then
     local reflog_date_head
     local reflog_date_remote
