@@ -1790,7 +1790,9 @@ _trace_reflog_time_checks() {
   reflog_time_remote="$(git_reflog_latest_epoch_ts "${reflog_ref}")"
 
   if [ -z "${reflog_time_head}" ] || [ -z "${reflog_time_remote}" ]; then
-    debug "Empty reflog time(s): '${reflog_ref}':" \
+    # TRACK/2026-08-25: No reflog (both times "") but caller's reflog_id == head_sha ?!
+    # - LATER/2026-08-25: Revert 'warn' to 'debug' after investigating next instance.
+    warn "Empty reflog time(s): '${reflog_ref}':" \
       "time_head: ${reflog_time_head} / time_remote: ${reflog_time_remote}" \
       "/ reflog_id: ${reflog_id} / head_sha: ${head_sha}"
   elif [ "${reflog_time_head}" -ne "${reflog_time_remote}" ]; then
