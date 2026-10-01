@@ -395,7 +395,8 @@ makelink_create_informative() {
 
   # Caller guarantees (via ! -e and ! -h) that $targetp does not exist.
 
-  local targetd="$(dirname -- "${targetp}")"
+  local targetd
+  targetd="$(dirname -- "${targetp}")"
   mkdir -p -- "${targetd}"
 
   local command_or_sudo="$(print_command_or_sudo)"
@@ -934,7 +935,8 @@ symlink_overlay_dir() {
 symlink_overlay_path_rel() {
   local srctype="$1"
   local sourcep="$2"
-  local targetp="${3:-$(basename -- "${sourcep}")}"
+  local targetp=""
+  targetp="${3:-$(basename -- "${sourcep}")}"
 
   params_register_defaults
 
