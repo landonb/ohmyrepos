@@ -891,6 +891,9 @@ symlink_overlay_path() {
   if is_relative_path "${sourcep}" &&
     ! is_relative_path "${targetp}"; then
     # So that relative sourcep works.
+    local targetd
+    targetd="$(dirname -- "${targetp}")"
+    mkdir -p -- "${targetd}"
     cd -- "$(dirname -- "${targetp}")"
   fi
 
