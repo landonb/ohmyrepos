@@ -73,7 +73,7 @@ _overlay_symlink_sh__source_file() {
   if [ -f "${deps_path}" ]; then
     # SAVVY: Source files from their dirs, so they can find their deps.
     local before_cd="$(pwd -L)"
-    cd "${deps_dir}"
+    cd -- "${deps_dir}"
     # SAVVY: If errexit, error while sourcing kills process immediately,
     # and error you see might indicate this source file, but the line
     # number for the file being sourced. E.g.,
@@ -83,7 +83,7 @@ _overlay_symlink_sh__source_file() {
       >&2 echo "ERROR: Dependency ‘${file}’ returned nonzero when sourced"
       sourced_all=false
     fi
-    cd "${before_cd}"
+    cd -- "${before_cd}"
   else
     local depstxt=""
     [ "${prfx}" = "." ] || depstxt="in ‘${deps_dir}’ or "
@@ -396,7 +396,7 @@ makelink_create_informative() {
   # Caller guarantees (via ! -e and ! -h) that $targetp does not exist.
 
   local targetd="$(dirname -- "${targetp}")"
-  mkdir -p "${targetd}"
+  mkdir -p -- "${targetd}"
 
   local command_or_sudo="$(print_command_or_sudo)"
 
@@ -637,7 +637,7 @@ print_sourcep_relative_targetp() {
     # symlink_overlay_* flow). If not, switch to full path
     # (e.g., `symlink_mrinfuse_file "file" "/path/to/target"`).
     if (
-      cd "$(dirname -- "${targetp}")" 2>/dev/null &&
+      cd -- "$(dirname -- "${targetp}")" 2>/dev/null &&
         test -e "${sourcep}"
     ); then
       printf "%s" "${sourcep}"
@@ -890,14 +890,14 @@ symlink_overlay_path() {
   if is_relative_path "${sourcep}" &&
     ! is_relative_path "${targetp}"; then
     # So that relative sourcep works.
-    cd "$(dirname -- "${targetp}")"
+    cd -- "$(dirname -- "${targetp}")"
   fi
 
   local retcode=0
   symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}" ||
     retcode=$?
 
-  cd "${before_cd}"
+  cd -- "${before_cd}"
 
   return ${retcode}
 }
@@ -953,13 +953,13 @@ symlink_overlay_path_rel() {
 
   local before_cd="$(pwd -L)"
 
-  cd "${common_prefix}"
+  cd -- "${common_prefix}"
 
   local retcode=0
   symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}" ||
     retcode=$?
 
-  cd "${before_cd}"
+  cd -- "${before_cd}"
 
   return ${retcode}
 }
@@ -1021,7 +1021,7 @@ mrinfuse_findup() {
   if [ -n "${start_dir}" ]; then
     start_dir="${start_dir%%/}/"
 
-    cd "${start_dir}"
+    cd -- "${start_dir}"
   fi
 
   # Search from this directory upwards looking for .mrinfuse/ dir.
@@ -1254,7 +1254,7 @@ symlink_mrinfuse_typed() {
   params_register_defaults
 
   local before_cd="$(pwd -L)"
-  cd "${MR_REPO:-.}"
+  cd -- "${MR_REPO:-.}"
 
   local sourcep
   if ! sourcep="$(path_to_mrinfuse_resolve "${lnkpath}")"; then
@@ -1287,7 +1287,7 @@ symlink_mrinfuse_typed() {
   symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}" ||
     retcode=$?
 
-  cd "${before_cd}"
+  cd -- "${before_cd}"
 
   return ${retcode}
 }
