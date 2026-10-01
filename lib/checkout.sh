@@ -5,7 +5,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-mr_repo_checkout () {
+mr_repo_checkout() {
   if [ -z "${MR_REPO_REMOTES}" ]; then
     >&2 error "ERROR: The MR_REPO_REMOTES environ is unset"
     >&2 error "- Please set MR_REPO_REMOTES directly, or use \`remote_set\` to set it"
@@ -44,4 +44,3 @@ mr_repo_checkout () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-

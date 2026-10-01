@@ -71,7 +71,7 @@
 # USAGE: The `git_clone_giturl` function accepts two options from git-clone:
 #
 #   -c/--config and -o/--origin
-# 
+#
 # - This example shows how to specify the remote name:
 #
 #     git_clone_giturl -o "upstream" "user/repo.git"
@@ -105,7 +105,7 @@
 # So generally the user will set MR_GITHUB_HOST_ORIGIN and use
 # `remote_set`, but they won't call this function directly.
 
-git_clone_giturl () {
+git_clone_giturl() {
   local remote_url_or_local_path=""
   local target_dir=""
   local remote_name="origin"
@@ -113,43 +113,43 @@ git_clone_giturl () {
 
   while [ "$1" != '' ]; do
     case $1 in
-      -o | --origin)
-        [ ${#@} -lt 2 ] \
-          && >&2 echo "ERROR: git_clone_giturl -o/--origin missing <name>" \
-          && return 1 || true
+    -o | --origin)
+      [ ${#@} -lt 2 ] &&
+        >&2 echo "ERROR: git_clone_giturl -o/--origin missing <name>" &&
+        return 1 || true
 
-        remote_name="$2"
+      remote_name="$2"
 
-        shift 2
-        ;;
+      shift 2
+      ;;
 
-      -c | --config)
-        [ ${#@} -lt 2 ] \
-          && >&2 echo "ERROR: git_clone_giturl -c/--config missing <name>=<value>" \
-          && return 1 || true
+    -c | --config)
+      [ ${#@} -lt 2 ] &&
+        >&2 echo "ERROR: git_clone_giturl -c/--config missing <name>=<value>" &&
+        return 1 || true
 
-        config_name_vals="${config_name_vals}$1 $2 "
+      config_name_vals="${config_name_vals}$1 $2 "
 
-        shift 2
-        ;;
+      shift 2
+      ;;
 
-      *)
-        [ -n "${remote_url_or_local_path}" ] && [ -n "${target_dir}" ] \
-          && >&2 echo "ERROR: more than one git_clone_giturl path or URL" \
-          && return 1 || true
+    *)
+      [ -n "${remote_url_or_local_path}" ] && [ -n "${target_dir}" ] &&
+        >&2 echo "ERROR: more than one git_clone_giturl path or URL" &&
+        return 1 || true
 
-        [ -z "${remote_url_or_local_path}" ] \
-          && remote_url_or_local_path="$1" \
-          || target_dir="$1"
+      [ -z "${remote_url_or_local_path}" ] &&
+        remote_url_or_local_path="$1" ||
+        target_dir="$1"
 
-        shift
-        ;;
+      shift
+      ;;
     esac
   done
 
-  [ -z "${remote_url_or_local_path}" ] \
-    && >&2 echo "ERROR: missing git_clone_giturl path or URL" \
-    && return 1 || true
+  [ -z "${remote_url_or_local_path}" ] &&
+    >&2 echo "ERROR: missing git_clone_giturl path or URL" &&
+    return 1 || true
 
   local git_url
   git_url="$(_github_url_according_to_user "${remote_url_or_local_path}")"
@@ -201,14 +201,14 @@ git_clone_giturl () {
 #         User user
 #         IdentitiesOnly yes
 #         IdentityFile ~/.ssh/id_github_user_ed25519
-_github_url_according_to_user () {
+_github_url_according_to_user() {
   local remote_url_or_local_path="$1"
 
   # Strip trailing comment character and project emoji, if set.
   # - E.g., change "https://github.com/landonb/ohmyrepos#😤"
   #             to "https://github.com/landonb/ohmyrepos"
   local sanitized_url_or_path
-  sanitized_url_or_path="$( \
+  sanitized_url_or_path="$(
     echo "${remote_url_or_local_path}" | sed 's/^\(.*\)\(#[^#]*\)$/\1/'
   )"
 
@@ -227,7 +227,7 @@ _github_url_according_to_user () {
   # Determine base HTTP URL, e.g., "https://github.com/", or
   # "https://gitlab.com/", etc.
   local https_host_origin
-  https_host_origin="$( \
+  https_host_origin="$(
     echo "${remote_url}" | sed 's#^\(https\?://[^/]\+/\).*#\1#'
   )"
 
@@ -253,9 +253,9 @@ _github_url_according_to_user () {
   if [ -n "${git_host_origin}" ]; then
     # Strip the http:// or https:// prefix.
     local url_path_component
-    url_path_component="$( \
-      echo "${remote_url}" \
-      | sed -E 's#^https?://[^/]+/(.*)#\1#' \
+    url_path_component="$(
+      echo "${remote_url}" |
+        sed -E 's#^https?://[^/]+/(.*)#\1#'
     )"
 
     # Reassemable URL using scheme/protocol (HTTPS/SSH) and domain (github.com)
@@ -265,4 +265,3 @@ _github_url_according_to_user () {
 
   printf "%s" "${remote_url}"
 }
-

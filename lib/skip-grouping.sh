@@ -39,7 +39,7 @@
 #   $ mr -n --force <action>
 
 # mr_exclusive_tag returns True if project should be skipped per MR_INCLUDE.
-mr_exclusive_tag () {
+mr_exclusive_tag() {
   # If MR_INCLUDE unset, don't skip anything.
   # - Returns 1, aka false, aka don't skip.
   [ -z "${MR_INCLUDE+x}" ] && return 1
@@ -116,7 +116,7 @@ mr_exclusive_tag () {
 
 # ***
 
-mr_exclusive_remote () {
+mr_exclusive_remote() {
   if [ -z "${MR_REPO}" ]; then
     # Called outside a repo, e.g., from a [DEFAULT] `include` block.
     # - Use case: Lets user check MR_INCLUDE tags before conditionally
@@ -137,15 +137,14 @@ mr_exclusive_remote () {
 }
 
 # COPYD: ~/.kit/git/git-bump-version-tag/deps/sh-git-nubs/lib/git-nubs.sh
-git_remote_exists () {
+git_remote_exists() {
   local remote="$1"
 
-  git remote get-url ${remote} > /dev/null 2>&1
+  git remote get-url ${remote} >/dev/null 2>&1
 }
 
 # ***
 
-mr_exclusive () {
+mr_exclusive() {
   mr_exclusive_tag "$@" || mr_exclusive_remote
 }
-

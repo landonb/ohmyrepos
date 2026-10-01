@@ -4,7 +4,6 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-os_is_macos () {
+os_is_macos() {
   [ "$(uname)" = 'Darwin' ]
 }
-

@@ -4,7 +4,7 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-pull_latest () {
+pull_latest() {
   local remote_name="$1"
   local remote_branch="$2"
   local version_tag="$3"
@@ -41,7 +41,7 @@ pull_latest () {
 
   echo
   echo "$ git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true"
-  git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true
+  git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2>/dev/null || true
 
   echo
   echo "$ git checkout ${local_branch}"
@@ -71,7 +71,7 @@ pull_latest () {
     #            tags special "stable-X.X" branches, so unless you want
     #            to periodically have to update the version number manually,
     #            just live with the warning.
-    install_version="$( \
+    install_version="$(
       GITNUBS_PREFIX="${GITNUBS_PREFIX}" \
         git latest-version-normal
     )"
@@ -80,10 +80,10 @@ pull_latest () {
       >&2 echo "ERROR: git latest-version-normal failed:"
       >&2 echo
       >&2 echo "  $ GITNUBS_PREFIX=\"${GITNUBS_PREFIX}\" git latest-version-normal"
-      >&2 echo "$( \
+      >&2 echo "$(
         GITNUBS_PREFIX="${GITNUBS_PREFIX}" \
-          git latest-version-normal 2>&1 \
-        | sed 's/^/  /'
+          git latest-version-normal 2>&1 |
+          sed 's/^/  /'
       )"
       >&2 echo
 
@@ -100,7 +100,7 @@ pull_latest () {
 
   echo
   echo "$ git checkout -b ${install_branch} ${install_version} 2> /dev/null || true"
-  git checkout -b ${install_branch} ${install_version} 2> /dev/null || true
+  git checkout -b ${install_branch} ${install_version} 2>/dev/null || true
 
   echo
   echo "$ git checkout ${install_branch}"
@@ -113,4 +113,3 @@ pull_latest () {
   echo
   echo "*** Done! Setup branch \"${install_branch}\" from ${install_version} ***"
 }
-

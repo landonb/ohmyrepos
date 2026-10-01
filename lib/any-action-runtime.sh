@@ -8,7 +8,7 @@
 
 _any_action_runtime_sh__this_filename="any-action-runtime.sh"
 
-_any_action_runtime_sh__source_deps () {
+_any_action_runtime_sh__source_deps() {
   local sourced_all=true
 
   # On Bash, user can source this file from anywhere.
@@ -41,9 +41,9 @@ _any_action_runtime_sh__source_deps () {
   ${sourced_all}
 }
 
-_any_action_runtime_sh__smells_like_bash () { declare -p BASH_SOURCE > /dev/null 2>&1; }
+_any_action_runtime_sh__smells_like_bash() { declare -p BASH_SOURCE >/dev/null 2>&1; }
 
-_any_action_runtime_sh__print_this_fullpath () {
+_any_action_runtime_sh__print_this_fullpath() {
   if _any_action_runtime_sh__smells_like_bash; then
     echo "$(realpath -- "${BASH_SOURCE[0]}")"
   elif [ "$(basename -- "$0")" = "${_any_action_runtime_sh__this_filename}" ]; then
@@ -57,11 +57,11 @@ _any_action_runtime_sh__print_this_fullpath () {
 
 _any_action_runtime_sh__this_fullpath="$(_any_action_runtime_sh__print_this_fullpath)"
 
-_any_action_runtime_sh__shell_sourced () {
+_any_action_runtime_sh__shell_sourced() {
   [ "$(realpath -- "$0")" != "${_any_action_runtime_sh__this_fullpath}" ]
 }
 
-_any_action_runtime_sh__source_file () {
+_any_action_runtime_sh__source_file() {
   local prfx="${1:-.}"
   local depd="${2:-.}"
   local file="${3:-.}"
@@ -102,10 +102,10 @@ _any_action_runtime_sh__source_file () {
 
 # BONUS: You can use these aliases instead of the uniquely-named functions,
 # just be aware not to call any alias after calling _source_deps.
-_shell_sourced () { _any_action_runtime_sh__shell_sourced; }
-_source_deps () { _any_action_runtime_sh__source_deps; }
+_shell_sourced() { _any_action_runtime_sh__shell_sourced; }
+_source_deps() { _any_action_runtime_sh__source_deps; }
 
-_any_action_runtime_sh__source_deps_unset_cleanup () {
+_any_action_runtime_sh__source_deps_unset_cleanup() {
   unset -v _any_action_runtime_sh__this_filename
   unset -f _any_action_runtime_sh__print_this_fullpath
   unset -f _any_action_runtime_sh__shell_sourced
@@ -126,7 +126,7 @@ _any_action_runtime_sh__source_deps_unset_cleanup () {
 #                                                                   |
 # *** end boilerplate `source_deps`> -------------------------------|
 
-reveal_biz_vars () {
+reveal_biz_vars() {
   # (lb): Because myrepos uses subprocesses, we cannot share values
   # using environment variables. So we use a temporary file instead.
   # And we use the parent process ID so `mr` can run in parallel.
@@ -146,7 +146,7 @@ reveal_biz_vars () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-python_prettify_elapsed () {
+python_prettify_elapsed() {
   local seconds="${1:-0}"
 
   # This spits to stderr if user does not have package installed.
@@ -154,10 +154,10 @@ python_prettify_elapsed () {
     "from pedantic_timedelta import PedanticTimedelta; \
      pdtd = PedanticTimedelta(seconds=${seconds}); \
      print(pdtd.time_format_scaled(field_width=1, precision=1, abbreviate=2)[0]);" \
-     2> /dev/null
+    2>/dev/null
 }
 
-simple_bc_elapsed () {
+simple_bc_elapsed() {
   local seconds="${1:-0}"
 
   echo "$(echo "scale=1; ${seconds} * 100 / 100" | bc -l) secs."
@@ -165,7 +165,7 @@ simple_bc_elapsed () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_any_action_started () {
+git_any_action_started() {
   # DEBUG: Uncomment to trace setup and teardown calls:
   #
   #  _trace_ps_heritage "STAND-UP"
@@ -175,18 +175,18 @@ git_any_action_started () {
   ppid_count=$((${ppid_count} + 1))
   remove_old_temp_files
 
-  print_nanos_now > "${OMR_RUNTIME_TEMPFILE}"
-  echo "${ppid_count}" >> "${OMR_RUNTIME_TEMPFILE}"
+  print_nanos_now >"${OMR_RUNTIME_TEMPFILE}"
+  echo "${ppid_count}" >>"${OMR_RUNTIME_TEMPFILE}"
 }
 
-git_any_action_stopped () {
+git_any_action_stopped() {
   # DEBUG: Uncomment to trace setup and teardown calls:
   #
   #  _trace_ps_heritage "TEARDOWN"
 
   local setup_time_0
-  setup_time_0="$(head -n 1 -- "${OMR_RUNTIME_TEMPFILE}" 2> /dev/null)" \
-    || true
+  setup_time_0="$(head -n 1 -- "${OMR_RUNTIME_TEMPFILE}" 2>/dev/null)" ||
+    true
 
   if [ -z "${setup_time_0}" ]; then
     # BUGGY: This path happens occasionally, because some race condition
@@ -207,8 +207,8 @@ git_any_action_stopped () {
   if [ $(echo "${seconds} >= ${OMR_RUNTIME_MIN_SECS}" | bc -l) -ne 0 ]; then
     local time_elapsed="$(python_prettify_elapsed "${seconds}")"
 
-    [ -z "${time_elapsed}" ] \
-      && time_elapsed="$(simple_bc_elapsed "${seconds}")"
+    [ -z "${time_elapsed}" ] &&
+      time_elapsed="$(simple_bc_elapsed "${seconds}")"
 
     printf %s "$(attr_emphasis)(${time_elapsed})$(attr_reset) "
   fi
@@ -221,23 +221,23 @@ git_any_action_stopped () {
 # User can call `mr` from an `mr` action, so only remove the file
 # associated with the current process, because there might be
 # multiple runtime temp files in use.
-update_or_remove_tempfile () {
+update_or_remove_tempfile() {
   local ppid_count
   ppid_count="$(read_ppid_count_from_tempfile)"
   ppid_count=$((${ppid_count} - 1))
 
   if [ ${ppid_count} -gt 0 ]; then
-    head -n 1 -- "${OMR_RUNTIME_TEMPFILE}" \
-      | tee -- "${OMR_RUNTIME_TEMPFILE}" > /dev/null
-    echo "${ppid_count}" >> "${OMR_RUNTIME_TEMPFILE}"
+    head -n 1 -- "${OMR_RUNTIME_TEMPFILE}" |
+      tee -- "${OMR_RUNTIME_TEMPFILE}" >/dev/null
+    echo "${ppid_count}" >>"${OMR_RUNTIME_TEMPFILE}"
   else
-    ( sleep 1 && command rm -f -- "${OMR_RUNTIME_TEMPFILE}" ) &
+    (sleep 1 && command rm -f -- "${OMR_RUNTIME_TEMPFILE}") &
   fi
 }
 
-read_ppid_count_from_tempfile () {
-  tail -n +2 "${OMR_RUNTIME_TEMPFILE}" 2> /dev/null \
-    || echo "0"
+read_ppid_count_from_tempfile() {
+  tail -n +2 "${OMR_RUNTIME_TEMPFILE}" 2>/dev/null ||
+    echo "0"
 }
 
 # ***
@@ -260,7 +260,7 @@ read_ppid_count_from_tempfile () {
 # - Note this means there might always be one stray temp file
 #   that won't get cleaned up until user runs OMR again (or
 #   logsout).
-remove_old_temp_files () {
+remove_old_temp_files() {
   # If parent is the shell, assume this is the main `mr`
   # process running setup_dispatch_append for the first
   # time.
@@ -268,9 +268,9 @@ remove_old_temp_files () {
   #     if [ "/home/user/.local/bin/bash" = "$( \
   #       ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ')
   #     )" ]; then
-  if ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ') \
-    | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' - \
-  ; then
+  if ps -ocommand= -p $(ps -o ppid= ${PPID} | tr -d ' ') |
+    grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' - \
+    ; then
     # DEBUG: Uncomment to trace setup and teardown calls:
     #
     #  _trace_ps_heritage "CLEAN-UP"
@@ -298,7 +298,7 @@ remove_old_temp_files () {
 }
 
 # DEBUG: You can uncomment calls to this function to see what's going on.
-_trace_ps_heritage () {
+_trace_ps_heritage() {
   >&2 echo "$1: $$ / $PPID / $(ps -o ppid= ${PPID} | tr -d ' ')"
 
   # Print the command names:
@@ -311,29 +311,29 @@ _trace_ps_heritage () {
 
 # Mimic `mr`'s `showstats` and check these options to decide whether
 # to show footer. (Else user might see lonely "(n secs.)" printed.)
-mr_show_stats () {
+mr_show_stats() {
   local show_time=true
 
-  if ( \
-    false \
-    || [ "${MR_OPTS_QUIET:-0}" -eq 1 ] \
-    || [ "${MR_OPTS_MINIMAL:-0}" -eq 1 ] \
-    || [ "${MR_OPTS_MORE_MINIMAL:-0}" -eq 1 ] \
-    || [ "${MR_OPTS_PRINT_FOOTER:-1}" -eq 0 ] \
-    ) && [ "${MR_OPTS_STATS:-0}" -eq 0 ]; then
+  if (
+    false ||
+      [ "${MR_OPTS_QUIET:-0}" -eq 1 ] ||
+      [ "${MR_OPTS_MINIMAL:-0}" -eq 1 ] ||
+      [ "${MR_OPTS_MORE_MINIMAL:-0}" -eq 1 ] ||
+      [ "${MR_OPTS_PRINT_FOOTER:-1}" -eq 0 ]
+  ) && [ "${MR_OPTS_STATS:-0}" -eq 0 ]; then
     show_time=false
   fi
 
   ${show_time}
 }
 
-git_any_cache_setup () {
+git_any_cache_setup() {
   if mr_show_stats; then
     git_any_action_started
   fi
 }
 
-git_any_cache_teardown () {
+git_any_cache_teardown() {
   if mr_show_stats; then
     git_any_action_stopped
   fi
@@ -341,7 +341,7 @@ git_any_cache_teardown () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   # Only source deps when not included by OMR.
   # - This supports user sourcing this file directly,
   #   and it helps OMR avoid re-sourcing the same files.
@@ -357,4 +357,3 @@ main "$@"
 _any_action_runtime_sh__source_deps_unset_cleanup
 unset -f main
 unset -f reveal_biz_vars
-

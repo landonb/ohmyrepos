@@ -3,7 +3,7 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-print_homebrew_prefix () {
+print_homebrew_prefix() {
   # If `eval "$(brew shellenv)"` prev. called, HOMEBREW_PREFIX is set.
   local brew_prefix="${HOMEBREW_PREFIX}"
 
@@ -24,4 +24,3 @@ print_homebrew_prefix () {
 
   printf "%s" "${brew_prefix}"
 }
-

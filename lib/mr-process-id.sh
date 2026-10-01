@@ -3,7 +3,7 @@
 # Project: https://github.com/landonb/ohmyrepos#😤
 # License: MIT
 
-mr_process_id () {
+mr_process_id() {
   local ancestor_pid
 
   if [ -z "${MR_REPO}" ]; then
@@ -40,18 +40,17 @@ mr_process_id () {
   printf "${ancestor_pid}"
 }
 
-is_multiprocessing () {
+is_multiprocessing() {
   if [ -z "${IS_MULTIPROCESSING}" ]; then
     local match_int_over_2="([0-9]{2,}|[2-9]{1})"
 
-    echo "${MR_SWITCHES}" | \
+    echo "${MR_SWITCHES}" |
       grep -q -E \
         -e "-j[ =]?${match_int_over_2}" \
-        -e "--jobs[ =]?${match_int_over_2}" \
-      && IS_MULTIPROCESSING=true \
-      || IS_MULTIPROCESSING=false
+        -e "--jobs[ =]?${match_int_over_2}" &&
+      IS_MULTIPROCESSING=true ||
+      IS_MULTIPROCESSING=false
   fi
 
   ${IS_MULTIPROCESSING}
 }
-

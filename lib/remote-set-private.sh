@@ -51,7 +51,7 @@
 #   checkout = [ -z ${MR_TRAVEL} ] && fatal 'You must set MR_TRAVEL' ||
 #     git clone -o "${MR_REMOTE}" "${MR_TRAVEL}/${MR_REPO}"
 
-remote_set_private () {
+remote_set_private() {
   local dst_path="$1"
 
   if [ "${MR_ACTION}" = "checkout" ]; then
@@ -102,4 +102,3 @@ remote_set_private () {
 
   remote_set "${MR_REMOTE}" "${rem_path}" "${dst_path}"
 }
-
