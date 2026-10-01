@@ -69,6 +69,7 @@ include =
   cd "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}"
   
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/checkout"
+  cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/download-and-diff"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/echo-install-help"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/fetch-selective"
   cat "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-auto-commit"
@@ -101,6 +102,7 @@ lib =
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/any-action-runtime.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/checkout.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/clone-giturl.sh"
+  . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/download-and-diff.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/echo-install-help.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/fetch-selective.sh"
   . "${OHMYREPOS_LIB:-${HOME}/.ohmyrepos/lib}/git-auto-commit.sh"
