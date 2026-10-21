@@ -9,8 +9,15 @@ pull_latest() {
   local remote_branch="$2"
   local version_tag="$3"
   local local_branch="${4:-${remote_branch}}"
+  local omfgbequiet="${5:-false}"
 
-  echo "SAVVY: We'll update to the latest tagged version, something like:
+  _echo() {
+    ! ${omfgbequiet} || return
+
+    echo "$@"
+  }
+
+  _echo "SAVVY: We'll update to the latest tagged version, something like:
 
     git fetch ${remote_name} --prune
     git checkout ${remote_branch}
@@ -32,27 +39,31 @@ pull_latest() {
 
       pull_latest \"${remote_name}\" \"${remote_branch}\" \"${remote_name}/${remote_branch}\""
 
-  echo
-  echo "*** Preparing $(basename -- "$(pwd)") ***"
+  _echo
+  _echo "*** Preparing $(basename -- "$(pwd)") ***"
 
-  echo
-  echo "$ git fetch ${remote_name} --prune"
+  _echo
+  _echo "$ git fetch ${remote_name} --prune"
   git fetch ${remote_name} --prune
 
-  echo
-  echo "$ git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true"
+  # Might fail ('cuz we're being lazy), e.g.,
+  #   fatal: a branch named 'master' already exists
+  _echo
+  _echo "$ git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true"
   git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2>/dev/null || true
 
-  echo
-  echo "$ git checkout ${local_branch}"
+  _echo
+  _echo "$ git checkout ${local_branch}"
   git checkout ${local_branch}
 
-  echo
-  echo "$ git branch -u ${remote_name}/${remote_branch}"
+  _echo
+  _echo "$ git branch -u ${remote_name}/${remote_branch}"
   git branch -u ${remote_name}/${remote_branch}
 
-  echo
-  echo "$ git pull --ff-only"
+  # ***
+
+  _echo
+  _echo "$ git pull --ff-only"
   git pull --ff-only
 
   local install_version="${version_tag}"
@@ -90,26 +101,26 @@ pull_latest() {
       return 1
     fi
 
-    echo
-    echo "Using latest version tag: ${install_version}"
+    _echo
+    _echo "Using latest version tag: ${install_version}"
   fi
 
   # SAVVY/2024-06-21: Use prefix to disambiguate tip branches from remote branches.
   local prefix="_"
   local install_branch="${prefix}${remote_name}/${install_version}"
 
-  echo
-  echo "$ git checkout -b ${install_branch} ${install_version} 2> /dev/null || true"
+  _echo
+  _echo "$ git checkout -b ${install_branch} ${install_version} 2> /dev/null || true"
   git checkout -b ${install_branch} ${install_version} 2>/dev/null || true
 
-  echo
-  echo "$ git checkout ${install_branch}"
+  _echo
+  _echo "$ git checkout ${install_branch}"
   git checkout ${install_branch}
 
-  echo
-  echo "$ git branch -u ${remote_name}/${remote_branch}"
+  _echo
+  _echo "$ git branch -u ${remote_name}/${remote_branch}"
   git branch -u ${remote_name}/${remote_branch}
 
-  echo
+  _echo
   echo "*** Done! Setup branch \"${install_branch}\" from ${install_version} ***"
 }
