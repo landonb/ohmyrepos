@@ -52,9 +52,14 @@ pull_latest() {
   _echo "$ git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2> /dev/null || true"
   git checkout -b ${local_branch} ${remote_name}/${remote_branch} 2>/dev/null || true
 
+  # Avoid stderr's "Already on 'master'" by checking if already on it.
+  local branch_name
+  branch_name="$(git rev-parse --abbrev-ref=loose HEAD 2>/dev/null)"
   _echo
   _echo "$ git checkout ${local_branch}"
-  git checkout ${local_branch}
+  if [ "${branch_name}" != "${local_branch}" ]; then
+    git checkout ${local_branch}
+  fi
 
   _echo
   _echo "$ git branch -u ${remote_name}/${remote_branch}"
