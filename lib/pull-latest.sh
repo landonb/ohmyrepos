@@ -9,7 +9,8 @@ pull_latest() {
   local remote_branch="$2"
   local version_tag="$3"
   local local_branch="${4:-${remote_branch}}"
-  local omfgbequiet="${5:-false}"
+  local fail_if_up_to_date="${5:-false}"
+  local omfgbequiet="${6:-false}"
 
   _echo() {
     ! ${omfgbequiet} || return
@@ -67,65 +68,81 @@ pull_latest() {
 
   # ***
 
+  git_HEAD_commit_sha() {
+    git rev-parse HEAD
+  }
+  local prev_sha
+  prev_sha="$(git_HEAD_commit_sha)"
+
   _echo
   _echo "$ git pull --ff-only"
   git pull --ff-only
 
-  local install_version="${version_tag}"
-  # REFER: `git-latest-version-normal` from
-  #   https://github.com/landonb/git-smart#💡
-  if [ -z "${install_version}" ]; then
-    # Note: If the latest tag is in a different branch, you'll see on stderr:
-    #   * BWARE: The latest version tag is outside this branch
-    # SAVVY: The previous checkout/branch -u/pull is unnecessary unless
-    #        no version tag found (and this path not followed).
-    #        - But included anyway to *try* to avoid warning, i.e., if
-    #          user knows repo is versioned, they can all pull_latest
-    #          with the branch name that contains the version, and they'll
-    #          avoid the warning.
-    #          - But doesn't work for all projects. E.g., Ansible only
-    #            tags special "stable-X.X" branches, so unless you want
-    #            to periodically have to update the version number manually,
-    #            just live with the warning.
-    install_version="$(
-      GITNUBS_PREFIX="${GITNUBS_PREFIX}" \
-        git latest-version-normal
-    )"
-    if [ $? -ne 0 ] || [ -z "${install_version}" ]; then
-      >&2 echo
-      >&2 echo "ERROR: git latest-version-normal failed:"
-      >&2 echo
-      >&2 echo "  $ GITNUBS_PREFIX=\"${GITNUBS_PREFIX}\" git latest-version-normal"
-      >&2 echo "$(
-        GITNUBS_PREFIX="${GITNUBS_PREFIX}" \
-          git latest-version-normal 2>&1 |
-          sed 's/^/  /'
-      )"
-      >&2 echo
+  local curr_sha
+  curr_sha="$(git_HEAD_commit_sha)"
 
-      return 1
+  # ***
+
+  if [ "${version_tag}" != "HEAD" ]; then
+    local install_version="${version_tag}"
+    # REFER: `git-latest-version-normal` from
+    #   https://github.com/landonb/git-smart#💡
+    if [ -z "${install_version}" ]; then
+      # Note: If the latest tag is in a different branch, you'll see on stderr:
+      #   * BWARE: The latest version tag is outside this branch
+      # SAVVY: The previous checkout/branch -u/pull is unnecessary unless
+      #        no version tag found (and this path not followed).
+      #        - But included anyway to *try* to avoid warning, i.e., if
+      #          user knows repo is versioned, they can all pull_latest
+      #          with the branch name that contains the version, and they'll
+      #          avoid the warning.
+      #          - But doesn't work for all projects. E.g., Ansible only
+      #            tags special "stable-X.X" branches, so unless you want
+      #            to periodically have to update the version number manually,
+      #            just live with the warning.
+      install_version="$(
+        GITNUBS_PREFIX="${GITNUBS_PREFIX}" \
+          git latest-version-normal
+      )"
+      if [ $? -ne 0 ] || [ -z "${install_version}" ]; then
+        >&2 echo
+        >&2 echo "ERROR: git latest-version-normal failed:"
+        >&2 echo
+        >&2 echo "  $ GITNUBS_PREFIX=\"${GITNUBS_PREFIX}\" git latest-version-normal"
+        >&2 echo "$(
+          GITNUBS_PREFIX="${GITNUBS_PREFIX}" \
+            git latest-version-normal 2>&1 |
+            sed 's/^/  /'
+        )"
+        >&2 echo
+
+        return 1
+      fi
+
+      _echo
+      _echo "Using latest version tag: ${install_version}"
     fi
 
+    # SAVVY/2024-06-21: Use prefix to disambiguate tip branches from remote branches.
+    local prefix="_"
+    local install_branch="${prefix}${remote_name}/${install_version}"
+
     _echo
-    _echo "Using latest version tag: ${install_version}"
+    _echo "$ git checkout -b ${install_branch} ${install_version} 2> /dev/null || true"
+    git checkout -b ${install_branch} ${install_version} 2>/dev/null || true
+
+    _echo
+    _echo "$ git checkout ${install_branch}"
+    git checkout ${install_branch}
   fi
-
-  # SAVVY/2024-06-21: Use prefix to disambiguate tip branches from remote branches.
-  local prefix="_"
-  local install_branch="${prefix}${remote_name}/${install_version}"
-
-  _echo
-  _echo "$ git checkout -b ${install_branch} ${install_version} 2> /dev/null || true"
-  git checkout -b ${install_branch} ${install_version} 2>/dev/null || true
-
-  _echo
-  _echo "$ git checkout ${install_branch}"
-  git checkout ${install_branch}
 
   _echo
   _echo "$ git branch -u ${remote_name}/${remote_branch}"
   git branch -u ${remote_name}/${remote_branch}
 
   _echo
-  echo "*** Done! Setup branch \"${install_branch}\" from ${install_version} ***"
+  echo "*** Done! Setup branch \"${install_branch:-${local_branch}}\"" \
+    "from ${install_version:-${version_tag}} ***"
+
+  ! ${fail_if_up_to_date} || test "${prev_sha}" != "${curr_sha}"
 }
